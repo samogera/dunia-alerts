@@ -40,7 +40,7 @@ const HZ = { air: ['Air', '#17483B'], rain: ['Heavy rain', 'var(--rain)'], heat:
 const r1 = (x) => Math.round(x * 10) / 10;
 const airBand = (pm) => { const v = r1(pm); return AIR.find((b) => v <= b.hi) || AIR[AIR.length - 1]; };
 const aqi = (pm) => { const v = r1(pm); if (v > 325.4) return 500; const b = airBand(v); return Math.round((b.ahi - b.alo) / (b.hi - b.lo) * (v - b.lo) + b.alo); };
-const hazardOf = (a) => a.hazard === 'air' ? (AIR.find((b) => b.k === a.level) || AIR[2]) : WEATHER[a.hazard];
+const hazardOf = (a) => a.hazard === 'air' ? (AIR.find((b) => b.k === a.level) || AIR[2]) : (WEATHER[a.hazard] || WEATHER.rain);
 const short = (h) => h.short || h.label;
 const AREAS = [
   ['Kibera', -1.3125, 36.786], ['Mukuru kwa Njenga', -1.315, 36.879], ['Industrial Area', -1.305, 36.848], ['Kasarani', -1.221, 36.898],
@@ -181,7 +181,7 @@ function normSchool(s, i = 0) {
   const pupils = parseInt(s.pupils, 10);
   return { id: String(s.id || 's' + Date.now().toString(36) + i + Math.random().toString(36).slice(2, 6)), name: String(s.name).trim().slice(0, 80), area: a[0],
     lat: Number.isFinite(lat) && s.lat !== '' && s.lat != null ? lat : a[1], lng: Number.isFinite(lng) && s.lng !== '' && s.lng != null ? lng : a[2],
-    pupils: Number.isFinite(pupils) && pupils >= 0 ? pupils : null, phone: String(s.phone || '').slice(0, 24) };
+    pupils: Number.isFinite(pupils) && pupils >= 0 && pupils < 100000 ? pupils : null, phone: String(s.phone || '').replace(/[^\d+ ()-]/g, '').slice(0, 24) };
 }
 function initLive() {
   const saved = read(KEY);
@@ -719,10 +719,9 @@ async function forecastFor(points) {
 }
 async function fetchSensors(points) {
   if (!points.length) return [];
-  const c = { lat: points.reduce((m, p) => m + p.lat, 0) / points.length, lng: points.reduce((m, p) => m + p.lng, 0) / points.length };
   try {
     const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 12000);
-    const r = await fetch(`api/sensors?lat=${c.lat.toFixed(4)}&lng=${c.lng.toFixed(4)}`, { signal: ctl.signal }); clearTimeout(t);
+    const r = await fetch('api/sensors', { signal: ctl.signal, headers: { Accept: 'application/json' } }); clearTimeout(t);
     if (!r.ok) { state.sensors = { status: r.status === 404 ? 'none' : 'error' }; return []; }
     const j = await r.json();
     if (!j.connected) { state.sensors = { status: 'not-set' }; return []; }
@@ -900,13 +899,29 @@ function exportCsv() {
 $('#restoreFile').addEventListener('change', async (e) => {
   const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
   try {
+    if (f.size > 5 * 1024 * 1024) throw new Error('too big');
     const o = JSON.parse(await f.text());
-    if (o.app !== 'dunia-alerts' || !Array.isArray(o.schools) || !Array.isArray(o.alerts)) throw new Error('not a backup');
-    live = { schools: o.schools.map(normSchool).filter(Boolean), alerts: o.alerts.filter((a) => a && a.id && a.schoolId && a.raisedAt), readings: o.readings || {}, updatedAt: o.updatedAt || null, seq: o.seq || 100 + o.alerts.length };
+    if (!o || o.app !== 'dunia-alerts' || !Array.isArray(o.schools) || !Array.isArray(o.alerts)) throw new Error('not a backup');
+    const alerts = o.alerts.slice(0, 20000).map(cleanAlert).filter(Boolean);
+    live = { schools: o.schools.slice(0, 500).map(normSchool).filter(Boolean), alerts, readings: {}, updatedAt: null, seq: Number.isInteger(o.seq) && o.seq > 0 ? o.seq : 100 + alerts.length, city: null };
     saveLive(); state.schoolId = null; state.alertId = null; toast(`Restored ${live.schools.length} schools and ${live.alerts.length} alerts.`);
     if (state.mode !== 'live') setMode('live'); else { render(); fetchReadings(); }
   } catch (err) { toast('That file isn’t a Dunia Alerts backup.'); }
 });
+
+/* Backups are files from outside the app: keep only known fields, with checked types and lengths */
+const LEVELS = [...AIR.map((b) => b.k), 'rain', 'heat'];
+const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : '');
+const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+function cleanAlert(a) {
+  if (!a || typeof a !== 'object' || !['air', 'rain', 'heat'].includes(a.hazard)) return null;
+  const raisedAt = num(a.raisedAt);
+  if (!raisedAt || a.id == null || a.schoolId == null) return null;
+  return { id: String(a.id).slice(0, 40), ref: str(a.ref, 20) || 'DA-?', schoolId: String(a.schoolId).slice(0, 60), schoolName: str(a.schoolName, 80),
+    hazard: a.hazard, level: LEVELS.includes(a.level) ? a.level : (a.hazard === 'air' ? 'usg' : a.hazard), value: num(a.value), raisedAt, step: str(a.step, 600),
+    actions: Array.isArray(a.actions) ? a.actions.filter((x) => typeof x === 'string').slice(0, 8).map((x) => x.slice(0, 80)) : [], note: str(a.note, 300),
+    ackAt: num(a.ackAt), ackBy: str(a.ackBy, 60), actionAt: num(a.actionAt), parentsAt: num(a.parentsAt), closedAt: num(a.closedAt), result: str(a.result, 80), expected: str(a.expected, 60) || null };
+}
 
 /* ---------- Events ---------- */
 document.addEventListener('click', (e) => {

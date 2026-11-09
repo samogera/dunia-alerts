@@ -75,7 +75,9 @@ It is a plain static site: no build step, nothing to install.
 3. Framework preset: **Other**. Leave the build command empty and the output directory as the root.
 4. **Deploy.** Every push to `main` updates the site.
 
-`vercel.json` adds security headers (including a content security policy that only allows Open-Meteo) and keeps the site out of search engines.
+`vercel.json` turns on clean addresses (`/about`) and adds security headers: a content security policy that only allows this site and Open-Meteo, HSTS, no framing, and no camera, microphone or location access.
+
+After the first deploy, add the site to [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters) and submit `https://dunia-alerts.vercel.app/sitemap.xml`. If the site moves to its own domain, change that address in `index.html`, `about.html`, `sitemap.xml`, `robots.txt`, `llms.txt` and `.well-known/security.txt`.
 
 ### GitHub Pages
 
@@ -91,21 +93,24 @@ That file is public, so only names, areas and pupil numbers go there, never phon
 ## Files
 
 ```
-index.html            the page
+index.html            the dashboard
+about.html            the public page for schools, partners and funders (/about)
 assets/app.css        design
 assets/app.js         the app
 assets/config.js      schools, refresh time, alert thresholds
 api/sensors.js        Vercel function: OpenAQ ground sensors (needs OPENAQ_API_KEY)
 assets/fonts/         Inter Tight and Bricolage Grotesque (SIL Open Font License)
 favicon.svg, apple-touch-icon.png, icon-512.png, site.webmanifest
-vercel.json           headers for Vercel
-robots.txt, .nojekyll
+vercel.json           clean addresses and security headers for Vercel
+robots.txt, sitemap.xml, llms.txt, og-image.png   search, AI assistants and link previews
+SECURITY.md, .well-known/security.txt              how to report a security problem
+.nojekyll
 ```
 
-## Privacy
+## Privacy and security
 
 No cookies, no analytics, no accounts. Outside requests go only to Open-Meteo (a school's area coordinates) and, through the site's own server, to OpenAQ (the centre of the schools' area).
-Never write pupils' names in notes. Children are credited by first name and age only in Dunia Endelevu's work, and not at all here.
+Never write pupils' names in notes. Restored backups are checked field by field before they are used. To report a security problem, see [SECURITY.md](SECURITY.md). Children are credited by first name and age only in Dunia Endelevu's work, and not at all here.
 
 ## Licence
 

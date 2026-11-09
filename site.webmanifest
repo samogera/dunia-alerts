@@ -1,14 +1,35 @@
 {
   "name": "Dunia Alerts",
   "short_name": "Dunia Alerts",
-  "description": "Early warning for schools: air, heat and heavy rain. A Dunia Endelevu pilot.",
+  "description": "Live early warnings for Nairobi schools: air, heat, heavy rain and rivers, up to 48 hours ahead. A Dunia Endelevu pilot.",
   "start_url": "./#overview",
   "display": "standalone",
   "background_color": "#F5F6F4",
   "theme_color": "#F5F6F4",
   "icons": [
-    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" },
-    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "id": "/",
+  "scope": "./",
+  "lang": "en",
+  "categories": [
+    "education",
+    "weather",
+    "utilities"
   ]
 }

@@ -1,2 +1,6 @@
+# Dunia Alerts: public pages may be indexed, including by AI assistants.
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /api/
+
+Sitemap: https://dunia-alerts.vercel.app/sitemap.xml

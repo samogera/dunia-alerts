@@ -9,14 +9,20 @@ const MAX_LOCATIONS = 25;             // keeps each refresh well inside the free
 
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    res.setHeader('Allow', 'GET, HEAD');
+    return res.status(405).send(JSON.stringify({ error: 'Method not allowed' }));
+  }
   res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=1800');
   const key = process.env.OPENAQ_API_KEY;
   if (!key) return res.status(200).send(JSON.stringify({ connected: false, sensors: [] }));
 
-  const q = req.query || {};
-  let lat = parseFloat(q.lat), lng = parseFloat(q.lng);
-  if (!Number.isFinite(lat) || lat < -5 || lat > 5) lat = -1.2864;     // Nairobi by default; stays in East Africa
-  if (!Number.isFinite(lng) || lng < 33 || lng > 42) lng = 36.8172;
+  // The area is set on the server, never by the visitor: one cached answer for everyone, and the key
+  // can't be used to query anywhere else. Nairobi by default; change with PILOT_LAT / PILOT_LNG.
+  let lat = parseFloat(process.env.PILOT_LAT), lng = parseFloat(process.env.PILOT_LNG);
+  if (!Number.isFinite(lat) || Math.abs(lat) > 90) lat = -1.2864;
+  if (!Number.isFinite(lng) || Math.abs(lng) > 180) lng = 36.8172;
 
   const get = async (path) => {
     const ctl = new AbortController();
