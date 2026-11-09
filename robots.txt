@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://dunia-alerts.vercel.app/sitemap.xml
+Sitemap: https://alerts.duniaendelevu.org/sitemap.xml

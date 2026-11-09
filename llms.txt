@@ -2,9 +2,9 @@
 
 > Live early warnings for schools in Nairobi, Kenya. Dunia Alerts watches air quality (PM2.5), heat, heavy rain and river flow around pilot schools, up to 48 hours ahead. A person on the Dunia team checks each warning and sends the head teacher one clear step; parents are told in English and Kiswahili. Every response is timed and recorded for the pilot report. A Dunia Endelevu pilot, led by Alana Chelangat, starting in 2026.
 
-- [About Dunia Alerts](https://dunia-alerts.vercel.app/about): the problem, how it works, data sources, status, and how to support or partner
-- [Live dashboard](https://dunia-alerts.vercel.app/): the working tool (records are kept on the Dunia team's device)
-- [Classroom screen](https://dunia-alerts.vercel.app/classroom?demo=1): the wall screen for classrooms, shown here with example data
+- [About Dunia Alerts](https://alerts.duniaendelevu.org/about): the problem, how it works, data sources, status, and how to support or partner
+- [Live dashboard](https://alerts.duniaendelevu.org/): the working tool (records are kept on the Dunia team's device)
+- [Classroom screen](https://alerts.duniaendelevu.org/classroom?demo=1): the wall screen for classrooms, shown here with example data
 - [Dunia Endelevu](https://duniaendelevu.org/): the youth-led climate organisation that runs the pilot
 - [Alana Chelangat](https://alanachelangat.com/): founder of Dunia Endelevu
 

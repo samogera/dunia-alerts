@@ -68,7 +68,7 @@ Model limits to know: CAMS works at a city scale, so schools close together read
 2. For each sensor, run `node tools/new-device.js dev-baraka-6a baraka-6a` (device ID, then the classroom's room ID). It prints a secret **key** for the sensor and a **line** for Vercel.
 3. In Vercel **Settings → Environment Variables**, add `DEVICE_KEYS` with the lines, separated by commas. **Redeploy.**
 4. Put the key on the sensor. In Schools → Classroom screens, type the room ID so the screen shows that room.
-5. Before installing, test with the simulator: `node tools/simulate-sensor.js https://dunia-alerts.vercel.app dev-baraka-6a <key> --backfill`.
+5. Before installing, test with the simulator: `node tools/simulate-sensor.js https://alerts.duniaendelevu.org dev-baraka-6a <key> --backfill`.
 
 **Sensor API** (any sensor or gateway that can send HTTPS):
 
@@ -96,6 +96,10 @@ That suits a pilot run by the Dunia team from one laptop or phone.
 
 When the pilot grows and each school should log in on its own phone, the next step is a shared database (for example Supabase).
 
+## Where it lives
+
+Live at **https://alerts.duniaendelevu.org**, on Vercel from this repository. At GoDaddy, a CNAME record `alerts` points to the value Vercel shows for that domain. Visits to `dunia-alerts.vercel.app` are sent to the new address, except `/api/`, so sensors set up with the old address keep working.
+
 ## Put it online
 
 It is a plain static site: no build step, nothing to install.
@@ -109,7 +113,7 @@ It is a plain static site: no build step, nothing to install.
 
 `vercel.json` turns on clean addresses (`/about`) and adds security headers: a content security policy that only allows this site and Open-Meteo, HSTS, no framing, and no camera, microphone or location access.
 
-After the first deploy, add the site to [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters) and submit `https://dunia-alerts.vercel.app/sitemap.xml`. If the site moves to its own domain, change that address in `index.html`, `about.html`, `sitemap.xml`, `robots.txt`, `llms.txt` and `.well-known/security.txt`.
+After the first deploy, add the site to [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters) and submit `https://alerts.duniaendelevu.org/sitemap.xml`. If the site moves to its own domain, change that address in `index.html`, `about.html`, `sitemap.xml`, `robots.txt`, `llms.txt` and `.well-known/security.txt`.
 
 ### GitHub Pages
 

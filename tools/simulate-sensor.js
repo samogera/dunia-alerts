@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Pretend to be a classroom sensor, to test the API and the classroom screen before hardware arrives.
 //   node tools/simulate-sensor.js <site_url> <device_id> <key> [--backfill] [--every 60]
-// Example: node tools/simulate-sensor.js https://dunia-alerts.vercel.app dev-test-1 dak_xxx --backfill
+// Example: node tools/simulate-sensor.js https://alerts.duniaendelevu.org dev-test-1 dak_xxx --backfill
 // --backfill sends the last 3 hours at 5-minute steps first (like a sensor that was offline).
 // Readings are made up and follow a school day: CO2 rises in lessons and falls at break.
 const [base, id, key, ...rest] = process.argv.slice(2);
