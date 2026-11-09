@@ -1,5 +1,5 @@
 /* Dunia Alerts: early warning for schools. A Dunia Endelevu pilot.
-   Plain JavaScript, no build step. Demo mode runs on example data; Live mode fetches real
+   Plain JavaScript, no build step. Practice mode runs on example data; Live mode fetches real
    readings from Open-Meteo and keeps the pilot's records on this device (with backup and restore). */
 (() => {
 'use strict';
@@ -144,16 +144,26 @@ function buildDemo() {
   alerts.push(Object.assign(mk(schools[1], 'air', 'unhealthy', 61.2, at(7, 41), AIR[3].step), { ackAt: at(7, 52), ackBy: 'Deputy head teacher' }));
   const nowPm = { s1: 31.4, s2: 61.2, s3: 48.6, s4: 15.9, s5: 13.8, s6: 33.2, s7: 20.6, s8: 44.2 };
   const rainToday = { s1: 34, s2: 18, s3: 14, s4: 9, s5: 11, s6: 16, s7: 12, s8: 15 };
+  const tomorrow = { s1: 1.0, s2: 1.12, s3: 1.22, s4: 0.9, s5: 0.88, s6: 1.08, s7: 0.95, s8: 1.1 };
+  const river = { s1: 2.4, s2: 1.6, s3: 1.3, s4: 1.0, s5: 1.1, s6: 1.4, s7: 1.2, s8: 1.5 };
+  const shapeAt = (h) => 0.72 + 0.5 * Math.exp(-((h - 8) ** 2) / 3) + 0.38 * Math.exp(-((h - 19.5) ** 2) / 4) - (h > 1 && h < 5 ? 0.12 : 0);
+  const h0 = Math.ceil(now / HOUR) * HOUR;
   const readings = {};
   schools.forEach((s) => {
     const hist = [];
-    for (let k = 23; k >= 0; k--) {
-      const h = new Date(now - k * HOUR).getHours() + 0.2;
-      const shape = 0.72 + 0.5 * Math.exp(-((h - 8) ** 2) / 3) + 0.38 * Math.exp(-((h - 19.5) ** 2) / 4) - (h > 1 && h < 5 ? 0.12 : 0);
-      hist.push(r1(nowPm[s.id] / 1.2 * shape * Math.exp(gauss() * 0.08)));
-    }
+    for (let k = 23; k >= 0; k--) hist.push(r1(nowPm[s.id] / 1.2 * shapeAt(new Date(now - k * HOUR).getHours() + 0.2) * Math.exp(gauss() * 0.08)));
     hist[23] = nowPm[s.id];
-    readings[s.id] = { pm25: nowPm[s.id], at: now - 4 * MIN, history: hist, tempMax: 25 + Math.round(rnd() * 2), rainMm: rainToday[s.id], rainChance: 60 + Math.round(rnd() * 25), source: 'demo' };
+    const hours = [];
+    for (let i = 0; i < 48; i++) {
+      const t = h0 + i * HOUR, hr = new Date(t).getHours(), later = dayStart(t) > dayStart(now);
+      const wet = hr >= 13 && hr <= 18;
+      hours.push({ t, pm: r1(nowPm[s.id] / 1.22 * shapeAt(hr + 0.2) * (later ? tomorrow[s.id] : 1) * Math.exp(gauss() * 0.05)),
+        rain: wet ? r1(Math.max(0, rainToday[s.id] / 6 * (later ? 0.55 : 1) * (0.6 + rnd() * 0.8))) : 0,
+        pop: wet ? 55 + Math.round(rnd() * 30) : 8 + Math.round(rnd() * 14), temp: r1(15 + 10.5 * Math.max(0, Math.sin((hr - 7) / 12 * Math.PI)) + (later ? 0.6 : 0)) });
+    }
+    const days = [0, 1, 2].map((k) => ({ t: dayStart(now) + k * DAY, tmax: 25 + Math.round(rnd() * 2) + (k === 2 && s.id === 's3' ? 5 : 0), rainMm: r1(rainToday[s.id] * [1, 0.55, 0.8][k]), rainChance: 58 + Math.round(rnd() * 27) }));
+    readings[s.id] = { pm25: nowPm[s.id], at: now - 4 * MIN, history: hist, source: 'demo', fc: { hours }, days,
+      river: { ratio: river[s.id], peakT: dayStart(now) + 2 * DAY }, tempMax: days[0].tmax, rainMm: days[0].rainMm, rainChance: days[0].rainChance };
   });
   alerts.sort((a, b) => b.raisedAt - a.raisedAt);
   return { now, start, schools: schools.map(({ base, floods, ...s }) => s), readings, alerts };
@@ -175,7 +185,7 @@ function normSchool(s, i = 0) {
 }
 function initLive() {
   const saved = read(KEY);
-  if (saved && Array.isArray(saved.schools)) return { schools: saved.schools, alerts: Array.isArray(saved.alerts) ? saved.alerts : [], readings: saved.readings || {}, updatedAt: saved.updatedAt || null, seq: saved.seq || 100 };
+  if (saved && Array.isArray(saved.schools)) return { schools: saved.schools, alerts: Array.isArray(saved.alerts) ? saved.alerts : [], readings: saved.readings || {}, updatedAt: saved.updatedAt || null, seq: saved.seq || 100, city: saved.city || null };
   return { schools: (CFG.schools || []).map(normSchool).filter(Boolean), alerts: [], readings: {}, updatedAt: null, seq: 100 };
 }
 let live = initLive();
@@ -185,7 +195,7 @@ const prefs = read(PREF) || {};
 /* ---------- State ---------- */
 const VIEWS = ['overview', 'desk', 'parents', 'impact', 'schools'];
 const state = {
-  mode: prefs.mode === 'live' || prefs.mode === 'demo' ? prefs.mode : (live.schools.length ? 'live' : 'demo'),
+  mode: prefs.mode === 'live' || prefs.mode === 'demo' ? prefs.mode : 'live', sensors: null,
   view: 'overview', schoolId: null, alertId: null, panel: null, filter: 'open', showAll: false, channel: 'sms',
   editing: null, removing: null, fetching: false, fetchError: false, dismissed: new Set(), demo: buildDemo(),
   draft: { hazard: 'air', value: '', step: '', actions: [], note: '', result: '' },
@@ -203,9 +213,10 @@ const STATUS = { waiting: ['Waiting for reply', 'var(--wait)'], acknowledged: ['
 const statusEl = (a) => { const [t, c] = STATUS[statusOf(a)]; return `<span class="status"><span class="dot" style="background:${c}"></span>${t}</span>`; };
 function reading(rd, now) {
   if (!rd) return null;
-  if (rd.monitor && now - rd.monitor.at < 3 * HOUR) return { value: rd.monitor.pm25, at: rd.monitor.at, source: 'AirQo monitor, entered by the team' };
+  if (rd.monitor && now - rd.monitor.at < 3 * HOUR) return { value: rd.monitor.pm25, at: rd.monitor.at, source: 'Sensor reading entered by the team', kind: 'measured' };
+  if (rd.sensor && now - rd.sensor.at < 3 * HOUR) return { value: rd.sensor.pm25, at: rd.sensor.at, source: `Measured by a sensor ${rd.sensor.km} km away${rd.sensor.provider ? ' (' + rd.sensor.provider + ')' : ''}`, kind: 'measured' };
   if (rd.pm25 == null) return null;
-  return { value: rd.pm25, at: rd.at, source: rd.source === 'demo' ? 'Example reading' : 'Model estimate, Open-Meteo' };
+  return { value: rd.pm25, at: rd.at, source: rd.source === 'demo' ? 'Example reading' : 'Model estimate, Copernicus CAMS', kind: rd.source === 'demo' ? 'demo' : 'model' };
 }
 function ensureSchool(d) {
   if (schoolById(state.schoolId)) return;
@@ -220,16 +231,45 @@ function stats(alerts, schools) {
   return { total: alerts.length, ackRate: pct(acked.length, alerts.length), medAck: median(ackMins), actRate: pct(acted.length, alerts.length), toldRate: pct(alerts.filter((a) => a.parentsAt).length, alerts.length), pupils, ackMins };
 }
 function suggestions(d) {
-  const out = []; const t0 = dayStart(d.now);
-  const raisedToday = (sid, hz) => d.alerts.some((a) => a.schoolId === sid && a.hazard === hz && a.raisedAt >= t0);
+  const out = [];
   d.schools.forEach((s) => {
-    const rd = d.readings[s.id]; if (!rd) return;
-    const pm = reading(rd, d.now);
-    if (pm && pm.value >= TH.pm25 && !d.alerts.some((a) => a.schoolId === s.id && a.hazard === 'air' && !a.closedAt) && !raisedToday(s.id, 'air')) out.push({ s, hazard: 'air', value: pm.value, text: `PM2.5 ${pm.value} µg/m³ · ${short(airBand(pm.value))}` });
-    if (rd.rainMm != null && rd.rainMm >= TH.rainMm && !raisedToday(s.id, 'rain')) out.push({ s, hazard: 'rain', value: rd.rainMm, text: `${r1(rd.rainMm)} mm of rain expected today` });
-    if (rd.tempMax != null && rd.tempMax >= TH.heatC && !raisedToday(s.id, 'heat')) out.push({ s, hazard: 'heat', value: rd.tempMax, text: `High of ${Math.round(rd.tempMax)}°C today` });
+    const pm = reading(d.readings[s.id], d.now);
+    if (pm && pm.value >= TH.pm25 && !d.alerts.some((a) => a.schoolId === s.id && a.hazard === 'air' && (!a.closedAt || a.raisedAt >= dayStart(d.now))))
+      out.push({ s, hazard: 'air', value: pm.value, t: d.now, text: `PM2.5 ${pm.value} µg/m³ now · ${short(airBand(pm.value))}` });
   });
   return out.filter((x) => !state.dismissed.has(state.mode + x.s.id + x.hazard));
+}
+function upcoming(d) {
+  const out = [], end = d.now + 48 * HOUR, now = suggestions(d).map((x) => x.s.id);
+  const covered = (sid, hz, t) => d.alerts.some((a) => a.schoolId === sid && a.hazard === hz && (!a.closedAt || dayStart(a.raisedAt) === dayStart(t)));
+  d.schools.forEach((s) => {
+    const rd = d.readings[s.id]; if (!rd) return;
+    const hrs = rd.fc && rd.fc.hours ? rd.fc.hours.filter((h) => h.t > d.now && h.t <= end) : [];
+    const i0 = hrs.findIndex((h) => h.pm != null && h.pm >= TH.pm25);
+    if (i0 >= 0 && !now.includes(s.id) && !covered(s.id, 'air', hrs[i0].t)) {
+      let i1 = i0; while (i1 + 1 < hrs.length && hrs[i1 + 1].pm >= TH.pm25) i1++;
+      const peak = r1(Math.max(...hrs.slice(i0, i1 + 1).map((h) => h.pm)));
+      out.push({ s, hazard: 'air', t: hrs[i0].t, until: hrs[i1].t + HOUR, value: peak, text: `PM2.5 up to ${peak} µg/m³ · ${short(airBand(peak))}` });
+    }
+    (rd.days || []).forEach((dy) => {
+      if (dy.t + DAY <= d.now || dy.t > end) return;
+      if (dy.rainMm != null && dy.rainMm >= TH.rainMm && !covered(s.id, 'rain', dy.t)) {
+        const wet = hrs.filter((h) => dayStart(h.t) === dy.t && h.rain > 0);
+        const pk = wet.length ? wet.reduce((m, h) => (h.rain > m.rain ? h : m)) : null;
+        out.push({ s, hazard: 'rain', t: pk ? pk.t : Math.max(dy.t, d.now), value: dy.rainMm, day: !pk, text: `${r1(dy.rainMm)} mm of rain${dy.rainChance != null ? `, ${dy.rainChance}% chance` : ''}${pk ? `; heaviest around ${fmtTime(pk.t)}` : ''}` });
+      }
+      if (dy.tmax != null && dy.tmax >= TH.heatC && !covered(s.id, 'heat', dy.t)) out.push({ s, hazard: 'heat', t: dy.t + 13 * HOUR, value: Math.round(dy.tmax), day: true, text: `High of ${Math.round(dy.tmax)}°C` });
+    });
+    if (rd.river && rd.river.ratio >= 2 && !covered(s.id, 'rain', d.now)) out.push({ s, hazard: 'rain', kind: 'river', t: Math.max(rd.river.peakT || d.now, d.now), day: true, value: null, text: `Nearby river expected at ${r1(rd.river.ratio)}× its usual flow` });
+  });
+  return out.filter((x) => !state.dismissed.has(state.mode + x.s.id + x.hazard + (x.kind || ''))).sort((a, b) => a.t - b.t);
+}
+const dayWord = (t, now) => sameDay(t, now) ? 'Today' : sameDay(t, now + DAY) ? 'Tomorrow' : new Date(t).toLocaleDateString('en-GB', { weekday: 'long' });
+function whenText(x, now) {
+  if (x.t <= now) return 'Now';
+  if (x.day) return dayWord(x.t, now);
+  if (x.until) return `${dayWord(x.t, now)}, ${fmtTime(x.t)}–${fmtTime(x.until)}`;
+  return `${dayWord(x.t, now)}, ${fmtTime(x.t)}`;
 }
 
 /* ---------- Rendering ---------- */
@@ -247,18 +287,25 @@ function renderNote() {
   const saving = storageOk ? '' : ' This browser isn’t saving: download a backup from Schools.';
   if (state.mode === 'demo') {
     n.className = 'note';
-    n.innerHTML = `<span><b>Demo</b> · Example data, not real pilot results.</span><button class="link" type="button" data-action="reset-demo">Reset</button>`;
-  } else if (!live.schools.length) {
-    n.className = 'note note--live';
-    n.innerHTML = `<span><b>Live</b> · Add your pilot schools to start.${saving}</span>`;
-  } else {
-    n.className = 'note ' + (state.fetchError || !storageOk ? 'note--warn' : 'note--live');
-    const when = state.fetching ? 'Updating readings…' : state.fetchError ? `Couldn’t reach the readings service.${live.updatedAt ? ' Showing readings from ' + fmtWhen(live.updatedAt, Date.now()) + '.' : ''}` : live.updatedAt ? `Readings updated ${fmtWhen(live.updatedAt, Date.now()).replace('Today, ', 'at ')}` : 'Readings not loaded yet';
-    n.innerHTML = `<span><b>Live</b> · ${esc(when)}${saving}</span>${state.fetching ? '' : '<button class="link" type="button" data-action="refresh">Refresh</button>'}`;
+    n.innerHTML = `<span><b>Practice</b> · Example schools and alerts for training. Nothing here is real.</span><button class="link" type="button" data-action="reset-demo">Start over</button>`;
+    return;
   }
+  const bad = state.fetchError || !storageOk;
+  n.className = 'note ' + (bad ? 'note--warn' : 'note--live');
+  const upd = live.updatedAt ? fmtWhen(live.updatedAt, Date.now()).replace('Today, ', '') : null;
+  const when = state.fetching ? 'Updating readings…' : state.fetchError ? `Couldn’t reach the forecast service.${upd ? ' Showing readings from ' + upd + '.' : ''}` : upd ? `Updated ${upd}` : 'Loading live readings…';
+  const sensors = state.sensors && state.sensors.status === 'connected' ? ` · ${state.sensors.count} air sensors` : '';
+  n.innerHTML = `<span><span class="pulse" aria-hidden="true"></span><b>Live</b> · ${esc(when)}${sensors}${saving}</span>${state.fetching ? '' : '<button class="link" type="button" data-action="refresh">Refresh</button>'}`;
 }
 function emptyLive() {
-  return `<section class="card"><div class="empty"><span class="h">No pilot schools yet</span><span>Add the schools in the pilot. Live air and weather readings start straight away.</span><button class="btn" type="button" data-goto="schools">${icon('plus')}Add a school</button><button class="link" type="button" data-mode="demo">Or explore the demo</button></div></section>`;
+  const c = live.city, r = c ? reading(c, Date.now()) : null;
+  const city = c ? `<section class="stats">
+      ${tile('Nairobi air now', r ? `${aqi(r.value)} <small>AQI</small>` : '–', r ? `${esc(short(airBand(r.value)))} · PM2.5 ${r.value} µg/m³` : 'No reading')}
+      ${tile('Today', c.tempMax != null ? `${Math.round(c.tempMax)}° <small>high</small>` : '–', c.rainChance != null ? `Rain ${c.rainChance}% · ${r1(c.rainMm || 0)} mm` : '')}
+      ${tile('Tomorrow', c.days && c.days[1] ? `${Math.round(c.days[1].tmax)}° <small>high</small>` : '–', c.days && c.days[1] ? `Rain ${c.days[1].rainChance ?? '–'}% · ${r1(c.days[1].rainMm || 0)} mm` : '')}
+      ${tile('Air tomorrow', c.fc ? (() => { const m = Math.max(...c.fc.hours.filter((h) => sameDay(h.t, Date.now() + DAY)).map((h) => h.pm).filter((x) => x != null)); return isFinite(m) ? `${aqi(m)} <small>AQI peak</small>` : '–'; })() : '–', 'Forecast, city centre')}
+    </section>` : '';
+  return city + `<section class="card"><div class="empty"><span class="h">Add your pilot schools</span><span>Each school gets live air and weather readings, a 48-hour forecast and alerts. The figures above are for Nairobi city centre.</span><button class="btn" type="button" data-goto="schools">${icon('plus')}Add a school</button><button class="link" type="button" data-mode="demo">Or try practice mode</button></div></section>`;
 }
 const tile = (label, value, sub) => `<div class="tile"><span class="label">${label}</span><span class="tile__value num">${value}</span><span class="tile__sub">${sub}</span></div>`;
 
@@ -267,7 +314,7 @@ function viewOverview() {
   const d = data();
   if (!d.schools.length) return emptyLive();
   ensureSchool(d);
-  return statTiles(d) + suggestCard(d)
+  return statTiles(d) + attentionCard(d)
     + `<div class="grid-main grid-main--fill"><section class="card card--map">${mapCard(d)}</section><aside class="card" id="side">${state.panel === 'raise' ? raiseForm() : schoolPanel()}</aside></div>`
     + recentCard(d);
 }
@@ -282,17 +329,25 @@ function statTiles(d) {
   return `<section class="stats">
     ${tile('Open alerts', open.length, open.length ? (waiting ? `${waiting} waiting for a reply` : 'All acknowledged') : 'All clear')}
     ${tile('Worst air now', worst ? `${aqi(worst.value)} <small>AQI</small>` : '–', worst ? `${esc(short(airBand(worst.value)))} · ${esc(worst.s.area)}` : 'No readings yet')}
-    ${tile('Weather today', tMax != null ? `${Math.round(tMax)}° <small>high</small>` : '–', tMax != null ? `Rain ${rCh != null ? rCh + '%' : '–'} · up to ${rMm != null ? r1(rMm) : '–'} mm` : 'No forecast yet')}
+    ${(() => { const up = upcoming(d); return tile('Next 48 hours', up.length, up.length ? `First: ${esc(up[0].hazard === 'air' ? 'air' : up[0].kind === 'river' ? 'rivers' : up[0].hazard === 'rain' ? 'heavy rain' : 'heat')}, ${esc(whenText(up[0], d.now).toLowerCase())}` : (tMax != null ? `Nothing expected · high ${Math.round(tMax)}°, rain ${rCh ?? '–'}%` : 'Nothing expected')); })()}
     ${tile('Time to respond', st.medAck != null ? `${st.medAck} <small>min</small>` : '–', st.total ? `Median · ${st.ackRate}% of ${st.total} alerts acknowledged` : 'No alerts yet')}
   </section>`;
 }
-function suggestCard(d) {
-  const xs = suggestions(d);
-  if (!xs.length) return '';
-  return `<section class="card"><div class="card__head"><h2 class="card__title">Suggested alerts</h2><span class="muted">From today’s readings. Check them, then send.</span></div>
-    ${xs.map((x) => `<div class="suggest"><span class="hz" style="--c:${x.hazard === 'air' ? airBand(x.value).c : WEATHER[x.hazard].c}">${icon(x.hazard)}</span>
+function attentionRow(x, now) {
+  const c = x.hazard === 'air' ? airBand(x.value).c : WEATHER[x.hazard].c;
+  const when = whenText(x, now);
+  return `<div class="suggest"><span class="hz" style="--c:${c}">${icon(x.hazard)}</span>
       <span class="arow__main"><b>${esc(x.s.name)}</b><span>${esc(x.text)}</span></span>
-      <span class="btns"><button class="btn btn--sm" type="button" data-action="review" data-id="${esc(x.s.id)}" data-v="${x.hazard}" data-val="${x.hazard === 'rain' ? '' : r1(x.value)}">Review</button><button class="btn btn--sm btn--quiet" type="button" data-action="dismiss" data-id="${esc(x.s.id)}" data-v="${x.hazard}">Dismiss</button></span></div>`).join('')}</section>`;
+      <span class="suggest__when">${esc(when)}</span>
+      <span class="btns"><button class="btn btn--sm" type="button" data-action="review" data-id="${esc(x.s.id)}" data-v="${x.hazard}" data-val="${x.hazard === 'rain' ? '' : r1(x.value)}" data-when="${esc(when === 'Now' ? '' : when)}">Prepare alert</button><button class="btn btn--sm btn--quiet" type="button" data-action="dismiss" data-id="${esc(x.s.id)}" data-v="${x.hazard}${x.kind || ''}">Dismiss</button></span></div>`;
+}
+function attentionCard(d) {
+  const now = suggestions(d), soon = upcoming(d);
+  return `<section class="card"><div class="card__head"><h2 class="card__title">Needs attention</h2><span class="muted">From live readings and forecasts. Check each one, then send.</span></div>
+    ${now.length ? `<div class="label group-label">Now</div>${now.map((x) => attentionRow(x, d.now)).join('')}` : ''}
+    ${soon.length ? `<div class="label group-label">Next 48 hours</div>${soon.slice(0, 8).map((x) => attentionRow(x, d.now)).join('')}` : ''}
+    ${!now.length && !soon.length ? '<div class="allclear"><span class="dot" style="background:var(--ok)"></span>Nothing expected at any school in the next 48 hours.</div>' : ''}
+    ${soon.length > 8 ? `<div class="muted" style="margin-top:8px;font-size:12.5px">${soon.length - 8} more later in the period.</div>` : ''}</section>`;
 }
 function mapCard(d) {
   const open = d.alerts.filter((a) => !a.closedAt).length;
@@ -364,6 +419,18 @@ function sparkline(hist) {
   const y35 = H - 4 - (H - 8) * 35.5 / max, last = pts[pts.length - 1];
   return `<svg class="chart" viewBox="-2 0 ${W + 6} ${H + 14}" role="img" aria-label="PM2.5 over the last 24 hours"><line x1="0" x2="${W}" y1="${y35}" y2="${y35}" stroke="var(--aq-usg)" stroke-dasharray="3 3"/><path d="${line}L${W} ${H}L0 ${H}Z" fill="var(--accent-soft)"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="1.6"/><circle cx="${last[0]}" cy="${last[1]}" r="3.5" fill="var(--accent)"/><text x="0" y="${H + 12}" font-size="10" fill="var(--muted)">24 h ago</text><text x="${W}" y="${H + 12}" font-size="10" text-anchor="end" fill="var(--muted)">now</text></svg>`;
 }
+function fcChart(hours, now) {
+  const hs = hours.filter((h) => h.t > now - HOUR).slice(0, 48); if (hs.length < 6) return '';
+  const W = 290, H = 96, top = 8, base = 70, n = hs.length, bw = W / n;
+  const pms = hs.map((h) => h.pm).filter((x) => x != null), maxPm = Math.max(60, ...pms) * 1.08, maxRain = Math.max(6, ...hs.map((h) => h.rain || 0));
+  const y = (v) => base - (base - top) * v / maxPm;
+  const pts = hs.map((h, i) => h.pm == null ? null : [(i + 0.5) * bw, y(h.pm)]).filter(Boolean);
+  const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
+  const bars = hs.map((h, i) => h.rain > 0.05 ? `<rect x="${(i * bw + 0.6).toFixed(1)}" y="${(base - 30 * h.rain / maxRain).toFixed(1)}" width="${(bw - 1.2).toFixed(1)}" height="${(30 * h.rain / maxRain).toFixed(1)}" rx="1" fill="var(--rain)" fill-opacity=".55"/>` : '').join('');
+  const marks = hs.map((h, i) => new Date(h.t).getHours() === 0 ? `<line x1="${(i * bw).toFixed(1)}" x2="${(i * bw).toFixed(1)}" y1="${top}" y2="${base}" stroke="var(--line-2)" stroke-dasharray="2 3"/><text x="${(i * bw + 3).toFixed(1)}" y="${base + 13}" font-size="10" fill="var(--muted)">${new Date(h.t).toLocaleDateString('en-GB', { weekday: 'short' })}</text>` : '').join('');
+  const y35 = y(TH.pm25);
+  return `<svg class="chart" viewBox="-2 0 ${W + 4} ${H}" role="img" aria-label="Forecast for the next 48 hours: PM2.5 line and rain bars">${bars}${marks}<line x1="0" x2="${W}" y1="${y35.toFixed(1)}" y2="${y35.toFixed(1)}" stroke="var(--aq-usg)" stroke-dasharray="3 3"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="1.7"/><line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="var(--line-2)"/><text x="0" y="${base + 13}" font-size="10" fill="var(--muted)">Now</text><text x="${W}" y="${base + 13}" font-size="10" text-anchor="end" fill="var(--muted)">+48 h</text></svg>`;
+}
 function schoolPanel() {
   const d = data(); const s = schoolById(state.schoolId); if (!s) return '';
   const rd = d.readings[s.id], r = reading(rd, d.now), a = openAlertFor(s.id);
@@ -374,6 +441,8 @@ function schoolPanel() {
         <span class="muted" style="font-size:12.5px">${esc(r.source)} · ${fmtWhen(r.at, d.now)}</span>
         ${rd.history && rd.history.length > 2 ? sparkline(rd.history) : ''}` : `<span class="muted">${state.mode === 'live' && state.fetching ? 'Loading the reading…' : 'No reading yet.'}</span>`}
       ${rd && rd.tempMax != null ? `<div class="row"><span class="muted">Today</span><span class="num">${Math.round(rd.tempMax)}° high · rain ${rd.rainChance ?? '–'}%${rd.rainMm != null ? ' · ' + r1(rd.rainMm) + ' mm' : ''}</span></div>` : ''}</div>
+    ${rd && rd.fc && rd.fc.hours && rd.fc.hours.length > 6 ? `<hr class="divider"><div class="vstack"><div class="row" style="align-items:center"><span class="label">Next 48 hours</span><span class="fc-key"><i class="k-pm"></i>PM2.5 <i class="k-rain"></i>Rain <i class="k-line"></i>Alert level</span></div>${fcChart(rd.fc.hours, d.now)}
+      ${rd.river ? `<div class="row"><span class="muted">Nearby river</span><span class="num">${r1(rd.river.ratio)}× usual flow</span></div>` : ''}</div>` : ''}
     <hr class="divider">
     <div class="vstack"><div class="row" style="align-items:center"><span class="label">Alert</span>${a ? statusEl(a) : '<span class="status"><span class="dot" style="background:var(--ok)"></span>None open</span>'}</div>
       ${a ? `<span><b>${esc(short(hazardOf(a)))}</b> · ${fmtWhen(a.raisedAt, d.now)}</span><button class="btn btn--ghost btn--block" type="button" data-action="open-desk" data-id="${esc(a.id)}">Open in school desk ${icon('arrow')}</button>` : ''}
@@ -389,12 +458,13 @@ function raiseForm() {
     <h2 class="h" style="margin:8px 0 18px">${esc(s ? s.name : '')}</h2>
     <div class="form">
       <div class="seg" role="group" aria-label="Hazard" style="display:flex">${[['air', 'Air'], ['rain', 'Heavy rain'], ['heat', 'Heat']].map(([k, l]) => `<button type="button" style="flex:1" data-action="hazard" data-v="${k}" aria-pressed="${dr.hazard === k}">${l}</button>`).join('')}</div>
-      ${dr.hazard === 'air' ? `<label class="field" for="rdValue"><span>PM2.5 (µg/m³). Check the nearest AirQo monitor.</span><input class="input num" id="rdValue" data-input="value" inputmode="decimal" placeholder="e.g. 42.5" value="${esc(dr.value)}"></label>${preview}`
+      ${dr.when ? `<div class="stepbox" style="margin:0"><span class="label" style="color:var(--accent)">Forecast</span><p>Expected ${esc(dr.when.toLowerCase().startsWith('today') || dr.when.toLowerCase().startsWith('tomorrow') ? dr.when.toLowerCase() : 'on ' + dr.when)}. Send it now so the school can plan ahead.</p></div>` : ''}
+      ${dr.hazard === 'air' ? `<label class="field" for="rdValue"><span>${dr.when ? 'Forecast PM2.5 (µg/m³)' : 'PM2.5 (µg/m³). Check the nearest AirQo sensor.'}</span><input class="input num" id="rdValue" data-input="value" inputmode="decimal" placeholder="e.g. 42.5" value="${esc(dr.value)}"></label>${preview}`
         : dr.hazard === 'heat' ? `<label class="field" for="rdValue"><span>Forecast high (°C)</span><input class="input num" id="rdValue" data-input="value" inputmode="decimal" placeholder="e.g. 31" value="${esc(dr.value)}"></label>`
         : '<span class="muted">Send when heavy rain is forecast, or when the Kenya Meteorological Department issues a heavy rainfall advisory for the area.</span>'}
       ${level ? `<label class="field" for="rdStep"><span>Step for the school</span><textarea class="textarea" id="rdStep" data-input="step" rows="4">${esc(dr.step || level.step)}</textarea></label>` : ''}
       <button class="btn btn--block" type="button" data-action="send" ${sendable ? '' : 'disabled'}>${icon('bell')}Send alert</button>
-      ${dr.hazard === 'air' && !isNaN(v) ? `<button class="btn btn--ghost btn--block" type="button" data-action="save-reading">Save as the school’s reading only</button>` : ''}
+      ${dr.hazard === 'air' && !isNaN(v) && !dr.when ? `<button class="btn btn--ghost btn--block" type="button" data-action="save-reading">Save as the school’s reading only</button>` : ''}
       ${dr.hazard === 'air' && !isNaN(v) && v < TH.pm25 ? `<span class="muted" style="font-size:12.5px">Below ${TH.pm25} µg/m³ no alert is needed.</span>` : ''}
     </div>`;
 }
@@ -574,7 +644,7 @@ function viewSchools() {
     ${d.schools.length ? `<div class="tablewrap"><table><thead><tr><th>School</th><th>PM2.5 now</th><th class="hide-sm">Today</th><th class="hide-sm">Head teacher</th>${isLive ? '<th></th>' : ''}</tr></thead><tbody>${rows}</tbody></table></div>`
       : '<div class="empty" style="padding:24px"><span>No schools yet. Add the first one.</span></div>'}</section>`;
   if (!isLive) {
-    return `<div class="grid-main">${list}<aside class="stack"><section class="card"><span class="label">Demo</span><p style="margin:10px 0 16px">These are example schools. Switch to Live to add your pilot schools and get real readings.</p><button class="btn btn--block" type="button" data-mode="live">Switch to Live</button></section>${sourcesCard()}</aside></div>`;
+    return `<div class="grid-main">${list}<aside class="stack"><section class="card"><span class="label">Practice mode</span><p style="margin:10px 0 16px">These are made-up schools for training. Switch to Live to add your pilot schools and get real readings.</p><button class="btn btn--block" type="button" data-mode="live">Switch to Live</button></section>${sourcesCard()}</aside></div>`;
   }
   const e = state.editing ? live.schools.find((s) => s.id === state.editing) : null;
   const form = `<section class="card"><div class="card__head"><h2 class="card__title">${e ? 'Edit school' : 'Add a school'}</h2>${e ? '<button class="link" type="button" data-action="cancel-edit">Cancel</button>' : ''}</div>
@@ -591,9 +661,14 @@ function viewSchools() {
   return `<div class="grid-main">${list}<aside class="stack">${form}${backup}${sourcesCard()}</aside></div>`;
 }
 function sourcesCard() {
-  return `<section class="card"><span class="label">Where readings come from</span>
-    <p style="margin:10px 0 0;font-size:13px">Air: Copernicus (CAMS) model estimates via Open-Meteo, refreshed every ${CFG.refreshMinutes} minutes. It is a regional model, so schools close together read alike. Before sending an air alert, check the nearest <a href="https://airqo.net/" target="_blank" rel="noopener">AirQo</a> monitor and enter its reading.</p>
-    <p style="margin:10px 0 0;font-size:13px">Weather: Open-Meteo forecast. For heavy rain, also follow the <a href="https://meteo.go.ke/" target="_blank" rel="noopener">Kenya Meteorological Department</a>.</p></section>`;
+  const sn = state.sensors || {};
+  const row = (ok, name, what) => `<li class="src"><span class="dot" style="background:${ok === true ? 'var(--ok)' : ok === false ? 'var(--faint)' : 'var(--wait)'}"></span><span><b>${name}</b><br><span class="muted">${what}</span></span></li>`;
+  return `<section class="card"><span class="label">Data sources</span><ul class="srcs">
+    ${row(true, 'Weather forecast', 'Open-Meteo: temperature, rain amount and chance, hour by hour for 48 hours')}
+    ${row(true, 'Air quality', 'Copernicus CAMS model via Open-Meteo: PM2.5 now and a 3-day forecast')}
+    ${row(true, 'River flow', 'Global Flood Awareness System (GloFAS) via Open-Meteo: flow compared with the last 30 days')}
+    ${row(sn.status === 'connected' ? true : sn.status === 'error' ? null : false, 'Air sensors on the ground', sn.status === 'connected' ? `OpenAQ: ${sn.count} PM2.5 sensors reporting near the schools. A school uses its nearest sensor within 5 km.` : 'OpenAQ (includes AirQo sensors). Not connected: add a free OpenAQ API key in Vercel to use measured readings.')}
+  </ul><p class="muted" style="margin:12px 0 0;font-size:12.5px">The air model works at a city scale, so nearby schools read alike. Before sending an air alert, check the nearest <a href="https://airqo.net/" target="_blank" rel="noopener">AirQo</a> sensor. For heavy rain, follow the <a href="https://meteo.go.ke/" target="_blank" rel="noopener">Kenya Meteorological Department</a>.</p></section>`;
 }
 
 /* ---------- Live readings (Open-Meteo, no key needed) ---------- */
@@ -601,37 +676,90 @@ async function getJSON(url) {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 12000);
   try { const r = await fetch(url, { signal: ctl.signal }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } finally { clearTimeout(t); }
 }
-async function fetchReadings() {
-  if (state.fetching || !live.schools.length) return;
-  state.fetching = true; renderNote();
+const OM = { air: 'https://air-quality-api.open-meteo.com/v1/air-quality', wx: 'https://api.open-meteo.com/v1/forecast', flood: 'https://flood-api.open-meteo.com/v1/flood' };
+const asList = (j) => Array.isArray(j) ? j : (j ? [j] : []);
+const arr = (o, k) => (o && Array.isArray(o[k]) ? o[k] : []);
+const kmBetween = (a, b) => { const R = 6371, dLat = (b.lat - a.lat) * Math.PI / 180, dLng = (b.lng - a.lng) * Math.PI / 180, x = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
+async function forecastFor(points) {
   const now = Date.now();
-  const res = await Promise.allSettled(live.schools.map(async (s) => {
-    const q = `latitude=${s.lat.toFixed(4)}&longitude=${s.lng.toFixed(4)}&timezone=Africa%2FNairobi`;
-    const [aq, wx] = await Promise.all([
-      getJSON(`https://air-quality-api.open-meteo.com/v1/air-quality?${q}&current=pm2_5&hourly=pm2_5&past_days=1&forecast_days=1`),
-      getJSON(`https://api.open-meteo.com/v1/forecast?${q}&daily=temperature_2m_max,precipitation_sum,precipitation_probability_max&forecast_days=1`).catch(() => null),
-    ]);
-    const off = (aq.utc_offset_seconds || 0) * 1000;
-    const ts = (x) => Date.parse(x + 'Z') - off;
-    const hist = [];
-    (aq.hourly && aq.hourly.time || []).forEach((t, i) => { const v = aq.hourly.pm2_5[i]; if (v != null && ts(t) <= now) hist.push(r1(v)); });
-    const cur = aq.current && aq.current.pm2_5 != null ? r1(aq.current.pm2_5) : hist[hist.length - 1];
-    if (cur == null) throw new Error('no reading');
-    const dl = wx && wx.daily;
-    return [s.id, { pm25: cur, at: aq.current && aq.current.time ? ts(aq.current.time) : now, history: hist.slice(-24), source: 'model',
-      tempMax: dl && dl.temperature_2m_max ? dl.temperature_2m_max[0] : null, rainMm: dl && dl.precipitation_sum ? dl.precipitation_sum[0] : null, rainChance: dl && dl.precipitation_probability_max ? dl.precipitation_probability_max[0] : null }];
-  }));
-  let ok = 0;
-  res.forEach((r) => { if (r.status === 'fulfilled') { ok++; const [id, v] = r.value; const prev = live.readings[id]; if (prev && prev.monitor) v.monitor = prev.monitor; live.readings[id] = v; } });
-  state.fetching = false; state.fetchError = ok === 0;
-  if (ok) { live.updatedAt = Date.now(); saveLive(); }
+  const lat = points.map((p) => p.lat.toFixed(4)).join(','), lng = points.map((p) => p.lng.toFixed(4)).join(',');
+  const q = `latitude=${lat}&longitude=${lng}`, tz = '&timezone=Africa%2FNairobi';
+  const [aq, wx, fl] = await Promise.allSettled([
+    getJSON(`${OM.air}?${q}${tz}&current=pm2_5&hourly=pm2_5&past_days=1&forecast_days=3`),
+    getJSON(`${OM.wx}?${q}${tz}&hourly=temperature_2m,precipitation,precipitation_probability&daily=temperature_2m_max,precipitation_sum,precipitation_probability_max&forecast_days=3`),
+    getJSON(`${OM.flood}?${q}&daily=river_discharge&past_days=30&forecast_days=7`),
+  ]);
+  if (aq.status !== 'fulfilled' && wx.status !== 'fulfilled') throw new Error('forecast service unreachable');
+  const A = aq.status === 'fulfilled' ? asList(aq.value) : [], X = wx.status === 'fulfilled' ? asList(wx.value) : [], F = fl.status === 'fulfilled' ? asList(fl.value) : [];
+  return points.map((p, i) => {
+    const a = A[i], x = X[i], f = F[i];
+    const off = ((a || x || {}).utc_offset_seconds || 0) * 1000, ts = (t) => Date.parse(t + 'Z') - off;
+    const pmAt = new Map(); const hist = [];
+    const ah = a && a.hourly, apm = arr(ah, 'pm2_5');
+    arr(ah, 'time').forEach((t, k) => { const v = apm[k]; if (v == null) return; const T = ts(t); pmAt.set(T, r1(v)); if (T <= now) hist.push(r1(v)); });
+    const cur = a && a.current && a.current.pm2_5 != null ? r1(a.current.pm2_5) : hist[hist.length - 1];
+    const hours = [];
+    const xh = x && x.hourly, xt = arr(xh, 'time'), xr = arr(xh, 'precipitation'), xp = arr(xh, 'precipitation_probability'), xT = arr(xh, 'temperature_2m');
+    if (xt.length) xt.forEach((t, k) => { const T = ts(t); if (T < now - HOUR || T > now + 49 * HOUR) return; hours.push({ t: T, pm: pmAt.has(T) ? pmAt.get(T) : null, rain: xr[k] ?? 0, pop: xp[k] ?? null, temp: xT[k] ?? null }); });
+    else pmAt.forEach((v, T) => { if (T > now - HOUR && T <= now + 49 * HOUR) hours.push({ t: T, pm: v, rain: 0, pop: null, temp: null }); });
+    const xd = x && x.daily, dmax = arr(xd, 'temperature_2m_max'), dsum = arr(xd, 'precipitation_sum'), dpop = arr(xd, 'precipitation_probability_max');
+    const days = arr(xd, 'time').map((t, k) => ({ t: dayStart(Date.parse(t + 'T00:00:00')), tmax: dmax[k] ?? null, rainMm: dsum[k] ?? null, rainChance: dpop[k] ?? null }));
+    let river = null;
+    if (f && f.daily && Array.isArray(f.daily.river_discharge) && Array.isArray(f.daily.time)) {
+      const today0 = new Date(now).toISOString().slice(0, 10);
+      const past = [], next = [];
+      const until = new Date(now + 2 * DAY).toISOString().slice(0, 10);
+      f.daily.time.forEach((t, k) => { const v = f.daily.river_discharge[k]; if (v == null) return; if (t < today0) past.push({ t, v }); else if (t <= until) next.push({ t, v }); });
+      const usual = past.length ? [...past.map((o) => o.v)].sort((m, n) => m - n)[past.length >> 1] : null;
+      if (usual != null && next.length) { const pk = next.reduce((m, o) => (o.v > m.v ? o : m)); river = { ratio: r1(pk.v / Math.max(usual, 0.5)), usual: r1(usual), peak: r1(pk.v), peakT: dayStart(Date.parse(pk.t + 'T00:00:00')) }; }
+    }
+    return { pm25: cur ?? null, at: a && a.current && a.current.time ? ts(a.current.time) : now, history: hist.slice(-24), source: 'model', fc: { hours }, days, river,
+      tempMax: days[0] ? days[0].tmax : null, rainMm: days[0] ? days[0].rainMm : null, rainChance: days[0] ? days[0].rainChance : null };
+  });
+}
+async function fetchSensors(points) {
+  if (!points.length) return [];
+  const c = { lat: points.reduce((m, p) => m + p.lat, 0) / points.length, lng: points.reduce((m, p) => m + p.lng, 0) / points.length };
+  try {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 12000);
+    const r = await fetch(`api/sensors?lat=${c.lat.toFixed(4)}&lng=${c.lng.toFixed(4)}`, { signal: ctl.signal }); clearTimeout(t);
+    if (!r.ok) { state.sensors = { status: r.status === 404 ? 'none' : 'error' }; return []; }
+    const j = await r.json();
+    if (!j.connected) { state.sensors = { status: 'not-set' }; return []; }
+    const list = (j.sensors || []).filter((x) => Number.isFinite(x.lat) && Number.isFinite(x.lng) && Number.isFinite(x.pm25) && x.pm25 >= 0 && x.pm25 < 1000);
+    state.sensors = { status: 'connected', count: list.length };
+    return list.map((x) => ({ ...x, at: Date.parse(x.at) }));
+  } catch (e) { state.sensors = { status: 'error' }; return []; }
+}
+async function fetchReadings() {
+  if (state.fetching) return;
+  state.fetching = true; renderNote();
+  try {
+    if (!live.schools.length) {
+      const [city] = await forecastFor([{ lat: -1.2864, lng: 36.8172 }]);
+      live.city = city; state.fetchError = false; live.updatedAt = Date.now(); saveLive();
+    } else {
+      const pts = live.schools.map((s) => ({ lat: s.lat, lng: s.lng }));
+      const [fresh, sensors] = await Promise.all([forecastFor(pts), fetchSensors(pts)]);
+      live.schools.forEach((s, i) => {
+        const v = fresh[i], prev = live.readings[s.id];
+        if (prev && prev.monitor) v.monitor = prev.monitor;
+        const near = sensors.map((x) => ({ x, km: kmBetween(s, x) })).filter((o) => o.km <= 5 && Date.now() - o.x.at < 3 * HOUR).sort((m, n) => m.km - n.km)[0];
+        if (near) v.sensor = { pm25: r1(near.x.pm25), at: near.x.at, name: near.x.name, provider: near.x.provider, km: r1(near.km) };
+        if (v.pm25 == null && prev) { v.pm25 = prev.pm25; v.at = prev.at; }
+        live.readings[s.id] = v;
+      });
+      state.fetchError = false; live.updatedAt = Date.now(); saveLive();
+    }
+  } catch (e) { state.fetchError = true; }
+  state.fetching = false;
   render(true);
 }
 let timer = null;
 function startLive() {
   clearInterval(timer);
   const stale = !live.updatedAt || Date.now() - live.updatedAt > CFG.refreshMinutes * MIN;
-  if (stale || Object.keys(live.readings).length < live.schools.length) fetchReadings();
+  if (stale || Object.keys(live.readings).length < live.schools.length || (!live.schools.length && !live.city)) fetchReadings();
   timer = setInterval(() => { if (state.mode === 'live' && !document.hidden) fetchReadings(); }, CFG.refreshMinutes * MIN);
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden && state.mode === 'live' && live.updatedAt && Date.now() - live.updatedAt > CFG.refreshMinutes * MIN) fetchReadings(); });
@@ -664,11 +792,12 @@ function setMode(m) {
   render();
   if (m === 'live') startLive();
 }
-function prefillRaise(hazard, value) {
+function prefillRaise(hazard, value, when) {
   resetDraft(hazard);
   if (value != null && value !== '') state.draft.value = String(value);
   else if (hazard === 'air') { const r = reading(data().readings[state.schoolId], data().now); if (r) state.draft.value = String(r.value); }
   else if (hazard === 'heat') { const rd = data().readings[state.schoolId]; if (rd && rd.tempMax != null) state.draft.value = String(Math.round(rd.tempMax)); }
+  if (when) { const v = parseFloat(state.draft.value); const lvl = hazard === 'air' ? (!isNaN(v) ? airBand(v) : AIR[2]) : WEATHER[hazard]; state.draft.step = `Expected ${when.toLowerCase().startsWith('today') || when.toLowerCase().startsWith('tomorrow') ? when.toLowerCase() : 'on ' + when}: ${lvl.step}`; state.draft.when = when; }
   state.panel = 'raise';
 }
 async function act(el) {
@@ -684,7 +813,7 @@ async function act(el) {
     case 'go-parents': state.alertId = id; return setView('parents');
     case 'raise': prefillRaise('air'); break;
     case 'raise-from-desk': setView('overview'); prefillRaise('air'); break;
-    case 'review': state.schoolId = id; prefillRaise(v, el.dataset.val); render(); $('#side') && $('#side').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return;
+    case 'review': state.schoolId = id; prefillRaise(v, el.dataset.val, el.dataset.when); render(); $('#side') && $('#side').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return;
     case 'dismiss': state.dismissed.add(state.mode + id + v); break;
     case 'cancel': state.panel = null; resetDraft(); break;
     case 'hazard': prefillRaise(v); break;
@@ -692,7 +821,7 @@ async function act(el) {
     case 'show-all': state.showAll = true; break;
     case 'channel': state.channel = v; break;
     case 'toggle-action': { const xs = state.draft.actions; const i = xs.indexOf(v); if (i >= 0) xs.splice(i, 1); else xs.push(v); break; }
-    case 'reset-demo': state.demo = buildDemo(); state.schoolId = null; state.alertId = null; state.panel = null; state.dismissed.clear(); resetDraft(); toast('Demo reset.'); break;
+    case 'reset-demo': state.demo = buildDemo(); state.schoolId = null; state.alertId = null; state.panel = null; state.dismissed.clear(); resetDraft(); toast('Practice reset.'); break;
     case 'refresh': fetchReadings(); return;
     case 'ack': if (patchAlert(id, { ackAt: stamp(), ackBy: 'Head teacher' })) { resetDraft(); toast('Marked as acknowledged.'); } break;
     case 'record': { const dr = state.draft; if (patchAlert(id, { actions: [...dr.actions], note: dr.note.trim().slice(0, 300), actionAt: stamp() })) { resetDraft(); toast('Action saved.'); } break; }
@@ -723,7 +852,7 @@ function raise(send) {
   const dr = state.draft, s = schoolById(state.schoolId); if (!s) return;
   const v = parseFloat(dr.value), t = stamp();
   const readings = state.mode === 'demo' ? state.demo.readings : live.readings;
-  if (dr.hazard === 'air' && !isNaN(v)) {
+  if (dr.hazard === 'air' && !isNaN(v) && !dr.when) {
     const prev = readings[s.id] || {};
     if (state.mode === 'demo') readings[s.id] = { ...prev, pm25: r1(v), at: t, history: [...(prev.history || []).slice(-23), r1(v)] };
     else readings[s.id] = { ...prev, monitor: { pm25: r1(v), at: t } };
@@ -733,7 +862,7 @@ function raise(send) {
     const step = (dr.step || (dr.hazard === 'air' ? airBand(v).step : WEATHER[dr.hazard].step)).trim().slice(0, 600);
     const seq = state.mode === 'demo' ? 100 + state.demo.alerts.length + 1 : ++live.seq;
     const alert = { id: 'a' + t.toString(36) + Math.random().toString(36).slice(2, 6), ref: 'DA-' + seq, schoolId: s.id, schoolName: s.name, hazard: dr.hazard, level,
-      value: dr.hazard === 'rain' ? null : (isNaN(v) ? null : r1(v)), raisedAt: t, step, actions: [] };
+      value: dr.hazard === 'rain' ? null : (isNaN(v) ? null : r1(v)), raisedAt: t, step, actions: [], expected: dr.when || null };
     (state.mode === 'demo' ? state.demo.alerts : live.alerts).unshift(alert);
     if (state.mode === 'live') saveLive();
     state.alertId = alert.id; toast('Alert created. Now tell the head teacher.');
