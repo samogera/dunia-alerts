@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dunia Alerts · Classroom screen</title>
+<meta name="description" content="A wall screen for the classroom: temperature, fresh air, dust and humidity inside, the weather and air outside, in English and Kiswahili. Part of Dunia Alerts.">
+<link rel="canonical" href="https://dunia-alerts.vercel.app/classroom">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dunia Alerts">
+<meta property="og:title" content="Dunia Alerts · Classroom screen">
+<meta property="og:description" content="Live classroom conditions for learners, in English and Kiswahili.">
+<meta property="og:url" content="https://dunia-alerts.vercel.app/classroom">
+<meta property="og:image" content="https://dunia-alerts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F5F6F4">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preload" href="assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/classroom.css">
+</head>
+<body>
+<div class="cr" id="cr">
+  <header class="cr-top">
+    <div class="cr-brand"><span class="cr-mark" aria-hidden="true"></span><span><b>Dunia Alerts</b> <span id="appName">Classroom</span></span></div>
+    <div class="cr-where"><b id="roomName">Classroom</b><span id="schoolName"></span></div>
+    <div class="cr-clock"><span class="cr-time" id="time">--:--</span><span id="date"></span></div>
+    <div class="cr-lang" role="group" aria-label="Language / Lugha">
+      <button type="button" data-lang="en" aria-pressed="true">English</button>
+      <button type="button" data-lang="sw" aria-pressed="false">Kiswahili</button>
+    </div>
+  </header>
+
+  <main class="cr-main" id="main">
+    <section class="cr-head" id="head" role="status" aria-live="polite">
+      <span class="cr-head__icon" id="headIcon" aria-hidden="true"></span>
+      <div><h1 id="headline">Loading…</h1><p id="headSub"></p></div>
+    </section>
+
+    <section class="cr-sec" aria-labelledby="inTitle">
+      <h2 class="cr-label" id="inTitle">Inside our classroom</h2>
+      <div class="cr-tiles" id="inside"></div>
+    </section>
+
+    <div class="cr-row">
+      <section class="cr-sec cr-out" aria-labelledby="outTitle">
+        <h2 class="cr-label" id="outTitle">Outside now</h2>
+        <div class="cr-outgrid" id="outside"></div>
+      </section>
+      <section class="cr-sec cr-q" aria-labelledby="qTitle">
+        <h2 class="cr-label" id="qTitle">Climate Detective</h2>
+        <p class="cr-q__text" id="question"></p>
+        <p class="cr-q__hint" id="qHint"></p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="cr-foot">
+    <span id="status"></span>
+    <span id="privacy"></span>
+    <button class="cr-fs" type="button" id="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg><span id="fsLabel">Full screen</span></button>
+  </footer>
+</div>
+<noscript><p style="padding:24px;font:18px system-ui">The classroom screen needs JavaScript. <a href="about">About Dunia Alerts</a>.</p></noscript>
+<script src="assets/config.js"></script>
+<script src="assets/classroom.js"></script>
+</body>
+</html>

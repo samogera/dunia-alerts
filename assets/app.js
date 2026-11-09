@@ -36,6 +36,9 @@ const ACTIONS = {
   heat: ['Water breaks added', 'PE moved to early morning', 'Break time in the shade'],
 };
 const RESULTS = ['Done, no pupils affected', 'Done, some pupils needed care', 'Needs partner help'];
+const DISMISS = ['The reading was wrong', 'Already handled by the school', 'Sent by mistake'];
+const ESCALATE_MIN = Number(CFG.escalateMinutes) > 0 ? Number(CFG.escalateMinutes) : 30;
+const RULES = `PM2.5 ≥ ${TH.pm25} µg/m³ · rain ≥ ${TH.rainMm} mm · heat ≥ ${TH.heatC} °C`;
 const HZ = { air: ['Air', '#17483B'], rain: ['Heavy rain', 'var(--rain)'], heat: ['Heat', 'var(--heat)'] };
 const r1 = (x) => Math.round(x * 10) / 10;
 const airBand = (pm) => { const v = r1(pm); return AIR.find((b) => v <= b.hi) || AIR[AIR.length - 1]; };
@@ -198,7 +201,8 @@ const state = {
   mode: prefs.mode === 'live' || prefs.mode === 'demo' ? prefs.mode : 'live', sensors: null,
   view: 'overview', schoolId: null, alertId: null, panel: null, filter: 'open', showAll: false, channel: 'sms',
   editing: null, removing: null, fetching: false, fetchError: false, dismissed: new Set(), demo: buildDemo(),
-  draft: { hazard: 'air', value: '', step: '', actions: [], note: '', result: '' },
+  draft: { hazard: 'air', value: '', step: '', actions: [], note: '', result: '', reason: '' },
+  screen: { schoolId: null, name: '', room: '', lang: 'en' }, health: undefined,
 };
 function data() {
   if (state.mode === 'demo') { const d = state.demo; return { now: d.now, start: d.start, schools: d.schools, readings: d.readings, alerts: d.alerts }; }
@@ -208,8 +212,24 @@ function data() {
 const schoolById = (id) => data().schools.find((s) => s.id === id);
 const schoolName = (a) => (schoolById(a.schoolId) || {}).name || a.schoolName || 'Removed school';
 const openAlertFor = (sid) => data().alerts.find((a) => a.schoolId === sid && !a.closedAt);
-const statusOf = (a) => a.closedAt ? (a.ackAt ? 'closed' : 'missed') : a.actionAt ? 'acted' : a.ackAt ? 'acknowledged' : 'waiting';
-const STATUS = { waiting: ['Waiting for reply', 'var(--wait)'], acknowledged: ['Acknowledged', 'var(--sun)'], acted: ['Action recorded', 'var(--rain)'], closed: ['Closed', 'var(--ok)'], missed: ['No response', 'var(--bad)'] };
+const statusOf = (a) => a.dismissedAt ? 'dismissed' : a.expiredAt ? 'expired' : a.closedAt ? (a.ackAt ? 'closed' : 'missed') : a.actionAt ? 'acted' : a.ackAt ? 'acknowledged' : a.escalatedAt ? 'escalated' : 'waiting';
+const STATUS = { waiting: ['Waiting for reply', 'var(--wait)'], escalated: ['Escalated', 'var(--bad)'], acknowledged: ['Acknowledged', 'var(--sun)'], acted: ['Action recorded', 'var(--rain)'], closed: ['Closed', 'var(--ok)'], missed: ['No response', 'var(--bad)'], expired: ['Expired', 'var(--bad)'], dismissed: ['Dismissed', 'var(--faint)'] };
+const who = () => state.mode === 'demo' ? 'Practice user' : (prefs.who || 'Dunia team');
+function addLog(a, at, what, detail, by) {
+  a.log = Array.isArray(a.log) ? a.log : [];
+  a.log.push({ at, by: by || who(), what, detail: String(detail || '').slice(0, 200) });
+  if (a.log.length > 60) a.log = a.log.slice(-60);
+}
+// Every alert's record: saved entries, or for older alerts the steps rebuilt from their times.
+function recordOf(a) {
+  if (Array.isArray(a.log) && a.log.length) return { list: a.log, derived: false };
+  const list = [{ at: a.raisedAt, what: 'Created and sent', detail: `${hazardOf(a).label}${a.value != null ? ' · ' + a.value : ''}` }];
+  if (a.ackAt) list.push({ at: a.ackAt, what: 'Acknowledged', detail: a.ackBy || 'Head teacher' });
+  if (a.actionAt) list.push({ at: a.actionAt, what: 'Action recorded', detail: (a.actions || []).join(', ') });
+  if (a.parentsAt) list.push({ at: a.parentsAt, what: 'Parents informed', detail: '' });
+  if (a.closedAt) list.push({ at: a.closedAt, what: 'Closed', detail: a.result || '' });
+  return { list, derived: true };
+}
 const statusEl = (a) => { const [t, c] = STATUS[statusOf(a)]; return `<span class="status"><span class="dot" style="background:${c}"></span>${t}</span>`; };
 function reading(rd, now) {
   if (!rd) return null;
@@ -223,12 +243,13 @@ function ensureSchool(d) {
   const open = d.alerts.find((a) => !a.closedAt && schoolById(a.schoolId));
   state.schoolId = open ? open.schoolId : (d.schools[0] || {}).id || null;
 }
-function stats(alerts, schools) {
+function stats(all, schools) {
+  const alerts = all.filter((a) => !a.dismissedAt);
   const acked = alerts.filter((a) => a.ackAt);
   const ackMins = acked.map((a) => mins(a.raisedAt, a.ackAt));
   const acted = alerts.filter((a) => a.actionAt);
   const pupils = acted.reduce((sum, a) => sum + ((schools.find((s) => s.id === a.schoolId) || {}).pupils || 0), 0);
-  return { total: alerts.length, ackRate: pct(acked.length, alerts.length), medAck: median(ackMins), actRate: pct(acted.length, alerts.length), toldRate: pct(alerts.filter((a) => a.parentsAt).length, alerts.length), pupils, ackMins };
+  return { total: alerts.length, ackRate: pct(acked.length, alerts.length), medAck: median(ackMins), actRate: pct(acted.length, alerts.length), toldRate: pct(alerts.filter((a) => a.parentsAt).length, alerts.length), pupils, ackMins, dismissed: all.length - alerts.length };
 }
 function suggestions(d) {
   const out = [];
@@ -523,6 +544,19 @@ function deskAlert(a, s, d) {
     : a.hazard === 'heat' ? `<span class="big num" style="color:var(--heat)">${a.value ?? '–'}°</span><span class="reading__meta"><b>Forecast high</b><span class="muted">Today</span></span>`
     : `<span class="hz" style="--c:var(--rain);width:56px;height:56px;border-radius:16px">${icon('rain')}</span><span class="reading__meta"><b>Heavy rain expected</b><span class="muted">Follow Kenya Meteorological Department advisories</span></span>`;
   const cls = (done, now) => done ? 'is-done' : now ? 'is-now' : '';
+  const waiting = st === 'waiting' || st === 'escalated';
+  const late = waiting && d.now - a.raisedAt >= ESCALATE_MIN * MIN;
+  const escal = a.escalatedAt && waiting ? `<div class="flow__panel"><span class="muted">Escalated ${fmtTime(a.escalatedAt)}: the school was called.</span></div>`
+    : late ? `<div class="flow__panel"><div class="flow__warn">No reply after ${mins(a.raisedAt, d.now)} minutes. Call the head teacher, or the deputy if they can’t answer.</div><button class="btn btn--ghost btn--sm" type="button" data-action="escalate" data-id="${esc(a.id)}">I called the school: mark escalated</button></div>` : '';
+  const rec = recordOf(a);
+  const canDismiss = !a.closedAt && !a.actionAt;
+  const tools = `<div class="alert-tools">
+      ${canDismiss ? `<details class="more"><summary>Dismiss as a false alarm</summary><div class="flow__panel"><label class="field" for="dsReason"><span>Why</span><select class="select" id="dsReason" data-change="reason"><option value="">Choose</option>${DISMISS.map((r) => `<option ${dr.reason === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select></label>
+        <button class="btn btn--ghost" type="button" data-action="dismiss-alert" data-id="${esc(a.id)}" ${dr.reason ? '' : 'disabled'}>Dismiss alert</button><span class="muted" style="font-size:12.5px">It stays in the record and is left out of response times.</span></div></details>` : ''}
+      ${a.closedAt ? `<button class="link" type="button" data-action="reopen" data-id="${esc(a.id)}">Reopen with new evidence</button>` : ''}
+      <details class="more"><summary>Record · ${rec.list.length} step${rec.list.length === 1 ? '' : 's'}</summary>
+        <ol class="audit">${rec.list.map((e) => `<li><span class="mono">${fmtWhen(e.at, d.now)}</span><span><b>${esc(e.what)}</b>${e.by ? ` <span class="muted">· ${esc(e.by)}</span>` : ''}${e.detail ? `<br><span class="audit__d">${esc(e.detail)}</span>` : ''}</span></li>`).join('')}</ol>
+        <p class="muted" style="font-size:12.5px;margin:10px 0 0">${rec.derived ? 'Rebuilt from the alert’s times.' : 'Saved as each step happened; steps can’t be edited.'}${a.source ? ' Evidence: ' + esc(a.source) + '.' : ''}${a.rules ? ' Rules: ' + esc(a.rules) + '.' : ''}</p></details></div>`;
   const phone = (schoolById(a.schoolId) || {}).phone;
   const msg = encodeURIComponent(headMessage(a));
   const notify = !a.closedAt ? `<div class="flow__panel"><span class="muted">Tell the head teacher. The message is written for you.</span>
@@ -533,9 +567,9 @@ function deskAlert(a, s, d) {
     <div class="reading">${value}</div>${a.hazard === 'air' ? scaleBar(a.value) : ''}
     <div class="stepbox"><span class="label" style="color:var(--accent)">Step for the school</span><p>${esc(a.step)}</p></div>
     <ol class="flow">
-      <li class="is-done"><span class="flow__n">1</span><div class="flow__body"><span class="flow__title">Alert sent</span><span class="muted">${fmtWhen(a.raisedAt, d.now)}</span>${st === 'waiting' ? notify : ''}</div></li>
-      <li class="${cls(a.ackAt, st === 'waiting')}"><span class="flow__n">2</span><div class="flow__body"><span class="flow__title">Head teacher acknowledges</span><span class="muted">${a.ackAt ? `${esc(a.ackBy || 'Head teacher')} · ${fmtTime(a.ackAt)} · ${mins(a.raisedAt, a.ackAt)} min after the alert` : a.closedAt ? 'Not acknowledged before the end of the school day' : 'Waiting for a reply'}</span>
-        ${st === 'waiting' ? `<div class="flow__panel"><button class="btn" type="button" data-action="ack" data-id="${esc(a.id)}">They replied: mark acknowledged</button></div>` : ''}</div></li>
+      <li class="is-done"><span class="flow__n">1</span><div class="flow__body"><span class="flow__title">Alert sent</span><span class="muted">${fmtWhen(a.raisedAt, d.now)}</span>${waiting ? notify : ''}</div></li>
+      <li class="${cls(a.ackAt, waiting)}"><span class="flow__n">2</span><div class="flow__body"><span class="flow__title">Head teacher acknowledges</span><span class="muted">${a.ackAt ? `${esc(a.ackBy || 'Head teacher')} · ${fmtTime(a.ackAt)} · ${mins(a.raisedAt, a.ackAt)} min after the alert` : a.dismissedAt ? 'Dismissed before a reply' : a.closedAt ? 'Not acknowledged before the end of the school day' : 'Waiting for a reply'}</span>
+        ${escal}${waiting ? `<div class="flow__panel"><button class="btn" type="button" data-action="ack" data-id="${esc(a.id)}">They replied: mark acknowledged</button></div>` : ''}</div></li>
       <li class="${cls(a.actionAt, st === 'acknowledged')}"><span class="flow__n">3</span><div class="flow__body"><span class="flow__title">Record what the school did</span><span class="muted">${a.actionAt ? esc((a.actions || []).join(', ') + (a.note ? ' · ' + a.note : '')) + ' · ' + fmtTime(a.actionAt) : a.closedAt ? 'No action recorded' : 'After the head teacher replies'}</span>
         ${st === 'acknowledged' ? `<div class="flow__panel"><div class="pills">${ACTIONS[a.hazard].map((o) => `<button class="pill" type="button" data-action="toggle-action" data-v="${esc(o)}" aria-pressed="${dr.actions.includes(o)}">${esc(o)}</button>`).join('')}</div>
           <label class="field" for="actNote"><span>Note <span class="muted">(optional, never pupils’ names)</span></span><textarea class="textarea" id="actNote" data-input="note" rows="2">${esc(dr.note)}</textarea></label>
@@ -545,7 +579,7 @@ function deskAlert(a, s, d) {
       <li class="${cls(a.closedAt, st === 'acted')}"><span class="flow__n">5</span><div class="flow__body"><span class="flow__title">Close with the result</span><span class="muted">${a.closedAt ? esc(a.result || 'Closed') : 'Saved for the pilot report'}</span>
         ${st === 'acted' ? `<div class="flow__panel"><label class="field" for="closeResult"><span>Result</span><select class="select" id="closeResult" data-change="result"><option value="">Choose</option>${RESULTS.map((r) => `<option ${dr.result === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select></label>
           <button class="btn" type="button" data-action="close" data-id="${esc(a.id)}" ${dr.result ? '' : 'disabled'}>Close alert</button></div>` : ''}</div></li>
-    </ol></section>`;
+    </ol>${tools}</section>`;
 }
 
 /* ----- Parents ----- */
@@ -599,10 +633,10 @@ function viewImpact() {
   if (!d.schools.length) return emptyLive();
   const st = stats(d.alerts, d.schools);
   const head = `<div class="toolbar"><div><h1 class="h">Pilot results</h1><span class="muted">${d.alerts.length ? `${fmtDay(d.start)} – ${fmtDay(d.now)}` : 'No alerts yet'}${state.mode === 'demo' ? ' · example data' : ''}</span></div>
-    <div class="btns"><button class="btn btn--ghost" type="button" data-action="csv">${icon('down')}Download CSV</button></div></div>`;
+    <div class="btns"><button class="btn btn--ghost" type="button" data-action="audit-csv">${icon('down')}Record</button><button class="btn btn--ghost" type="button" data-action="csv">${icon('down')}Download CSV</button></div></div>`;
   if (!d.alerts.length) return head + `<section class="card"><div class="empty"><span class="h">Nothing to report yet</span><span>Results build up as alerts are sent and schools respond.</span></div></section>`;
   const tiles = `<section class="stats stats--5">
-    ${tile('Alerts sent', st.total, `${d.schools.length} schools`)}
+    ${tile('Alerts sent', st.total, `${d.schools.length} schools${st.dismissed ? ` · ${st.dismissed} dismissed` : ''}`)}
     ${tile('Acknowledged', st.ackRate + '%', 'by the head teacher')}
     ${tile('Time to respond', `${st.medAck ?? '–'} <small>min</small>`, 'median')}
     ${tile('Action taken', st.actRate + '%', `${st.pupils.toLocaleString('en-GB')} pupil-days covered`)}
@@ -657,8 +691,44 @@ function viewSchools() {
       ${e ? `<button class="btn btn--danger btn--block" type="button" data-action="remove-school" data-id="${esc(e.id)}">${state.removing === e.id ? 'Tap again to remove' : 'Remove school'}</button>` : ''}
     </div></section>`;
   const backup = `<section class="card"><span class="label">Your records</span><p style="margin:10px 0 16px">Alerts and schools are saved in this browser. Download a backup every week, and to move to another device.</p>
-    <div class="btns"><button class="btn btn--ghost" type="button" data-action="backup">${icon('down')}Download backup</button><button class="btn btn--ghost" type="button" data-action="restore">${icon('up')}Restore</button></div></section>`;
-  return `<div class="grid-main">${list}<aside class="stack">${form}${backup}${sourcesCard()}</aside></div>`;
+    <div class="btns"><button class="btn btn--ghost" type="button" data-action="backup">${icon('down')}Download backup</button><button class="btn btn--ghost" type="button" data-action="restore">${icon('up')}Restore</button></div>
+    <hr class="divider"><label class="field" for="fWho"><span>Your name on this device <span class="muted">(shown in each alert’s record)</span></span><input class="input" id="fWho" maxlength="40" autocomplete="name" placeholder="e.g. Amani, Dunia team" value="${esc(prefs.who || '')}"></label>
+    <button class="btn btn--ghost btn--sm" type="button" data-action="save-who" style="margin-top:10px">Save name</button></section>`;
+  if (state.health === undefined) fetchHealth();
+  return `<div class="grid-main"><div class="stack">${list}${screensCard(d)}</div><aside class="stack">${form}${backup}${sourcesCard()}</aside></div>`;
+}
+/* Classroom screens: a link for each classroom's TV or tablet */
+const ROOM_ID = /^[a-z0-9][a-z0-9-]{1,39}$/;
+function screenUrl(s, sc) {
+  const u = new URL('classroom', location.href); u.hash = '';
+  const name = String(sc.name || '').replace(/[<>]/g, '').trim().slice(0, 40), room = String(sc.room || '').trim().toLowerCase();
+  if (name) u.searchParams.set('name', name);
+  u.searchParams.set('school', s.name);
+  u.searchParams.set('lat', Number(s.lat).toFixed(4)); u.searchParams.set('lng', Number(s.lng).toFixed(4));
+  if (ROOM_ID.test(room)) u.searchParams.set('room', room);
+  if (sc.lang === 'sw') u.searchParams.set('lang', 'sw');
+  return u.href;
+}
+function screensCard(d) {
+  if (!d.schools.length) return '';
+  const sc = state.screen; if (!schoolById(sc.schoolId)) sc.schoolId = state.schoolId && schoolById(state.schoolId) ? state.schoolId : d.schools[0].id;
+  const s = schoolById(sc.schoolId), url = screenUrl(s, sc);
+  return `<section class="card"><div class="card__head"><h2 class="card__title">Classroom screens</h2><a class="link" href="classroom?demo=1" target="_blank" rel="noopener">See an example</a></div>
+    <p class="muted" style="margin:0 0 16px">A wall screen for a classroom TV or tablet: conditions inside (once a sensor is installed) and outside, a daily Climate Detective question, in English or Kiswahili. It shows no names and has no controls for learners.</p>
+    <div class="form">
+      <div class="form2"><label class="field" for="scSchool"><span>School</span><select class="select" id="scSchool" data-screen="schoolId">${d.schools.map((x) => `<option value="${esc(x.id)}" ${x.id === sc.schoolId ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>
+      <label class="field" for="scName"><span>Class</span><input class="input" id="scName" data-screen="name" maxlength="40" autocomplete="off" placeholder="e.g. Class 6 Blue" value="${esc(sc.name)}"></label></div>
+      <div class="form2"><label class="field" for="scRoom"><span>Sensor room ID <span class="muted">(optional)</span></span><input class="input" id="scRoom" data-screen="room" maxlength="40" autocomplete="off" placeholder="e.g. baraka-6a" value="${esc(sc.room)}"><span class="muted" id="scRoomBad" style="font-size:12.5px" ${!sc.room || ROOM_ID.test(sc.room.trim().toLowerCase()) ? 'hidden' : ''}>Use lowercase letters, numbers and dashes, as set up for the sensor.</span></label>
+      <label class="field" for="scLang"><span>Language</span><select class="select" id="scLang" data-screen="lang"><option value="en" ${sc.lang !== 'sw' ? 'selected' : ''}>English</option><option value="sw" ${sc.lang === 'sw' ? 'selected' : ''}>Kiswahili</option></select></label></div>
+      <input class="input" id="scLink" readonly hidden value="${esc(url)}" aria-label="Screen link">
+      <div class="btns"><a class="btn" id="scOpen" href="${esc(url)}" target="_blank" rel="noopener">Open screen</a><button class="btn btn--ghost" type="button" data-action="copy-screen">${icon('copy')}Copy link</button></div>
+    </div></section>`;
+}
+async function fetchHealth() {
+  state.health = null;
+  try { const r = await fetch('api/v1/health', { headers: { Accept: 'application/json' } }); state.health = r.ok ? await r.json() : { none: true }; }
+  catch (e) { state.health = { none: true }; }
+  if (state.view === 'schools') render(true);
 }
 function sourcesCard() {
   const sn = state.sensors || {};
@@ -667,6 +737,8 @@ function sourcesCard() {
     ${row(true, 'Weather forecast', 'Open-Meteo: temperature, rain amount and chance, hour by hour for 48 hours')}
     ${row(true, 'Air quality', 'Copernicus CAMS model via Open-Meteo: PM2.5 now and a 3-day forecast')}
     ${row(true, 'River flow', 'Global Flood Awareness System (GloFAS) via Open-Meteo: flow compared with the last 30 days')}
+    ${(() => { const h = state.health; const on = h && h.storage && h.devices > 0;
+      return row(on ? true : h === null || h === undefined ? null : false, 'Classroom sensors', on ? `${h.devices} sensor${h.devices === 1 ? '' : 's'} registered in ${h.rooms} classroom${h.rooms === 1 ? '' : 's'}. Readings go to the classroom screens.` : h && h.none ? 'Needs the site on Vercel.' : h && !h.storage ? 'Not set up yet: connect Upstash for Redis in Vercel, then add the sensors (see the README).' : h ? 'Storage is ready. Add the sensors to DEVICE_KEYS in Vercel (see the README).' : 'Checking…'); })()}
     ${row(sn.status === 'connected' ? true : sn.status === 'error' ? null : false, 'Air sensors on the ground', sn.status === 'connected' ? `OpenAQ: ${sn.count} PM2.5 sensors reporting near the schools. A school uses its nearest sensor within 5 km.` : 'OpenAQ (includes AirQo sensors). Not connected: add a free OpenAQ API key in Vercel to use measured readings.')}
   </ul><p class="muted" style="margin:12px 0 0;font-size:12.5px">The air model works at a city scale, so nearby schools read alike. Before sending an air alert, check the nearest <a href="https://airqo.net/" target="_blank" rel="noopener">AirQo</a> sensor. For heavy rain, follow the <a href="https://meteo.go.ke/" target="_blank" rel="noopener">Kenya Meteorological Department</a>.</p></section>`;
 }
@@ -756,7 +828,7 @@ async function fetchReadings() {
 }
 let timer = null;
 function startLive() {
-  clearInterval(timer);
+  clearInterval(timer); expireOld();
   const stale = !live.updatedAt || Date.now() - live.updatedAt > CFG.refreshMinutes * MIN;
   if (stale || Object.keys(live.readings).length < live.schools.length || (!live.schools.length && !live.city)) fetchReadings();
   timer = setInterval(() => { if (state.mode === 'live' && !document.hidden) fetchReadings(); }, CFG.refreshMinutes * MIN);
@@ -765,12 +837,27 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && st
 
 /* ---------- Actions ---------- */
 function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('is-on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('is-on'), 2600); }
-function resetDraft(hazard = 'air') { state.draft = { hazard, value: '', step: '', actions: [], note: '', result: '' }; }
+function resetDraft(hazard = 'air') { state.draft = { hazard, value: '', step: '', actions: [], note: '', result: '', reason: '' }; }
 const stamp = () => state.mode === 'demo' ? (state.demo.now += 3 * MIN) : Date.now();
-function patchAlert(id, patch) {
+function patchAlert(id, patch, at, what, detail) {
   const list = state.mode === 'demo' ? state.demo.alerts : live.alerts;
   const a = list.find((x) => x.id === id); if (!a) return false;
-  Object.assign(a, patch); if (state.mode === 'live') saveLive(); return true;
+  if (what && !(Array.isArray(a.log) && a.log.length)) a.log = recordOf(a).list.map((e) => ({ ...e, by: e.by || 'Dunia team' }));
+  Object.assign(a, patch);
+  if (what) addLog(a, at, what, detail);
+  if (state.mode === 'live') saveLive(); return true;
+}
+// Alerts nobody answered by the end of the school day are closed as expired, so the open list stays true.
+function expireOld() {
+  if (state.mode !== 'live') return;
+  const t0 = dayStart(Date.now()); let n = 0;
+  live.alerts.forEach((a) => {
+    if (a.closedAt || a.ackAt || a.raisedAt >= t0) return;
+    if (!(Array.isArray(a.log) && a.log.length)) a.log = recordOf(a).list;
+    a.expiredAt = a.closedAt = Date.now(); a.result = 'Expired: no reply before the end of the school day';
+    addLog(a, a.expiredAt, 'Expired', 'Still waiting for a reply when the school day ended', 'Dunia Alerts'); n++;
+  });
+  if (n) saveLive();
 }
 function download(name, text, type) {
   const url = URL.createObjectURL(new Blob([text], { type }));
@@ -787,7 +874,7 @@ function setView(v, focus) {
 function setMode(m) {
   if (m === state.mode) return;
   state.mode = m; state.schoolId = null; state.alertId = null; state.panel = null; state.editing = null; resetDraft();
-  write(PREF, { mode: m });
+  prefs.mode = m; write(PREF, prefs);
   render();
   if (m === 'live') startLive();
 }
@@ -822,10 +909,17 @@ async function act(el) {
     case 'toggle-action': { const xs = state.draft.actions; const i = xs.indexOf(v); if (i >= 0) xs.splice(i, 1); else xs.push(v); break; }
     case 'reset-demo': state.demo = buildDemo(); state.schoolId = null; state.alertId = null; state.panel = null; state.dismissed.clear(); resetDraft(); toast('Practice reset.'); break;
     case 'refresh': fetchReadings(); return;
-    case 'ack': if (patchAlert(id, { ackAt: stamp(), ackBy: 'Head teacher' })) { resetDraft(); toast('Marked as acknowledged.'); } break;
-    case 'record': { const dr = state.draft; if (patchAlert(id, { actions: [...dr.actions], note: dr.note.trim().slice(0, 300), actionAt: stamp() })) { resetDraft(); toast('Action saved.'); } break; }
-    case 'parents': if (patchAlert(id, { parentsAt: stamp() })) toast('Parents marked as informed.'); break;
-    case 'close': { const res = state.draft.result; if (!res) break; if (patchAlert(id, { result: res, closedAt: stamp() })) { resetDraft(); toast(res === RESULTS[2] ? 'Closed. Follow up with partners.' : 'Alert closed.'); } break; }
+    case 'ack': { const t = stamp(); if (patchAlert(id, { ackAt: t, ackBy: 'Head teacher' }, t, 'Acknowledged', 'Head teacher replied')) { resetDraft(); toast('Marked as acknowledged.'); } break; }
+    case 'record': { const dr = state.draft, t = stamp(); if (patchAlert(id, { actions: [...dr.actions], note: dr.note.trim().slice(0, 300), actionAt: t }, t, 'Action recorded', [...dr.actions, dr.note.trim()].filter(Boolean).join(', '))) { resetDraft(); toast('Action saved.'); } break; }
+    case 'parents': { const t = stamp(); if (patchAlert(id, { parentsAt: t }, t, 'Parents informed', 'English and Kiswahili message')) toast('Parents marked as informed.'); break; }
+    case 'close': { const res = state.draft.result; if (!res) break; const t = stamp(); state.alertId = id; if (patchAlert(id, { result: res, closedAt: t }, t, 'Closed', res)) { resetDraft(); toast(res === RESULTS[2] ? 'Closed. Follow up with partners.' : 'Alert closed.'); } break; }
+    case 'escalate': { const t = stamp(), a0 = data().alerts.find((x) => x.id === id); if (a0 && patchAlert(id, { escalatedAt: t }, t, 'Escalated', `No reply after ${mins(a0.raisedAt, t)} minutes: called the school`)) toast('Marked as escalated.'); break; }
+    case 'dismiss-alert': { const why = state.draft.reason; if (!why) break; const t = stamp(); state.alertId = id; if (patchAlert(id, { dismissedAt: t, closedAt: t, result: 'Dismissed: ' + why }, t, 'Dismissed', why)) { resetDraft(); toast('Alert dismissed. It stays in the record.'); } break; }
+    case 'reopen': { const t = stamp(); if (patchAlert(id, { closedAt: null, dismissedAt: null, expiredAt: null, result: '', reopenedAt: t }, t, 'Reopened', 'New evidence')) { resetDraft(); toast('Alert reopened.'); } break; }
+    case 'save-who': { const v = ($('#fWho').value || '').replace(/[<>]/g, '').trim().slice(0, 40); prefs.who = v; write(PREF, prefs); toast(v ? 'Saved. Your records will show ' + v + '.' : 'Saved.'); break; }
+    case 'copy-screen': { const s0 = schoolById(state.screen.schoolId) || data().schools[0]; if (!s0) return; const u = screenUrl(s0, state.screen);
+      try { await navigator.clipboard.writeText(u); toast('Link copied. Open it on the classroom screen.'); } catch (e) { const i = $('#scLink'); if (i) { i.hidden = false; i.select(); } toast('Select the link and copy it.'); } return; }
+    case 'audit-csv': exportAudit(); return;
     case 'send': case 'save-reading': raise(k === 'send'); return;
     case 'copy': case 'copy-head': {
       const a = k === 'copy' ? msgAlert() : data().alerts.find((x) => x.id === id); if (!a) return;
@@ -851,6 +945,9 @@ function raise(send) {
   const dr = state.draft, s = schoolById(state.schoolId); if (!s) return;
   const v = parseFloat(dr.value), t = stamp();
   const readings = state.mode === 'demo' ? state.demo.readings : live.readings;
+  const before = reading(readings[s.id], t);
+  const source = dr.when ? `Forecast for ${dr.when.toLowerCase()} (Open-Meteo)` : dr.hazard === 'air' ? (before && !isNaN(v) && Math.abs(before.value - v) < 0.05 ? before.source : 'Reading entered by the team')
+    : dr.hazard === 'heat' ? 'Open-Meteo forecast' : 'Rain forecast or Kenya Meteorological Department advisory';
   if (dr.hazard === 'air' && !isNaN(v) && !dr.when) {
     const prev = readings[s.id] || {};
     if (state.mode === 'demo') readings[s.id] = { ...prev, pm25: r1(v), at: t, history: [...(prev.history || []).slice(-23), r1(v)] };
@@ -861,7 +958,8 @@ function raise(send) {
     const step = (dr.step || (dr.hazard === 'air' ? airBand(v).step : WEATHER[dr.hazard].step)).trim().slice(0, 600);
     const seq = state.mode === 'demo' ? 100 + state.demo.alerts.length + 1 : ++live.seq;
     const alert = { id: 'a' + t.toString(36) + Math.random().toString(36).slice(2, 6), ref: 'DA-' + seq, schoolId: s.id, schoolName: s.name, hazard: dr.hazard, level,
-      value: dr.hazard === 'rain' ? null : (isNaN(v) ? null : r1(v)), raisedAt: t, step, actions: [], expected: dr.when || null };
+      value: dr.hazard === 'rain' ? null : (isNaN(v) ? null : r1(v)), raisedAt: t, step, actions: [], expected: dr.when || null, rules: RULES, source };
+    addLog(alert, t, 'Created and sent', `${hazardOf(alert).label}${alert.value != null ? ' · ' + alert.value + (dr.hazard === 'air' ? ' µg/m³' : ' °C') : ''} · ${source}`);
     (state.mode === 'demo' ? state.demo.alerts : live.alerts).unshift(alert);
     if (state.mode === 'live') saveLive();
     state.alertId = alert.id; toast('Alert created. Now tell the head teacher.');
@@ -890,11 +988,22 @@ function exportCsv() {
   const q = (x) => '"' + String(x ?? '').replace(/"/g, '""') + '"';
   const iso8601 = (t) => t ? new Date(t).toISOString() : '';
   const dataset = state.mode === 'demo' ? 'EXAMPLE DATA (demo, not real pilot results)' : 'pilot';
-  const lines = [['dataset', 'ref', 'school', 'area', 'hazard', 'level', 'value', 'raised', 'acknowledged', 'minutes_to_acknowledge', 'actions', 'note', 'parents_informed', 'closed', 'result'].join(',')];
+  const lines = [['dataset', 'ref', 'school', 'area', 'hazard', 'level', 'value', 'status', 'source', 'rules', 'expected', 'raised', 'escalated', 'acknowledged', 'minutes_to_acknowledge', 'actions', 'note', 'parents_informed', 'closed', 'result'].join(',')];
   d.alerts.forEach((a) => { const s = schoolById(a.schoolId) || {};
-    lines.push([dataset, a.ref, schoolName(a), s.area, a.hazard, hazardOf(a).label, a.value, iso8601(a.raisedAt), iso8601(a.ackAt), a.ackAt ? mins(a.raisedAt, a.ackAt) : '', (a.actions || []).join('; '), a.note, iso8601(a.parentsAt), iso8601(a.closedAt), a.result].map(q).join(',')); });
+    lines.push([dataset, a.ref, schoolName(a), s.area, a.hazard, hazardOf(a).label, a.value, STATUS[statusOf(a)][0], a.source, a.rules, a.expected, iso8601(a.raisedAt), iso8601(a.escalatedAt), iso8601(a.ackAt), a.ackAt ? mins(a.raisedAt, a.ackAt) : '', (a.actions || []).join('; '), a.note, iso8601(a.parentsAt), iso8601(a.closedAt), a.result].map(q).join(',')); });
   download(`dunia-alerts-${state.mode === 'demo' ? 'demo-example-data' : 'pilot'}-${today()}.csv`, '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
   toast('CSV downloaded.');
+}
+// One row per step of every alert: who did what, when. For the pilot's audit and evaluation.
+function exportAudit() {
+  const d = data();
+  const q = (x) => '"' + String(x ?? '').replace(/"/g, '""') + '"';
+  const dataset = state.mode === 'demo' ? 'EXAMPLE DATA (demo, not real pilot results)' : 'pilot';
+  const lines = [['dataset', 'ref', 'school', 'hazard', 'time', 'step', 'by', 'detail', 'rebuilt_from_times'].join(',')];
+  d.alerts.slice().reverse().forEach((a) => { const r = recordOf(a);
+    r.list.forEach((e) => lines.push([dataset, a.ref, schoolName(a), a.hazard, new Date(e.at).toISOString(), e.what, e.by || '', e.detail, r.derived ? 'yes' : 'no'].map(q).join(','))); });
+  download(`dunia-alerts-record-${state.mode === 'demo' ? 'demo-example-data' : 'pilot'}-${today()}.csv`, '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+  toast('Record downloaded.');
 }
 $('#restoreFile').addEventListener('change', async (e) => {
   const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
@@ -920,7 +1029,9 @@ function cleanAlert(a) {
   return { id: String(a.id).slice(0, 40), ref: str(a.ref, 20) || 'DA-?', schoolId: String(a.schoolId).slice(0, 60), schoolName: str(a.schoolName, 80),
     hazard: a.hazard, level: LEVELS.includes(a.level) ? a.level : (a.hazard === 'air' ? 'usg' : a.hazard), value: num(a.value), raisedAt, step: str(a.step, 600),
     actions: Array.isArray(a.actions) ? a.actions.filter((x) => typeof x === 'string').slice(0, 8).map((x) => x.slice(0, 80)) : [], note: str(a.note, 300),
-    ackAt: num(a.ackAt), ackBy: str(a.ackBy, 60), actionAt: num(a.actionAt), parentsAt: num(a.parentsAt), closedAt: num(a.closedAt), result: str(a.result, 80), expected: str(a.expected, 60) || null };
+    ackAt: num(a.ackAt), ackBy: str(a.ackBy, 60), actionAt: num(a.actionAt), parentsAt: num(a.parentsAt), closedAt: num(a.closedAt), result: str(a.result, 80), expected: str(a.expected, 60) || null,
+    escalatedAt: num(a.escalatedAt), dismissedAt: num(a.dismissedAt), expiredAt: num(a.expiredAt), reopenedAt: num(a.reopenedAt), rules: str(a.rules, 100), source: str(a.source, 140),
+    log: Array.isArray(a.log) ? a.log.slice(-60).filter((e) => e && num(e.at)).map((e) => ({ at: e.at, by: str(e.by, 60), what: str(e.what, 40), detail: str(e.detail, 200) })) : [] };
 }
 
 /* ---------- Events ---------- */
@@ -932,6 +1043,8 @@ document.addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('g[data-action], tr[data-action]')) { e.preventDefault(); act(e.target); } });
 document.addEventListener('input', (e) => {
+  const sk = e.target.dataset.screen;
+  if (sk) { state.screen[sk] = e.target.value; const s0 = schoolById(state.screen.schoolId) || data().schools[0]; const u = s0 ? screenUrl(s0, state.screen) : '#'; const o = $('#scOpen'); if (o) o.href = u; const l = $('#scLink'); if (l) l.value = u; const bad = $('#scRoomBad'); if (bad) bad.hidden = !state.screen.room || ROOM_ID.test(state.screen.room.trim().toLowerCase()); return; }
   const k = e.target.dataset.input; if (!k) return;
   state.draft[k] = e.target.value;
   if (k === 'value' && $('#side')) { const pos = e.target.selectionStart; $('#side').innerHTML = raiseForm(); const inp = $('#rdValue'); inp.focus(); try { inp.setSelectionRange(pos, pos); } catch (_) {} }
@@ -942,6 +1055,7 @@ document.addEventListener('change', (e) => {
   if (k === 'school') { state.schoolId = e.target.value; state.alertId = null; resetDraft(); render(); }
   if (k === 'alert') { state.alertId = e.target.value; render(); }
   if (k === 'result') { state.draft.result = e.target.value; const btn = $('[data-action="close"]'); if (btn) btn.disabled = !state.draft.result; }
+  if (k === 'reason') { state.draft.reason = e.target.value; const btn = $('[data-action="dismiss-alert"]'); if (btn) btn.disabled = !state.draft.reason; }
 });
 window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (VIEWS.includes(h) && h !== state.view) setView(h); });
 let lastW = window.innerWidth, rT = 0;

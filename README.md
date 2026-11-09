@@ -53,6 +53,38 @@ The key stays on the server: the small function in `api/sensors.js` asks OpenAQ 
 
 Model limits to know: CAMS works at a city scale, so schools close together read alike, and GloFAS sees larger rivers better than small urban streams. For heavy rain, also follow the [Kenya Meteorological Department](https://meteo.go.ke/).
 
+## Classroom screens and indoor sensors
+
+**The screen.** `classroom` is a wall screen for a classroom TV or tablet: the room's temperature, fresh air (CO₂), dust (PM2.5) and humidity, the weather and air outside, and a daily Climate Detective question, in English or Kiswahili. It shows no names and has no controls for learners. Make a link for each classroom in **Schools → Classroom screens** and open it on the classroom's screen (press **Full screen**). It keeps the screen awake, refreshes every minute and reloads itself every 6 hours.
+
+- Without a sensor it shows the conditions outside.
+- When readings are more than 15 minutes old it says **Data not current**, never "Live".
+- `classroom?demo=1` shows example data for training (also `demo=co2`, `air`, `heat`, `rain`, `stale`). It is labelled as example data on screen.
+- Levels for the screen are in `assets/config.js` (`classroom`): open a window from 1,000 ppm CO₂, "time for fresh air" from 1,500 ppm, warm from 27 °C, hot from 30 °C. CO₂ shows how fresh the air is; it is not a health limit.
+
+**Turn on indoor sensors** (once you have them):
+
+1. In Vercel, open the project, **Storage → Create → Upstash for Redis** (free plan) and connect it to this project. That adds `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
+2. For each sensor, run `node tools/new-device.js dev-baraka-6a baraka-6a` (device ID, then the classroom's room ID). It prints a secret **key** for the sensor and a **line** for Vercel.
+3. In Vercel **Settings → Environment Variables**, add `DEVICE_KEYS` with the lines, separated by commas. **Redeploy.**
+4. Put the key on the sensor. In Schools → Classroom screens, type the room ID so the screen shows that room.
+5. Before installing, test with the simulator: `node tools/simulate-sensor.js https://dunia-alerts.vercel.app dev-baraka-6a <key> --backfill`.
+
+**Sensor API** (any sensor or gateway that can send HTTPS):
+
+| Method and path | What it does |
+| --- | --- |
+| `POST /api/v1/observations` | A sensor sends readings. Headers `Authorization: Bearer <key>` and `X-Device-Id: <device_id>`. Body `{"readings":[{"observed_at":"2026-11-09T07:30:00Z","co2_ppm":712,"pm25_ugm3":12.1,"temp_c":25.6,"rh_pct":54,"msg_id":"unique-id"}]}`; up to 120 readings at once. |
+| `GET /api/v1/classrooms/<room>/latest` | The latest checked reading per measurement, its age and whether it is current, and the sensor's status. |
+| `GET /api/v1/classrooms/<room>/history` | The same, plus hourly averages for 24 hours and a trend. |
+| `GET /api/v1/health` | Whether storage and sensors are set up (counts only). |
+
+Every reading is checked: the key (only its hash is stored on the server), the clock (not in the future, not older than 7 days), and each value's range. Impossible values are refused; unusual ones are kept, flagged and left out of the screen's advice and averages. Sending the same `msg_id` twice is safe, so a sensor can resend what it stored while offline. 60 requests a minute per sensor. Consumer PM2.5 sensors can be corrected with `CALIBRATION_JSON`, for example `{"dev-baraka-6a":{"pm25_ugm3":{"scale":0.62,"offset":1.5}}}`, after comparing them with a reference sensor.
+
+## Every alert has a record
+
+Each step is saved with its time and who recorded it: created and sent (with the reading's source and the alert rules at the time), escalated, acknowledged, action, parents informed, closed, dismissed as a false alarm, reopened and expired. Steps can't be edited. If the head teacher hasn't replied after 30 minutes (`escalateMinutes` in `assets/config.js`), the desk suggests calling. Alerts still waiting at the end of the school day are closed as expired. Dismissed alerts stay in the record but are left out of response times. **Impact → Record** downloads every step as a CSV for the pilot's evaluation. Set **Your name on this device** in Schools so the record shows who did what.
+
 ## Where the records are kept
 
 Schools, alerts and responses are saved **in the browser of the device that uses the app** (no account, no cookies).
@@ -95,10 +127,14 @@ That file is public, so only names, areas and pupil numbers go there, never phon
 ```
 index.html            the dashboard
 about.html            the public page for schools, partners and funders (/about)
+classroom.html        the classroom wall screen (/classroom), with assets/classroom.js and .css
 assets/app.css        design
 assets/app.js         the app
 assets/config.js      schools, refresh time, alert thresholds
 api/sensors.js        Vercel function: OpenAQ ground sensors (needs OPENAQ_API_KEY)
+api/v1/               classroom sensor API: observations, classroom, health (needs Upstash for Redis and DEVICE_KEYS)
+api/_lib/core.js      shared checks for the sensor API
+tools/                new-device.js (make a sensor key), simulate-sensor.js (test without hardware)
 assets/fonts/         Inter Tight and Bricolage Grotesque (SIL Open Font License)
 favicon.svg, apple-touch-icon.png, icon-512.png, site.webmanifest
 vercel.json           clean addresses and security headers for Vercel
@@ -109,7 +145,7 @@ SECURITY.md, .well-known/security.txt              how to report a security prob
 
 ## Privacy and security
 
-No cookies, no analytics, no accounts. Outside requests go only to Open-Meteo (a school's area coordinates) and, through the site's own server, to OpenAQ (the centre of the schools' area).
+No cookies, no analytics, no accounts. Outside requests go only to Open-Meteo (a school's area coordinates) and, through the site's own server, to OpenAQ (the centre of the schools' area). Classroom sensors send room conditions only: no cameras, microphones or names.
 Never write pupils' names in notes. Restored backups are checked field by field before they are used. To report a security problem, see [SECURITY.md](SECURITY.md). Children are credited by first name and age only in Dunia Endelevu's work, and not at all here.
 
 ## Licence

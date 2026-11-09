@@ -26,45 +26,107 @@
 <link rel="manifest" href="site.webmanifest">
 <link rel="preload" href="assets/fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/app.css">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebApplication",
-      "@id": "https://dunia-alerts.vercel.app/#app",
-      "name": "Dunia Alerts",
-      "url": "https://dunia-alerts.vercel.app/",
-      "description": "Early warning dashboard for schools in Nairobi, Kenya: unhealthy air, heat, heavy rain and rising rivers up to 48 hours ahead, with steps for head teachers and messages for parents in English and Kiswahili.",
-      "applicationCategory": "EducationalApplication",
-      "operatingSystem": "Any (web browser)",
-      "inLanguage": ["en", "sw"],
-      "isAccessibleForFree": true,
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KES" },
-      "areaServed": { "@type": "City", "name": "Nairobi", "containedInPlace": { "@type": "Country", "name": "Kenya" } },
-      "publisher": { "@id": "https://dunia-endelevu.vercel.app/#org" },
-      "screenshot": "https://dunia-alerts.vercel.app/og-image.png"
-    },
-    {
-      "@type": "NGO",
-      "@id": "https://dunia-endelevu.vercel.app/#org",
-      "name": "Dunia Endelevu",
-      "url": "https://dunia-endelevu.vercel.app/",
-      "founder": { "@type": "Person", "name": "Alana Chelangat", "url": "https://alanachelangat.com/" },
-      "areaServed": "Kenya"
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "Is Dunia Alerts free for schools?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Schools never pay. The pilot is run by Dunia Endelevu and supported by donors." } },
-        { "@type": "Question", "name": "Where does the data come from?", "acceptedAnswer": { "@type": "Answer", "text": "Weather forecasts from Open-Meteo, air quality from the Copernicus Atmosphere Monitoring Service, river flow from the Global Flood Awareness System, and, where available, ground sensors through OpenAQ, including AirQo sensors in Nairobi." } },
-        { "@type": "Question", "name": "Does a computer send the warnings?", "acceptedAnswer": { "@type": "Answer", "text": "No. The dashboard suggests an alert when a reading or forecast crosses a safe level. A person on the Dunia team checks it and decides to send it." } },
-        { "@type": "Question", "name": "What happens to children's information?", "acceptedAnswer": { "@type": "Answer", "text": "Dunia Alerts never records children's names. It records what the school did, how fast it replied and whether parents were told." } }
-      ]
+<script type="application/ld+json">{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "@id": "https://dunia-alerts.vercel.app/#app",
+   "name": "Dunia Alerts",
+   "url": "https://dunia-alerts.vercel.app/",
+   "description": "Early warning dashboard for schools in Nairobi, Kenya: unhealthy air, heat, heavy rain and rising rivers up to 48 hours ahead, with steps for head teachers and messages for parents in English and Kiswahili.",
+   "applicationCategory": "EducationalApplication",
+   "operatingSystem": "Any (web browser)",
+   "inLanguage": [
+    "en",
+    "sw"
+   ],
+   "isAccessibleForFree": true,
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KES"
+   },
+   "areaServed": {
+    "@type": "City",
+    "name": "Nairobi",
+    "containedInPlace": {
+     "@type": "Country",
+     "name": "Kenya"
     }
-  ]
-}
-</script>
+   },
+   "publisher": {
+    "@id": "https://dunia-endelevu.vercel.app/#org"
+   },
+   "screenshot": "https://dunia-alerts.vercel.app/og-image.png"
+  },
+  {
+   "@type": "NGO",
+   "@id": "https://dunia-endelevu.vercel.app/#org",
+   "name": "Dunia Endelevu",
+   "url": "https://dunia-endelevu.vercel.app/",
+   "founder": {
+    "@type": "Person",
+    "name": "Alana Chelangat",
+    "url": "https://alanachelangat.com/"
+   },
+   "areaServed": "Kenya"
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "Is Dunia Alerts free for schools?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. Schools never pay. The pilot is run by Dunia Endelevu and supported by donors."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Where does the data come from?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Weather forecasts from Open-Meteo, air quality from the Copernicus Atmosphere Monitoring Service, river flow from the Global Flood Awareness System, and, where available, ground sensors through OpenAQ, including AirQo sensors in Nairobi."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does a computer send the warnings?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. The dashboard suggests an alert when a reading or forecast crosses a safe level. A person on the Dunia team checks it and decides to send it."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What happens to children's information?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Dunia Alerts never records children's names. It records what the school did, how fast it replied and whether parents were told."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does the classroom screen collect anything about children?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. It shows the room’s temperature, fresh air (CO₂), dust and humidity, and the weather outside. It has no camera or microphone, shows no names and has no controls for learners."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Can another city or school network use it?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "We hope so. Get in touch through Dunia Endelevu and we will share what we learn from the pilot."
+     }
+    }
+   ]
+  }
+ ]
+}</script>
 </head>
 <body class="page-about">
 <a class="skip" href="#main">Skip to content</a>
@@ -130,6 +192,20 @@
       </div>
     </section>
 
+    <section class="a-sec" aria-labelledby="room">
+      <h2 id="room">Inside the classroom</h2>
+      <p class="a-intro">The next step brings the warning into the room where children learn. A wall screen shows the classroom’s fresh air, temperature and dust, and the weather outside, in English and Kiswahili.</p>
+      <div class="a-room">
+        <figure class="a-shot"><img src="assets/classroom-example.webp" width="1280" height="720" loading="lazy" alt="The Dunia Alerts classroom screen with example data: the message ‘Our classroom is ready for learning’, tiles for temperature, fresh air, dust and humidity, the weather outside and a Climate Detective question."><figcaption>The classroom screen, with example data. <a href="classroom?demo=1">Open the example</a></figcaption></figure>
+        <ul class="a-ticks">
+          <li><b>Built.</b> The classroom screen, and a secure connection for indoor sensors that checks every reading before it is shown.</li>
+          <li><b>Honest by design.</b> When readings are old, the screen says “Data not current” instead of looking live.</li>
+          <li><b>A lesson every day.</b> A Climate Detective question turns the numbers into a class discussion.</li>
+          <li><b>Next, with funding.</b> Sensors in two pilot classrooms, one with better shade and ventilation, compared over two school terms.</li>
+        </ul>
+      </div>
+    </section>
+
     <section class="a-sec a-split" aria-labelledby="trust">
       <div>
         <h2 id="trust">Built to be trusted</h2>
@@ -154,7 +230,7 @@
       <p class="a-intro">The data is free. People, phones and sensors are not. Support pays for the things that turn a forecast into a child staying safe.</p>
       <div class="a-grid">
         <article class="card"><h3>Messages to every parent</h3><p>SMS credit so each alert reaches every family, not only those on WhatsApp.</p></article>
-        <article class="card"><h3>Sensors at schools</h3><p>Ground air sensors at pilot schools, so warnings rest on measured readings, not only models.</p></article>
+        <article class="card"><h3>Sensors in classrooms</h3><p>Indoor sensors and a wall screen for pilot classrooms, and air sensors at schools, so warnings rest on measured readings, not only models.</p></article>
         <article class="card"><h3>Training head teachers</h3><p>Short sessions so each school agrees its steps with its health lead and practises them.</p></article>
         <article class="card"><h3>A login for every school</h3><p>A shared, secure system so each head teacher can see and answer alerts on their own phone.</p></article>
         <article class="card"><h3>An open evaluation</h3><p>An independent look at what worked, published so other cities can copy it.</p></article>
@@ -182,6 +258,7 @@
         <details><summary>Where does the data come from?</summary><p>Weather forecasts from Open-Meteo, air quality from the Copernicus Atmosphere Monitoring Service, river flow from the Global Flood Awareness System, and, where available, ground sensors through OpenAQ, including AirQo sensors in Nairobi.</p></details>
         <details><summary>Does a computer send the warnings?</summary><p>No. The dashboard suggests an alert when a reading or forecast crosses a safe level. A person on the Dunia team checks it and decides to send it.</p></details>
         <details><summary>What happens to children’s information?</summary><p>Dunia Alerts never records children’s names. It records what the school did, how fast it replied and whether parents were told. The pilot’s records stay on the Dunia team’s device and in its backups.</p></details>
+        <details><summary>Does the classroom screen collect anything about children?</summary><p>No. It shows the room’s temperature, fresh air (CO₂), dust and humidity, and the weather outside. It has no camera or microphone, shows no names and has no controls for learners.</p></details>
         <details><summary>Can another city or school network use it?</summary><p>We hope so. Get in touch through Dunia Endelevu and we will share what we learn from the pilot.</p></details>
       </div>
     </section>

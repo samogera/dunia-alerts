@@ -4,6 +4,7 @@
 
 - [About Dunia Alerts](https://dunia-alerts.vercel.app/about): the problem, how it works, data sources, status, and how to support or partner
 - [Live dashboard](https://dunia-alerts.vercel.app/): the working tool (records are kept on the Dunia team's device)
+- [Classroom screen](https://dunia-alerts.vercel.app/classroom?demo=1): the wall screen for classrooms, shown here with example data
 - [Dunia Endelevu](https://dunia-endelevu.vercel.app/): the youth-led climate organisation that runs the pilot
 - [Alana Chelangat](https://alanachelangat.com/): founder of Dunia Endelevu
 
@@ -12,4 +13,5 @@
 - Hazards and alert levels: PM2.5 of 35.5 µg/m³ or more (US EPA 2024 "unhealthy for sensitive groups"); 30 mm or more of rain in a day; a high of 30 °C or more; a river at twice its usual flow.
 - Data: Open-Meteo weather forecasts; Copernicus Atmosphere Monitoring Service air quality; Global Flood Awareness System river flow; OpenAQ ground sensors (including AirQo) when connected.
 - A person always decides before a warning is sent. No children's names are recorded. Free for schools.
+- Classroom screen: shows a classroom's temperature, fresh air (CO₂), dust (PM2.5) and humidity from an indoor sensor, plus the weather and air outside, in English and Kiswahili. Built; indoor sensors are the next step, with funding.
 - Status: built and live; pilot schools being added; results will be published openly. There are no pilot results yet.

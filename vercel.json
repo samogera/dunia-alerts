@@ -1,6 +1,16 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api/v1/classrooms/:room/latest",
+      "destination": "/api/v1/classroom?room=:room"
+    },
+    {
+      "source": "/api/v1/classrooms/:room/history",
+      "destination": "/api/v1/classroom?room=:room&history=1"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -53,7 +63,7 @@
       ]
     },
     {
-      "source": "/api/(.*)",
+      "source": "/api/sensors",
       "headers": [
         {
           "key": "Cache-Control",
