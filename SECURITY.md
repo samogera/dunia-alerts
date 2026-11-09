@@ -2,7 +2,7 @@
 
 ## Reporting a problem
 
-Please report security issues privately through [Dunia Endelevu's contact page](https://dunia-endelevu.vercel.app/contact.html), with "Security" in the subject. Do not open a public issue. We reply within five working days.
+Please report security issues privately through [Dunia Endelevu's contact page](https://duniaendelevu.org/contact), with "Security" in the subject. Do not open a public issue. We reply within five working days.
 
 ## How Dunia Alerts protects data
 

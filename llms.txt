@@ -5,7 +5,7 @@
 - [About Dunia Alerts](https://dunia-alerts.vercel.app/about): the problem, how it works, data sources, status, and how to support or partner
 - [Live dashboard](https://dunia-alerts.vercel.app/): the working tool (records are kept on the Dunia team's device)
 - [Classroom screen](https://dunia-alerts.vercel.app/classroom?demo=1): the wall screen for classrooms, shown here with example data
-- [Dunia Endelevu](https://dunia-endelevu.vercel.app/): the youth-led climate organisation that runs the pilot
+- [Dunia Endelevu](https://duniaendelevu.org/): the youth-led climate organisation that runs the pilot
 - [Alana Chelangat](https://alanachelangat.com/): founder of Dunia Endelevu
 
 ## Facts

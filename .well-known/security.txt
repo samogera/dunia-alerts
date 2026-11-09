@@ -1,4 +1,4 @@
-Contact: https://dunia-endelevu.vercel.app/contact.html
+Contact: https://duniaendelevu.org/contact
 Expires: 2027-11-09T00:00:00.000Z
 Preferred-Languages: en, sw
 Canonical: https://dunia-alerts.vercel.app/.well-known/security.txt

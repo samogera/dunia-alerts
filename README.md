@@ -1,7 +1,7 @@
 # Dunia Alerts
 
 Early warning for schools in Nairobi: unhealthy air, very hot days and heavy rain.
-A [Dunia Endelevu](https://dunia-endelevu.vercel.app/) pilot, led by Alana Chelangat.
+A [Dunia Endelevu](https://duniaendelevu.org/) pilot, led by Alana Chelangat.
 
 The Dunia team watches the readings, sends an alert to a school, and records how the school responds:
 the head teacher acknowledges, the school acts, parents are told in English and Kiswahili, and the alert is closed with a result.
