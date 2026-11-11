@@ -619,6 +619,8 @@ svg.pi { fill: currentColor !important; stroke: none !important; flex: none; }
 .su-contact { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: 13.5px; font-weight: 600; }
 .su-contact a { overflow-wrap: anywhere; }
 .su-wa { color: #128C4A; }
+.su-pref { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.su-ref { align-self: flex-start; font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .05em; padding: 3px 9px; border-radius: 8px; background: var(--soft); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); }
 .su-side { display: flex; flex-direction: column; gap: 8px; }
 .su-side .mono { white-space: normal; }
 .su-status { height: 38px; padding: 0 12px; border: 1px solid var(--line-2); font-weight: 600; }

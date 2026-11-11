@@ -644,21 +644,33 @@ def llms_full():
     return '\n'.join(out).rstrip() + '\n'
 
 
-# ---------- Join the pilot (join.html) ----------
-ROLES = [('head', 'Head teacher or deputy'), ('teacher', 'Teacher'), ('school', 'School owner, manager or board member'),
-         ('parent', 'Parent or guardian'), ('gov', 'County or national government'), ('partner', 'NGO, researcher or partner'),
-         ('funder', 'Funder or donor'), ('other', 'Something else')]
-LEARNERS = [('', 'Choose one'), ('u300', 'Under 300'), ('300-700', '300 to 700'), ('700-1500', '700 to 1,500'),
-            ('1500+', 'Over 1,500'), ('na', 'Not a school')]
+# ---------- Join the pilot (join.html): a standalone application page ----------
+TYPES = [  # value, icon, title, one line
+    ('school', 'school', 'A school', 'Head teacher, deputy, teacher or manager'),
+    ('parent', 'parents', 'A parent or community member', 'Suggest a school you know'),
+    ('partner', 'support', 'An NGO, researcher or partner', 'Work with us in schools'),
+    ('gov', 'policy', 'County or national government', 'Education, environment or health'),
+    ('funder', 'cost', 'A funder or donor', 'Support SMS, sensors and training'),
+    ('other', 'plus', 'Something else', 'Tell us below'),
+]
+SUBCOUNTIES = [('dagoretti-north', 'Dagoretti North'), ('dagoretti-south', 'Dagoretti South'), ('embakasi-central', 'Embakasi Central'),
+               ('embakasi-east', 'Embakasi East'), ('embakasi-north', 'Embakasi North'), ('embakasi-south', 'Embakasi South'),
+               ('embakasi-west', 'Embakasi West'), ('kamukunji', 'Kamukunji'), ('kasarani', 'Kasarani'), ('kibra', 'Kibra'),
+               ('langata', 'Lang’ata'), ('makadara', 'Makadara'), ('mathare', 'Mathare'), ('roysambu', 'Roysambu'), ('ruaraka', 'Ruaraka'),
+               ('starehe', 'Starehe'), ('westlands', 'Westlands')]
+SCHOOL_TYPES = [('public', 'Public'), ('private', 'Private'), ('community', 'Community or low-cost')]
+CONTACTS = [('email', 'Email'), ('call', 'Phone call'), ('whatsapp', 'WhatsApp')]
+LEARNERS = [('', 'Choose one'), ('u300', 'Under 300'), ('300-700', '300 to 700'), ('700-1500', '700 to 1,500'), ('1500+', 'Over 1,500')]
 CONCERNS = [('air', 'air', 'Dirty air'), ('heat', 'heat', 'Great heat'), ('rain', 'rain', 'Heavy rain and floods'),
             ('river', 'river', 'Rising rivers'), ('room', 'comfort', 'Classroom air and comfort')]
-GUIDE = '/assets/docs/how-dunia-alerts-works.pdf'
+
+TICK = '<svg class="tk" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
 
 JOIN_LD = {
     '@context': 'https://schema.org',
     '@graph': [
         {'@type': 'WebPage', '@id': SITE + '/join#webpage', 'url': SITE + '/join', 'name': 'Join the Dunia Alerts pilot',
-         'description': 'Schools in Nairobi can join the free Dunia Alerts pilot: early warnings for air, heat, heavy rain and rivers. Partners, county offices and funders are welcome too.',
+         'description': 'Apply to join the free Dunia Alerts pilot: early warnings for air, heat, heavy rain and rivers for schools in Nairobi. Partners, county offices and funders are welcome too.',
          'isPartOf': {'@id': SITE + '/#website'}, 'about': {'@id': SITE + '/#app'}, 'inLanguage': 'en', 'dateModified': MODIFIED,
          'potentialAction': {'@type': 'JoinAction', 'target': SITE + '/join#form', 'object': {'@id': SITE + '/#app'}}},
         {'@type': 'BreadcrumbList', 'itemListElement': [
@@ -673,7 +685,7 @@ JOIN_PAGE = '''<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Join the pilot · Dunia Alerts</title>
-<meta name="description" content="Bring free early warnings for air, heat, heavy rain and rivers to your school in Nairobi. Join the Dunia Alerts pilot in two minutes. Partners and funders welcome.">
+<meta name="description" content="Apply to join the free Dunia Alerts pilot in Nairobi: early warnings for air, heat, heavy rain and rivers for your school. Takes about two minutes. Partners and funders welcome.">
 <link rel="canonical" href="https://alerts.duniaendelevu.org/join">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#F2F3F1">
@@ -690,7 +702,7 @@ JOIN_PAGE = '''<!doctype html>
 <meta property="og:locale" content="en_KE">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Join the Dunia Alerts pilot">
-<meta name="twitter:description" content="Free early warnings for Nairobi schools. Join the pilot in two minutes.">
+<meta name="twitter:description" content="Free early warnings for Nairobi schools. Apply in two minutes.">
 <meta name="twitter:image" content="https://alerts.duniaendelevu.org/og-image.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -700,142 +712,208 @@ JOIN_PAGE = '''<!doctype html>
 <script src="/assets/join.js" defer></script>
 <script type="application/ld+json">__JLD__</script>
 </head>
-<body class="join-page">
+<body class="ap-page">
 <a class="skip" href="#form">Skip to the form</a>
 
-__NAV__
+<header class="ap-top">
+  <div class="ap-top__in">
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
+    <span class="ap-top__label">Pilot programme</span>
+    <a class="ap-top__back" href="/"><span aria-hidden="true">← </span><span class="ap-top__long">Back to Dunia Alerts</span><span class="ap-top__short">Home</span></a>
+  </div>
+</header>
 
-<div class="frame">
-<main id="main">
-
-  <section class="join-head">
-    <span class="kicker">Free for schools · Nairobi pilot</span>
-    <h1 class="h1 h1--join">Bring early warnings to <span class="hl">your school</span></h1>
-    <p class="lede">Tell us a little about your school or organisation. It takes about two minutes, and the Dunia team reads every reply.</p>
+<main id="main" class="ap">
+  <section class="ap-hero">
+    <nav class="ap-crumbs" aria-label="Breadcrumb"><a href="/">Dunia Alerts</a><span aria-hidden="true">/</span><span aria-current="page">Join the pilot</span></nav>
+    <p class="ap-status"><span class="ap-status__dot" aria-hidden="true"></span>Applications open · Nairobi pilot</p>
+    <h1 class="ap-h1">Join the Dunia Alerts pilot</h1>
+    <p class="ap-lede">For schools in Nairobi that want early warnings for dirty air, great heat, heavy rain and rising rivers, and for partners, county offices and funders who want to work with us.</p>
+    <ul class="ap-meta">
+      <li>__IC_time__About 2 minutes</li>
+      <li>__IC_free__Free for schools</li>
+      <li>__IC_lock__Seen only by the Dunia team</li>
+    </ul>
   </section>
 
-  <div class="join">
-    <section class="jform" id="form" aria-labelledby="form-h" tabindex="-1">
-      <div class="jform__head">
-        <span class="tile tile--lg">__IC_school__</span>
-        <div><h2 id="form-h">Join the pilot</h2><p>Anything marked <span class="opt">optional</span> can be left empty.</p></div>
+  <div class="ap-grid">
+    <aside class="ap-rail" aria-label="Form progress">
+      <div class="ap-rail__box">
+        <p class="ap-rail__h">Your application</p>
+        <ol class="ap-steps" id="steps">
+          <li data-step="s1"><span class="ap-steps__n">1</span><a href="#s1">Applying as</a></li>
+          <li data-step="s2"><span class="ap-steps__n">2</span><a href="#s2">Your details</a></li>
+          <li data-step="s3"><span class="ap-steps__n">3</span><a href="#s3">School or organisation</a></li>
+          <li data-step="s4"><span class="ap-steps__n">4</span><a href="#s4">Needs and consent</a></li>
+        </ol>
+        <div class="ap-bar" aria-hidden="true"><span id="bar"></span></div>
       </div>
+      <div class="ap-rail__box ap-next">
+        <p class="ap-rail__h">What happens next</p>
+        <ol>
+          <li>We read every application.</li>
+          <li>We call or email you for a short chat.</li>
+          <li>We set up your school and agree who gets the alerts.</li>
+        </ol>
+        <p class="ap-next__note">The pilot starts small, so schools may join in stages.</p>
+      </div>
+      <p class="ap-help">Questions? <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a></p>
+    </aside>
 
+    <section class="ap-card" id="form" aria-labelledby="form-h" tabindex="-1">
+      <h2 class="sr" id="form-h">Application form</h2>
       <form id="join" method="post" action="/api/join" novalidate>
-        <div class="msg msg--info" id="msg" role="alert" hidden></div>
+        <div class="ap-errors" id="errors" role="alert" tabindex="-1" hidden>
+          <h3>Please check your application</h3>
+          <ul id="error-list"></ul>
+        </div>
+        <div class="msg" id="msg" role="alert" hidden></div>
+        <p class="ap-req">All questions are required unless marked <span class="opt">optional</span>.</p>
 
-        <fieldset>
-          <legend>About you</legend>
-          <label class="field" for="role"><span>I am</span>
-            <select class="input select" id="role" name="role" required>
-              <option value="">Choose one</option>
-__ROLES__
-            </select>
-          </label>
-          <div class="two">
-            <label class="field" for="name"><span>Your name</span>
-              <input class="input" id="name" name="name" type="text" autocomplete="name" maxlength="80" required>
-            </label>
-            <label class="field" for="email"><span>Email</span>
-              <input class="input" id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" required>
-            </label>
+        <fieldset class="ap-sec" id="s1">
+          <legend class="ap-sec__head"><span class="ap-sec__n">1</span><span><b>Applying as</b><small>Choose the one that fits you best.</small></span></legend>
+          <p class="ap-err" id="type-err" hidden></p>
+          <div class="ap-types">
+__TYPES__
           </div>
-          <label class="field" for="phone"><span>Phone or WhatsApp <span class="opt">optional</span></span>
-            <input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="+254 …">
-          </label>
         </fieldset>
 
-        <fieldset>
-          <legend>Your school or organisation</legend>
-          <label class="field" for="org"><span>Name of the school or organisation</span>
-            <input class="input" id="org" name="org" type="text" autocomplete="organization" maxlength="120" required>
-          </label>
-          <div class="two">
-            <label class="field" for="area"><span>Area or town <span class="opt">optional</span></span>
-              <input class="input" id="area" name="area" type="text" autocomplete="address-level2" maxlength="80" placeholder="For example, Embakasi, Nairobi">
-            </label>
-            <label class="field" for="learners"><span>Learners at the school <span class="opt">optional</span></span>
-              <select class="input select" id="learners" name="learners">
-__LEARNERS__
+        <fieldset class="ap-sec" id="s2">
+          <legend class="ap-sec__head"><span class="ap-sec__n">2</span><span><b>Your details</b><small>So we know who to talk to.</small></span></legend>
+          <div class="ap-row">
+            <div class="ap-field" data-f="name">
+              <label for="name">Full name</label>
+              <p class="ap-err" id="name-err" hidden></p>
+              <input class="ap-input" id="name" name="name" type="text" autocomplete="name" maxlength="80" aria-describedby="name-err">
+            </div>
+            <div class="ap-field" data-f="title">
+              <label for="title">Job title <span class="opt">optional</span></label>
+              <input class="ap-input" id="title" name="title" type="text" autocomplete="organization-title" maxlength="80" placeholder="For example, Head teacher">
+            </div>
+          </div>
+          <div class="ap-row">
+            <div class="ap-field" data-f="email">
+              <label for="email">Email address</label>
+              <p class="ap-err" id="email-err" hidden></p>
+              <input class="ap-input" id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" aria-describedby="email-err">
+            </div>
+            <div class="ap-field" data-f="phone">
+              <label for="phone">Phone or WhatsApp <span class="opt" id="phone-opt">optional</span></label>
+              <p class="ap-err" id="phone-err" hidden></p>
+              <input class="ap-input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="+254 7XX XXX XXX" aria-describedby="phone-err">
+            </div>
+          </div>
+          <div class="ap-field">
+            <span class="ap-label" id="contact-l">How should we contact you?</span>
+            <div class="ap-seg" role="radiogroup" aria-labelledby="contact-l">
+__CONTACTS__
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="ap-sec" id="s3">
+          <legend class="ap-sec__head"><span class="ap-sec__n">3</span><span><b id="s3-title">School or organisation</b><small id="s3-sub">Where the alerts would go.</small></span></legend>
+          <div class="ap-field" data-f="org">
+            <label for="org" id="org-l">School or organisation name</label>
+            <p class="ap-err" id="org-err" hidden></p>
+            <input class="ap-input" id="org" name="org" type="text" autocomplete="organization" maxlength="120" aria-describedby="org-err">
+          </div>
+          <div class="ap-field" data-school>
+            <span class="ap-label" id="stype-l">Type of school <span class="opt">optional</span></span>
+            <div class="ap-seg" role="radiogroup" aria-labelledby="stype-l">
+__SCHOOL_TYPES__
+            </div>
+          </div>
+          <div class="ap-row">
+            <div class="ap-field">
+              <label for="subcounty">Sub-county <span class="opt">optional</span></label>
+              <select class="ap-input ap-select" id="subcounty" name="subcounty">
+                <option value="">Choose one</option>
+                <optgroup label="Nairobi">
+__SUBCOUNTIES__
+                </optgroup>
+                <option value="outside">Outside Nairobi</option>
               </select>
+            </div>
+            <div class="ap-field">
+              <label for="area">Ward, estate or town <span class="opt">optional</span></label>
+              <input class="ap-input" id="area" name="area" type="text" autocomplete="address-level3" maxlength="80" placeholder="For example, Mukuru">
+            </div>
+          </div>
+          <div class="ap-field ap-field--half" data-school>
+            <label for="learners">Number of learners <span class="opt">optional</span></label>
+            <select class="ap-input ap-select" id="learners" name="learners">
+__LEARNERS__
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset class="ap-sec" id="s4">
+          <legend class="ap-sec__head"><span class="ap-sec__n">4</span><span><b>Needs and consent</b><small>What matters most to you, and your OK to be contacted.</small></span></legend>
+          <div class="ap-field">
+            <span class="ap-label" id="concerns-l">What worries you most? <span class="opt">optional</span></span>
+            <p class="ap-hint">Choose any that apply.</p>
+            <div class="ap-picks" role="group" aria-labelledby="concerns-l">
+__CONCERNS__
+            </div>
+          </div>
+          <div class="ap-field">
+            <label for="message">Anything else we should know? <span class="opt">optional</span></label>
+            <p class="ap-hint" id="message-hint">Questions, what your school needs, or the best time to call. Please don’t write children’s names or details.</p>
+            <textarea class="ap-input ap-textarea" id="message" name="message" rows="4" maxlength="1000" aria-describedby="message-hint"></textarea>
+            <p class="ap-count" aria-live="polite"><span id="count">0</span> / 1,000</p>
+          </div>
+
+          <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+
+          <div class="ap-declare" data-f="consent">
+            <p class="ap-err" id="consent-err" hidden></p>
+            <label class="ap-check" for="consent">
+              <input type="checkbox" id="consent" name="consent" aria-describedby="consent-err">
+              <span class="ap-check__box" aria-hidden="true">__TICK__</span>
+              <span><b>I agree that the Dunia team may contact me about the pilot.</b> The details I’ve given are correct to the best of my knowledge.</span>
             </label>
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend>What worries you most? <span class="opt">optional</span></legend>
-          <div class="picks">
-__CONCERNS__
-          </div>
-        </fieldset>
-
-        <label class="field" for="message"><span>Anything else? <span class="opt">optional</span></span>
-          <textarea class="input textarea" id="message" name="message" rows="4" maxlength="1000" placeholder="Questions, what your school needs, or the best time to call"></textarea>
-          <small class="hint">Please don’t write children’s names or details.</small>
-        </label>
-
-        <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
-
-        <label class="consent" for="consent">
-          <input type="checkbox" id="consent" name="consent" required>
-          <span>The Dunia team may contact me about the pilot.</span>
-        </label>
-
-        <button class="btn btn--dark btn--block" id="submit" type="submit">Send my reply__ARROW__</button>
-        <noscript><p class="msg msg--bad">This form needs JavaScript. You can also write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a> with your school’s name, area and a contact.</p></noscript>
-        <p class="fine">__IC_privacy__<span>We use your details only to talk with you about the pilot. They’re kept privately on the Dunia Alerts server, seen only by the signed-in Dunia team, and never shared or sold. To see, change or delete them, write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>.</span></p>
+        <div class="ap-submit">
+          <button class="ap-btn" id="submit" type="submit"><span>Submit application</span>__ARROW__</button>
+          <p class="ap-privacy">__IC_privacy__<span>We use your details only to talk with you about the pilot. They’re kept privately, seen only by the signed-in Dunia team, and never shared or sold. To see, change or delete them, write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>.</span></p>
+        </div>
+        <noscript><p class="msg msg--bad">This form needs JavaScript. You can also write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a> with your name, your school or organisation, and how to reach you.</p></noscript>
       </form>
 
-      <div class="done" id="done" hidden>
-        <span class="tile tile--lg">__IC_check__</span>
-        <h2 id="done-h" tabindex="-1">Thank you. Your reply is in.</h2>
-        <p id="done-p">The Dunia team reads every reply and will get in touch about the next step.</p>
-        <div class="btns btns--left">
-          <a class="btn btn--dark" href="/demo">See the demo__ARROW__</a>
-          <a class="btn btn--light" href="__GUIDE__">Read the 2-page guide</a>
+      <div class="ap-done" id="done" hidden>
+        <div class="ap-done__badge">__TICK__</div>
+        <h2 id="done-h" tabindex="-1">Application received</h2>
+        <p id="done-p">Thank you. The Dunia team reads every application and will get in touch about the next step.</p>
+        <div class="ap-ref">
+          <span class="ap-ref__l">Your reference</span>
+          <span class="ap-ref__v" id="ref">DA-······</span>
+          <button type="button" class="ap-ref__copy" id="copy">__IC_copy__<span>Copy</span></button>
+        </div>
+        <p class="ap-done__small">Keep this reference. Quote it if you write to us at <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>.</p>
+        <ol class="ap-timeline">
+          <li class="is-done"><b>Application received</b><span>Just now</span></li>
+          <li><b>A short call or email</b><span>The Dunia team gets in touch</span></li>
+          <li><b>Set-up</b><span>We add your school and agree who gets the alerts</span></li>
+        </ol>
+        <div class="ap-done__btns">
+          <a class="ap-btn ap-btn--ghost" href="/demo">See the demo</a>
+          <a class="ap-btn ap-btn--ghost" href="/">Back to Dunia Alerts</a>
         </div>
       </div>
     </section>
-
-    <aside class="jside" aria-label="About joining">
-      <div class="jcard">
-        <h2>What your school gets</h2>
-        <ul class="ticks">
-          <li>__CHECK__<span>Warnings for air, heat, heavy rain and rivers around your school, up to 48 hours ahead</span></li>
-          <li>__CHECK__<span>One clear step for the head teacher, by WhatsApp or SMS</span></li>
-          <li>__CHECK__<span>Ready-made messages for parents in English and Kiswahili</span></li>
-          <li>__CHECK__<span>Free. No app to install, and it works on any phone</span></li>
-        </ul>
-      </div>
-      <div class="jcard">
-        <h2>What we ask of you</h2>
-        <ul class="ticks">
-          <li>__CHECK__<span>A named contact who can reply when a warning comes</span></li>
-          <li>__CHECK__<span>A short chat with the Dunia team before you start</span></li>
-          <li>__CHECK__<span>Permission to record how the school responds, never children’s names</span></li>
-        </ul>
-      </div>
-      <div class="jcard">
-        <h2>What happens next</h2>
-        <ol class="nsteps">
-          <li><b>We read your reply.</b> Every reply reaches the Dunia team.</li>
-          <li><b>We get in touch</b> by email or phone for a short chat.</li>
-          <li><b>We set up your school</b> on the dashboard and agree who gets the alerts.</li>
-        </ol>
-        <p class="jnote">The pilot starts small, so schools may join in stages.</p>
-      </div>
-      <div class="jcard jcard--dark">
-        <h2>Not a school?</h2>
-        <p>County and national offices, NGOs, researchers and funders: use the same form and choose who you are. We would love to work with you.</p>
-        <a class="doc" href="__GUIDE__"><span class="doc__ic">__IC_down__</span><span><b>How Dunia Alerts works</b><small>A 2-page guide in simple words · PDF</small></span></a>
-      </div>
-    </aside>
   </div>
-
 </main>
 
-__FOOT__
-</div>
+<footer class="ap-foot">
+  <div class="ap-foot__in">
+    <p>A <a href="https://duniaendelevu.org/">Dunia Endelevu</a> pilot, led by <a href="https://alanachelangat.com/">Alana Chelangat</a>.</p>
+    <nav aria-label="Footer"><a href="/">Dunia Alerts</a><a href="/demo">Demo</a><a href="/#faq">FAQ</a><a href="mailto:hello@duniaendelevu.org">Contact</a></nav>
+    <p class="ap-foot__c">© <span data-year>2026</span> Dunia Endelevu · Nairobi, Kenya</p>
+  </div>
+</footer>
 </body>
 </html>
 '''
@@ -843,12 +921,20 @@ __FOOT__
 
 def join_page():
     import re
-    page = JOIN_PAGE.replace('__NAV__', nav(False)).replace('__FOOT__', FOOT)
-    page = page.replace('__JLD__', json.dumps(JOIN_LD, ensure_ascii=False))
-    page = page.replace('__ROLES__', '\n'.join(f'              <option value="{v}">{E(t)}</option>' for v, t in ROLES))
-    page = page.replace('__LEARNERS__', '\n'.join(f'                <option value="{v}">{E(t)}</option>' for v, t in LEARNERS))
-    page = page.replace('__CONCERNS__', '\n'.join(f'            <label class="pick"><input type="checkbox" name="concerns" value="{v}"><span>{ic(i)}{E(t)}</span></label>' for v, i, t in CONCERNS))
-    page = page.replace('__GUIDE__', GUIDE).replace('__ARROW__', ARROW).replace('__CHECK__', CHECK)
+    page = JOIN_PAGE.replace('__JLD__', json.dumps(JOIN_LD, ensure_ascii=False))
+    page = page.replace('__TYPES__', '\n'.join(
+        f'            <label class="ap-type"><input type="radio" name="type" value="{v}" aria-describedby="type-err">'
+        f'<span class="ap-type__card"><span class="ap-type__ic">{ic(i)}</span><span class="ap-type__t"><b>{E(t)}</b><small>{E(d)}</small></span>'
+        f'<span class="ap-type__tick" aria-hidden="true">{TICK}</span></span></label>' for v, i, t, d in TYPES))
+    page = page.replace('__CONTACTS__', '\n'.join(
+        f'              <label><input type="radio" name="contact" value="{v}"{" checked" if v == "email" else ""}><span>{E(t)}</span></label>' for v, t in CONTACTS))
+    page = page.replace('__SCHOOL_TYPES__', '\n'.join(
+        f'              <label><input type="radio" name="schoolType" value="{v}"><span>{E(t)}</span></label>' for v, t in SCHOOL_TYPES))
+    page = page.replace('__SUBCOUNTIES__', '\n'.join(f'                  <option value="{v}">{E(t)}</option>' for v, t in SUBCOUNTIES))
+    page = page.replace('__LEARNERS__', '\n'.join(f'              <option value="{v}">{E(t)}</option>' for v, t in LEARNERS))
+    page = page.replace('__CONCERNS__', '\n'.join(
+        f'              <label class="ap-pick"><input type="checkbox" name="concerns" value="{v}"><span>{ic(i)}{E(t)}</span></label>' for v, i, t in CONCERNS))
+    page = page.replace('__ARROW__', ARROW).replace('__TICK__', TICK)
     page = re.sub(r'__IC_([a-z]+)__', lambda m: ic(m.group(1)), page)
     left = re.findall(r'__[A-Z][A-Za-z_]*__', page)
     assert not left, left

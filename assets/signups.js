@@ -5,7 +5,7 @@
   'use strict';
   var $ = function (s) { return document.querySelector(s); };
   var list = $('#list'), filterBox = $('.su-filter'), q = $('#q'), csvBtn = $('[data-act="csv"]'), toastEl = $('#toast');
-  var items = [], labels = { roles: {}, learners: {}, concerns: {}, status: {} }, show = 'all', toastT;
+  var items = [], labels = { types: {}, roles: {}, contact: {}, schoolTypes: {}, subcounties: {}, learners: {}, concerns: {}, status: {} }, show = 'all', toastT;
   var ORDER = ['new', 'contacted', 'joined', 'not_now'];
 
   function h(tag, attrs, kids) {
@@ -82,7 +82,7 @@
     if (show !== 'all' && it.status !== show) return false;
     var term = q.value.trim().toLowerCase();
     if (!term) return true;
-    return [it.name, it.org, it.area, it.email, it.phone, it.message, it.note, labels.roles[it.role]].join(' ').toLowerCase().indexOf(term) >= 0;
+    return [it.ref, it.name, it.title, it.org, it.area, labels.subcounties[it.subcounty], it.email, it.phone, it.message, it.note, kind(it)].join(' ').toLowerCase().indexOf(term) >= 0;
   }
 
   function renderFilter() {
@@ -94,17 +94,22 @@
     });
   }
 
+  function kind(it) { return labels.types[it.type] || labels.roles[it.role] || it.type || it.role || ''; }
+  function where(it) { return [it.area, labels.subcounties[it.subcounty]].filter(Boolean).join(', '); }
+
   function row(it) {
-    var role = labels.roles[it.role] || it.role;
+    var role = kind(it) + (it.title ? ' · ' + it.title : '');
     var wa = it.phone ? waLink(it.phone) : null;
     var contact = h('div', { class: 'su-contact' }, [
       h('a', { href: 'mailto:' + it.email, text: it.email }),
       it.phone ? h('a', { href: 'tel:' + it.phone.replace(/[^\d+]/g, ''), text: it.phone }) : null,
-      wa ? h('a', { class: 'su-wa', href: wa, target: '_blank', rel: 'noopener', text: 'WhatsApp' }) : null
+      wa ? h('a', { class: 'su-wa', href: wa, target: '_blank', rel: 'noopener', text: 'WhatsApp' }) : null,
+      it.contact && it.contact !== 'email' ? h('span', { class: 'su-pref', text: 'Prefers ' + (labels.contact[it.contact] || it.contact) }) : null
     ]);
     var facts = h('div', { class: 'su-facts' }, [
       it.src ? h('span', { class: 'su-src', text: it.src === 'qr' ? 'Via QR code' : 'Via ' + it.src }) : null,
-      it.area ? h('span', { text: it.area }) : null,
+      where(it) ? h('span', { text: where(it) }) : null,
+      it.schoolType && labels.schoolTypes[it.schoolType] ? h('span', { text: labels.schoolTypes[it.schoolType] + ' school' }) : null,
       it.learners && labels.learners[it.learners] ? h('span', { text: labels.learners[it.learners] + (it.learners === 'na' ? '' : ' learners') }) : null
     ].concat((it.concerns || []).map(function (c) { return h('span', { class: 'su-tag', text: labels.concerns[c] || c }); })));
 
@@ -123,6 +128,7 @@
         contact
       ]),
       h('div', { class: 'su-side' }, [
+        it.ref ? h('span', { class: 'su-ref', text: it.ref }) : null,
         h('span', { class: 'mono', title: stamp(it.at), text: when(it.at) + ' · ' + stamp(it.at) }),
         sel, note,
         h('div', { class: 'su-foot' }, [
@@ -165,10 +171,11 @@
     return '"' + s.replace(/"/g, '""') + '"';
   }
   function csv() {
-    var head = ['Received', 'Status', 'Name', 'Role', 'Email', 'Phone', 'School or organisation', 'Area', 'Learners', 'Concerns', 'Message', 'Team note', 'Came from'];
+    var head = ['Reference', 'Received', 'Status', 'Applying as', 'Name', 'Job title', 'Email', 'Phone', 'Prefers', 'School or organisation', 'School type', 'Sub-county', 'Ward or area', 'Learners', 'Concerns', 'Message', 'Team note', 'Came from'];
     var rows = items.filter(matches).map(function (it) {
-      return [it.at, labels.status[it.status] || it.status, it.name, labels.roles[it.role] || it.role, it.email, it.phone, it.org, it.area,
-        labels.learners[it.learners] || '', (it.concerns || []).map(function (c) { return labels.concerns[c] || c; }).join('; '), it.message, it.note, it.src === 'qr' ? 'QR code' : (it.src || 'Website')];
+      return [it.ref || '', it.at, labels.status[it.status] || it.status, kind(it), it.name, it.title || '', it.email, it.phone, labels.contact[it.contact] || 'Email', it.org,
+        labels.schoolTypes[it.schoolType] || '', labels.subcounties[it.subcounty] || '', it.area, labels.learners[it.learners] || '',
+        (it.concerns || []).map(function (c) { return labels.concerns[c] || c; }).join('; '), it.message, it.note, it.src === 'qr' ? 'QR code' : (it.src || 'Website')];
     });
     var text = '﻿' + [head].concat(rows).map(function (r) { return r.map(cell).join(','); }).join('\r\n');
     var url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));

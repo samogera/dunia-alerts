@@ -19,7 +19,7 @@ function dashboard({ mode, user }) {
     : 'Try the Dunia Alerts dashboard with made-up schools and example data: early warnings for air, heat, rain and rivers at schools in Nairobi.';
   const tabs = TABS.map(([v, label, ic]) => `<button type="button" data-view="${v}"><svg class="pi" aria-hidden="true"><use href="/assets/icons.svg#${ic}"/></svg><span>${label}</span></button>`).join('\n      ');
   const end = live
-    ? `<a class="btn-soft" href="/pilot/signups"><svg class="pi" aria-hidden="true"><use href="/assets/icons.svg#learners"/></svg><span>Sign-ups</span></a>
+    ? `<a class="btn-soft" href="/pilot/signups"><svg class="pi" aria-hidden="true"><use href="/assets/icons.svg#learners"/></svg><span>Applications</span></a>
       <span class="who-chip" title="Signed in as ${esc(user)}"><span class="who-dot" aria-hidden="true"></span><span class="who-name">${esc(user)}</span></span>
       <button type="button" class="btn-ghost" data-signout>Sign out</button>`
     : `<span class="demo-chip">Demo · example data</span>
@@ -96,7 +96,7 @@ function signups({ user }) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sign-ups · Dunia Alerts pilot</title>
+<title>Applications · Dunia Alerts pilot</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="da-user" content="${esc(user)}">
 <meta name="theme-color" content="#F2F3F1">
@@ -122,8 +122,8 @@ function signups({ user }) {
     <section class="su-head">
       <div>
         <span class="label">Private · Dunia team only</span>
-        <h1 class="h su-title">Pilot sign-ups</h1>
-        <p class="muted">Replies from the <a href="/join">Join the pilot</a> form, newest first. Change the status as you go, and delete a reply when someone asks.</p>
+        <h1 class="h su-title">Pilot applications</h1>
+        <p class="muted">Applications from the <a href="/join">Join the pilot</a> page, newest first. Change the status as you go, and delete an application when someone asks.</p>
       </div>
       <div class="su-actions">
         <button type="button" class="btn btn--ghost btn--sm" data-act="refresh">Refresh</button>
@@ -132,7 +132,7 @@ function signups({ user }) {
     </section>
     <div class="su-bar">
       <div class="seg su-filter" role="group" aria-label="Show"></div>
-      <label class="su-search"><span class="sr">Search sign-ups</span><input class="input" id="q" type="search" placeholder="Search name, school, area…" autocomplete="off"></label>
+      <label class="su-search"><span class="sr">Search sign-ups</span><input class="input" id="q" type="search" placeholder="Search name, school, reference…" autocomplete="off"></label>
     </div>
     <div id="list" aria-live="polite"><section class="card"><div class="empty"><p>Loading sign-ups…</p></div></section></div>
   </main>

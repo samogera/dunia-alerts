@@ -12,21 +12,28 @@ Every step is timed, so the pilot can show how quickly schools act.
 | Address | Who it is for |
 | --- | --- |
 | **`/`** | Everyone. The public home page: what Dunia Alerts does, how it works, the classroom screen, status and FAQ. (`/about` now opens it.) |
-| **`/join`** | Schools, partners, county offices and funders who want to take part. A two-minute form; replies go to the team's private sign-ups list. (`/signup` opens it too.) |
+| **`/join`** | Schools, parents, partners, county offices and funders who want to take part. A standalone application page; applications go to the team's private list. (`/signup` opens it too.) |
 | **`/demo`** | Everyone, no sign-in. The full dashboard with made-up schools and example data, marked as such on every screen and in every download. |
 | **`/pilot`** | The Dunia team only. The live dashboard, after signing in at **`/login`**. Anyone else is sent to the sign-in page. |
 
 `/classroom` stays public (add `?demo=1` for example data). Old bookmarks such as `/#desk` open `/pilot#desk`.
 
-## Join the pilot (sign-ups)
+## Join the pilot (applications)
 
-`/join` asks for an adult's own contact details only: who they are (head teacher, county officer, funder…), name, email, optional phone, school or organisation, optional area, number of learners and worries, a message, and their OK to be contacted. It asks people not to write children's names.
+`/join` is a standalone application page with its own simple header, written by `tools/build-home.py`. It asks an adult for their own details only, in four numbered sections:
 
-- Replies are saved by `api/join.js` in Upstash Redis (the same private store as sign-in), so **Upstash for Redis must be connected** (see "Classroom screens and indoor sensors" below). Without it, the form tells people to email hello@duniaendelevu.org instead. Check with `/api/v1/health`: `"storage": true`.
-- The team reads them at **`/pilot/signups`** (signed in; also linked as **Sign-ups** in the pilot header): filter by status (New, Contacted, Joined, Not now), search, keep a short team note, delete a reply when someone asks, and download a CSV (cells are guarded so they cannot run as spreadsheet formulas).
-- Spam guard: a hidden field people never see, a minimum time on the page, five replies per network per hour, and at most 5,000 replies kept.
-- `/join?role=funder` (or `partner`, `gov`, `head`…) opens the form with that choice made.
-- `?src=qr` (or any short word, such as `?src=poster`) is kept with the reply and shown as "Via QR code" on the team list, so you can see which links work. The printed QR code (`assets/docs/join-qr.svg` and `.png`) opens `https://alerts.duniaendelevu.org/join?src=qr`.
+1. **Applying as**: a school, a parent or community member, an NGO or partner, county or national government, a funder, or something else. The rest of the form changes to fit.
+2. **Your details**: full name, job title (optional), email, phone (needed only if they choose a phone call or WhatsApp), and how they'd like to be contacted.
+3. **School or organisation**: name, type of school, Nairobi sub-county, ward or estate, and number of learners (the school questions show only for schools and parents).
+4. **Needs and consent**: what worries them most, anything else (it asks for no children's names), and their OK to be contacted.
+
+Problems are listed at the top and next to each question, and the steps on the left tick off as each section is complete. After sending, the person gets a reference such as `DA-K7M3QX` to quote if they write to us.
+
+- Applications are saved by `api/join.js` in Upstash Redis (the same private store as sign-in), so **Upstash for Redis must be connected** (see "Classroom screens and indoor sensors" below). Without it, the form asks people to email hello@duniaendelevu.org instead. Check with `/api/v1/health`: `"storage": true`.
+- The team reads them at **`/pilot/signups`** (signed in; also linked as **Applications** in the pilot header): filter by status (New, Contacted, Joined, Not now), search by name, school or reference, keep a short team note, delete an application when someone asks, and download a CSV (cells are guarded so they cannot run as spreadsheet formulas).
+- Spam guard: a hidden field people never see, a minimum time on the page, five applications per network per hour, and at most 5,000 kept.
+- `/join?type=funder` (or `school`, `parent`, `partner`, `gov`, `other`) opens the form with that choice made.
+- `?src=qr` (or any short word, such as `?src=poster`) is kept with the application and shown as "Via QR code" on the team list, so you can see which links work. The printed QR code (`assets/docs/join-qr.svg` and `.png`) opens `https://alerts.duniaendelevu.org/join?src=qr`.
 
 ## Sign-in for the pilot
 
@@ -168,9 +175,9 @@ That file is public, so only names, areas and pupil numbers go there, never phon
 
 ```
 index.html            the public home page (/), written by tools/build-home.py, with assets/site.css and assets/site.js
-join.html             Join the pilot (/join), also written by tools/build-home.py, with assets/join.js
-api/join.js           the sign-up form's replies: public POST, team-only list, status, note and delete
-api/signups.js        the team's sign-ups list (/pilot/signups), with assets/signups.js
+join.html             Join the pilot application page (/join), also written by tools/build-home.py, with assets/join.js
+api/join.js           applications: public POST (returns a reference), team-only list, status, note and delete
+api/signups.js        the team's applications list (/pilot/signups), with assets/signups.js
 assets/docs/          how-dunia-alerts-works.pdf, the 2-page guide in simple words (/guide opens it)
 assets/icons.svg      the icon set (Phosphor Icons, duotone, MIT licence)
 assets/mark.svg       the Dunia Alerts logo mark (also favicon.svg, apple-touch-icon.png, icon-512.png, icon-maskable-512.png)
