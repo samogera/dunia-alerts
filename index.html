@@ -319,7 +319,7 @@
 
 <header class="nav">
   <div class="nav__bar">
-    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia<span class="brand__sub">Alerts</span></a>
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
     <nav class="nav__links" aria-label="Sections">
       <a href="#how">How it works</a>
       <a href="#dashboard">Dashboard</a>
@@ -350,10 +350,7 @@
     <div class="shot">
       <span class="chip chip--a"><span class="chip__ico" style="--c:var(--accent)"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#early"/></svg></span>Up to 48 hours ahead</span>
       <span class="chip chip--b"><span class="chip__ico" style="--c:var(--rain)"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#decide"/></svg></span>A person checks every alert</span>
-      <div class="shot__frame">
-        <div class="shot__bar" aria-hidden="true"><i></i><i></i><i></i><span>alerts.duniaendelevu.org/demo</span></div>
-        <img class="shot__img" src="/assets/shots/overview.webp" srcset="/assets/shots/overview-960.webp 960w, /assets/shots/overview.webp 1920w" sizes="(max-width: 1060px) 92vw, 980px" width="1920" height="960" fetchpriority="high" alt="The Dunia Alerts overview with example data: open alerts, the worst air now, warnings for the next 48 hours and the time schools take to respond, above a list of schools that need attention.">
-      </div>
+      <img class="photo photo--hero" src="/assets/mock/hero-laptop-900.webp" srcset="/assets/mock/hero-laptop-900.webp 900w, /assets/mock/hero-laptop-1800.webp 1800w" sizes="(max-width: 980px) 92vw, 920px" width="1800" height="1275" fetchpriority="high" alt="A laptop held in one hand, showing the Dunia Alerts overview with example data: open alerts, the worst air now, warnings for the next 48 hours and a list of schools that need attention.">
     </div>
   </section>
 
@@ -431,7 +428,7 @@
         <a class="more" href="/demo#overview">Open it in the demo<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
       </div>
       <figure>
-        <img class="panel__shot" src="/assets/shots/overview-960.webp" srcset="/assets/shots/overview-960.webp 960w, /assets/shots/overview.webp 1920w" sizes="(max-width: 980px) 88vw, 620px" width="1920" height="960" loading="lazy" alt="The overview screen with example data: four summary tiles and a list of schools that need attention, each with Prepare alert and Dismiss buttons.">
+        <img class="photo" src="/assets/mock/monitor-overview-700.webp" srcset="/assets/mock/monitor-overview-700.webp 700w, /assets/mock/monitor-overview-1400.webp 1400w" sizes="(max-width: 980px) 86vw, 600px" width="1400" height="1000" loading="lazy" decoding="async" alt="The overview on a desktop screen, with example data: a 3D map of air at each school, where column height is fine dust, and the selected school’s air now, last 24 hours and next 48 hours.">
         <figcaption class="panel__cap">Demo · made-up schools and example data</figcaption>
       </figure>
     </div>
@@ -447,7 +444,7 @@
         <a class="more" href="/demo#desk">Open it in the demo<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
       </div>
       <figure>
-        <img class="panel__shot" src="/assets/shots/desk-960.webp" srcset="/assets/shots/desk-960.webp 960w, /assets/shots/desk.webp 1920w" sizes="(max-width: 980px) 88vw, 620px" width="1920" height="1200" loading="lazy" alt="The school desk with example data: an unhealthy air alert, the step for the school, and a timeline from alert sent to the head teacher’s reply.">
+        <img class="photo" src="/assets/mock/desk-laptop-700.webp" srcset="/assets/mock/desk-laptop-700.webp 700w, /assets/mock/desk-laptop-1400.webp 1400w" sizes="(max-width: 980px) 86vw, 600px" width="1400" height="1190" loading="lazy" decoding="async" alt="The school desk on a laptop, with example data: an unhealthy air alert, the step for the school, and a timeline from alert sent to the head teacher’s reply.">
         <figcaption class="panel__cap">Demo · made-up schools and example data</figcaption>
       </figure>
     </div>
@@ -463,8 +460,22 @@
         <a class="more" href="/demo#parents">Open it in the demo<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
       </div>
       <figure>
-        <img class="panel__shot" src="/assets/shots/parents-960.webp" srcset="/assets/shots/parents-960.webp 960w, /assets/shots/parents.webp 1920w" sizes="(max-width: 980px) 88vw, 620px" width="1920" height="1200" loading="lazy" alt="The parents screen with example data: the same alert as a text message in English and in Kiswahili, with Copy and Open SMS buttons.">
-        <figcaption class="panel__cap">Demo · made-up schools and example data</figcaption>
+        <div class="stage stage--mint"><div class="handset" role="img" aria-label="A parent’s phone receiving the Dunia Alerts message by SMS, in English and Kiswahili. Example message from the demo.">
+          <img class="handset__frame" src="/assets/mock/phone-frame.png" width="824" height="1732" alt="" loading="lazy" decoding="async">
+          <div class="hs" aria-hidden="true">
+            <div class="hs-status"><span>07:52</span><span><b></b><i></i></span></div>
+            <div class="hs-notif"><span class="hs-av"></span><b>Dunia Alerts <span>now</span></b><p>Dunia Alerts: Air near Neema Junior School is unhealthy today. PE and outdoor games are moving indoors. Please send your child’s inhaler if they use one.</p></div>
+            <div class="hs-head"><span class="hs-av"></span><b>Dunia Alerts</b><span>Text message</span></div>
+            <div class="hs-body">
+              <span class="hs-day">Today 07:52</span>
+              <p class="hs-msg"><small>English</small>Dunia Alerts: Air near Neema Junior School is unhealthy today. PE and outdoor games are moving indoors. Please send your child’s inhaler if they use one.</p>
+              <p class="hs-msg"><small>Kiswahili</small>Dunia Alerts: Hewa karibu na Neema Junior School si salama leo. Michezo na masomo ya nje yatafanyika ndani. Tafadhali mpe mtoto wako dawa yake ya pumu kama anaitumia.</p>
+              <span class="hs-sent">Delivered</span>
+            </div>
+            <div class="hs-input">Text message<i></i></div>
+          </div>
+        </div></div>
+        <figcaption class="panel__cap">Example message from the demo</figcaption>
       </figure>
     </div>
     <div class="panel" role="tabpanel" id="p-impact" aria-labelledby="t-impact" tabindex="0" hidden>
@@ -479,7 +490,7 @@
         <a class="more" href="/demo#impact">Open it in the demo<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
       </div>
       <figure>
-        <img class="panel__shot" src="/assets/shots/impact-960.webp" srcset="/assets/shots/impact-960.webp 960w, /assets/shots/impact.webp 1920w" sizes="(max-width: 980px) 88vw, 620px" width="1920" height="1200" loading="lazy" alt="The impact screen with example data: tiles for alerts sent, acknowledged, time to respond, action taken and parents told, above a chart of alerts each week.">
+        <img class="photo" src="/assets/mock/monitor-impact-700.webp" srcset="/assets/mock/monitor-impact-700.webp 700w, /assets/mock/monitor-impact-1400.webp 1400w" sizes="(max-width: 980px) 86vw, 600px" width="1400" height="1000" loading="lazy" decoding="async" alt="The impact screen on a desktop screen, with example data: tiles for alerts sent, acknowledged, time to respond, action taken and parents told, above a chart of alerts each week.">
         <figcaption class="panel__cap">Demo · example numbers, not pilot results</figcaption>
       </figure>
     </div>
@@ -538,7 +549,9 @@
         </div>
       </div>
       <figure class="split__shot">
-        <img class="panel__shot" src="/assets/shots/classroom-960.webp" srcset="/assets/shots/classroom-960.webp 960w, /assets/shots/classroom.webp 1920w" sizes="(max-width: 980px) 88vw, 600px" width="1920" height="1200" loading="lazy" alt="The classroom screen with example data: ‘Our classroom is ready for learning’, tiles for temperature, fresh air, dust and humidity, the weather outside and a Climate Detective question.">
+        <div class="wall">
+          <img class="board-img" src="/assets/mock/whiteboard-700.webp" srcset="/assets/mock/whiteboard-700.webp 700w, /assets/mock/whiteboard-1416.webp 1416w" sizes="(max-width: 980px) 86vw, 560px" width="1416" height="1027" loading="lazy" decoding="async" alt="The classroom screen on a classroom whiteboard, with example data: ‘Our classroom is ready for learning’, tiles for temperature, fresh air, dust and humidity, each with a three-step meter, the weather outside and a Climate Detective question.">
+        </div>
         <figcaption class="panel__cap">Example data, not real readings</figcaption>
       </figure>
     </div>
@@ -719,7 +732,7 @@
 
 <footer class="foot">
   <div>
-    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia<span class="brand__sub">Alerts</span></a>
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
     <p>A <a href="https://duniaendelevu.org/">Dunia Endelevu</a> pilot, led by <a href="https://alanachelangat.com/">Alana Chelangat</a>.</p>
   </div>
   <nav aria-label="Footer">

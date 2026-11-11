@@ -110,6 +110,10 @@ function judge(k, v) {
 const SHAPE = ['<circle cx="12" cy="12" r="7"/>', '<path d="M12 4.5 20.5 19h-17z"/>', '<rect x="5" y="5" width="14" height="14" rx="2"/>'];
 const shape = (lvl) => `<svg class="cr-shape" viewBox="0 0 24 24" aria-hidden="true">${SHAPE[lvl]}</svg>`;
 const ARROW = { up: '↑', down: '↓', steady: '→' };
+const IC = { temp_c: 'heat', co2_ppm: 'fan', pm25_ugm3: 'air', rh_pct: 'humidity', out_temp: 'sun', out_air: 'air', out_rain: 'rain' };
+const ic = (k) => `<span class="cr-ic" aria-hidden="true"><svg><use href="assets/icons.svg#${IC[k]}"/></svg></span>`;
+// three steps (good, check, act): the step reached is filled, so the level reads at a glance and never by colour alone
+const meter = (lvl) => `<span class="cr-meter" data-l="${lvl}" aria-hidden="true"><i></i><i></i><i></i></span>`;
 
 /* ---------- Data ---------- */
 let inside = null;      // { configured, status, latest, trend, sensors, at }
@@ -199,14 +203,14 @@ const HEAD_ICON = {
 };
 function tileIn(k, label, hint, unit, dp) {
   const t = L(), x = inside && inside.latest ? inside.latest[k] : null;
-  if (!x) return `<article class="cr-tile is-na"><span class="cr-tile__label">${esc(label)}</span><span class="cr-tile__value">–</span><span class="cr-tile__state">${esc(t.na)}</span><span class="cr-tile__hint">${esc(t.checkSensor)}</span></article>`;
+  if (!x) return `<article class="cr-tile is-na"><span class="cr-tile__label">${ic(k)}${esc(label)}</span><span class="cr-tile__value">–</span><span class="cr-tile__state">${esc(t.na)}</span><span class="cr-tile__hint">${esc(t.checkSensor)}</span></article>`;
   const v = dp ? r1(x.value).toFixed(1) : Math.round(x.value);
   const old = !isFresh(x), odd = x.quality !== 'ok';
   const [lvl, word] = judge(k, x.value);
   const tr = !old && inside.trend && inside.trend[k];
   const state = old ? `<span class="cr-tile__state is-old">${esc(t.staleH)}</span>` : odd ? `<span class="cr-tile__state">${esc(t.checking)}</span>`
     : `<span class="cr-tile__state lv${lvl}">${shape(lvl)}${esc(t[word])}${tr ? `<span class="cr-trend" title="${esc(t[tr])}"><span aria-hidden="true">${ARROW[tr]}</span><span class="sr">${esc(t[tr])}</span></span>` : ''}</span>`;
-  return `<article class="cr-tile${old || odd ? ' is-dim' : ''} lv${old || odd ? 'x' : lvl}"><span class="cr-tile__label">${esc(label)}</span><span class="cr-tile__value num">${v}<small>${esc(unit)}</small></span>${state}<span class="cr-tile__hint">${esc(hint)}</span></article>`;
+  return `<article class="cr-tile${old || odd ? ' is-dim' : ''} lv${old || odd ? 'x' : lvl}"><span class="cr-tile__label">${ic(k)}${esc(label)}</span><span class="cr-tile__value num">${v}<small>${esc(unit)}</small></span>${old || odd ? '' : meter(lvl)}${state}<span class="cr-tile__hint">${esc(hint)}</span></article>`;
 }
 function render() {
   const t = L();
@@ -233,9 +237,9 @@ function render() {
   const band = o.pm25 != null ? airBand(o.pm25) : null;
   const lvA = o.pm25 != null ? judge('pm25_ugm3', o.pm25)[0] : 0;
   $('#outside').innerHTML = `
-    <div class="cr-o"><span class="cr-o__label">${esc(t.tempOut)}</span><span class="cr-o__value num">${o.tempNow != null ? Math.round(o.tempNow) + '°' : '–'}</span><span class="cr-o__sub">${o.tmax != null ? esc(t.upTo(Math.round(o.tmax))) : ''}</span></div>
-    <div class="cr-o"><span class="cr-o__label">${esc(t.air)}</span><span class="cr-o__value num">${o.pm25 != null ? aqi(o.pm25) : '–'}<small>AQI</small></span><span class="cr-o__sub lv${lvA}">${band ? shape(lvA) + esc(t[band[0]]) : ''}</span></div>
-    <div class="cr-o"><span class="cr-o__label">${esc(t.rain)}</span><span class="cr-o__value num">${o.rainChance != null ? o.rainChance + '%' : '–'}</span><span class="cr-o__sub">${o.rainMm != null ? esc(t.mm(r1(o.rainMm))) : ''}</span></div>`;
+    <div class="cr-o"><span class="cr-o__label">${ic('out_temp')}${esc(t.tempOut)}</span><span class="cr-o__value num">${o.tempNow != null ? Math.round(o.tempNow) + '°' : '–'}</span><span class="cr-o__sub">${o.tmax != null ? esc(t.upTo(Math.round(o.tmax))) : ''}</span></div>
+    <div class="cr-o"><span class="cr-o__label">${ic('out_air')}${esc(t.air)}</span><span class="cr-o__value num">${o.pm25 != null ? aqi(o.pm25) : '–'}<small>AQI</small></span><span class="cr-o__sub lv${lvA}">${band ? shape(lvA) + esc(t[band[0]]) : ''}</span></div>
+    <div class="cr-o"><span class="cr-o__label">${ic('out_rain')}${esc(t.rain)}</span><span class="cr-o__value num">${o.rainChance != null ? o.rainChance + '%' : '–'}</span><span class="cr-o__sub">${o.rainMm != null ? esc(t.mm(r1(o.rainMm))) : ''}</span></div>`;
 
   const day = Math.floor((Date.now() + 3 * 3600e3) / 864e5);
   $('#question').textContent = QUESTIONS[day % QUESTIONS.length][lang === 'sw' ? 1 : 0];

@@ -201,7 +201,7 @@ PAGE = '''<!doctype html>
 
 <header class="nav">
   <div class="nav__bar">
-    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia<span class="brand__sub">Alerts</span></a>
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
     <nav class="nav__links" aria-label="Sections">
       <a href="#how">How it works</a>
       <a href="#dashboard">Dashboard</a>
@@ -232,10 +232,7 @@ PAGE = '''<!doctype html>
     <div class="shot">
       <span class="chip chip--a"><span class="chip__ico" style="--c:var(--accent)">__IC_early__</span>Up to 48 hours ahead</span>
       <span class="chip chip--b"><span class="chip__ico" style="--c:var(--rain)">__IC_decide__</span>A person checks every alert</span>
-      <div class="shot__frame">
-        <div class="shot__bar" aria-hidden="true"><i></i><i></i><i></i><span>alerts.duniaendelevu.org/demo</span></div>
-        <img class="shot__img" src="/assets/shots/overview.webp" srcset="/assets/shots/overview-960.webp 960w, /assets/shots/overview.webp 1920w" sizes="(max-width: 1060px) 92vw, 980px" width="1920" height="960" fetchpriority="high" alt="The Dunia Alerts overview with example data: open alerts, the worst air now, warnings for the next 48 hours and the time schools take to respond, above a list of schools that need attention.">
-      </div>
+      __LAPTOP_HERO__
     </div>
   </section>
 
@@ -311,7 +308,9 @@ __HAZARDS__
         </div>
       </div>
       <figure class="split__shot">
-        <img class="panel__shot" src="/assets/shots/classroom-960.webp" srcset="/assets/shots/classroom-960.webp 960w, /assets/shots/classroom.webp 1920w" sizes="(max-width: 980px) 88vw, 600px" width="1920" height="1200" loading="lazy" alt="The classroom screen with example data: ‘Our classroom is ready for learning’, tiles for temperature, fresh air, dust and humidity, the weather outside and a Climate Detective question.">
+        <div class="wall">
+          __WHITEBOARD__
+        </div>
         <figcaption class="panel__cap">Example data, not real readings</figcaption>
       </figure>
     </div>
@@ -449,7 +448,7 @@ __FAQ__
 
 <footer class="foot">
   <div>
-    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia<span class="brand__sub">Alerts</span></a>
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
     <p>A <a href="https://duniaendelevu.org/">Dunia Endelevu</a> pilot, led by <a href="https://alanachelangat.com/">Alana Chelangat</a>.</p>
   </div>
   <nav aria-label="Footer">
@@ -468,18 +467,54 @@ __FAQ__
 
 PANELS = [
     ('overview', 'Every school, at a glance.', ['Readings and forecasts for each school, refreshed every 15 minutes.', 'Warnings up to 48 hours ahead, with when the danger is expected.', 'Prepare an alert or dismiss it, once a person has checked.'],
-     1920, 960, 'The overview screen with example data: four summary tiles and a list of schools that need attention, each with Prepare alert and Dismiss buttons.', 'Demo · made-up schools and example data'),
+     'monitor', 'monitor-overview', 'The overview on a desktop screen, with example data: a 3D map of air at each school, where column height is fine dust, and the selected school’s air now, last 24 hours and next 48 hours.', 'Demo · made-up schools and example data'),
     ('desk', 'One clear step for the head teacher.', ['Message the head teacher on WhatsApp or SMS in one tap.', 'Record the reply, how fast it came and what the school did.', 'Notes never hold pupils’ names.'],
-     1920, 1200, 'The school desk with example data: an unhealthy air alert, the step for the school, and a timeline from alert sent to the head teacher’s reply.', 'Demo · made-up schools and example data'),
+     'laptop', 'desk-laptop', 'The school desk on a laptop, with example data: an unhealthy air alert, the step for the school, and a timeline from alert sent to the head teacher’s reply.', 'Demo · made-up schools and example data'),
     ('parents', 'Parents hear it in two languages.', ['Ready-made messages in English and Kiswahili.', 'SMS length counted, so the cost is clear before sending.', 'Mark parents as told, for the pilot record.'],
-     1920, 1200, 'The parents screen with example data: the same alert as a text message in English and in Kiswahili, with Copy and Open SMS buttons.', 'Demo · made-up schools and example data'),
+     'phone', 'parents', '', 'Example message from the demo'),
     ('impact', 'Every response, timed and recorded.', ['Alerts sent, answered and acted on, week by week.', 'How fast schools replied and what they did.', 'Download the pilot record as a spreadsheet (CSV).'],
-     1920, 1200, 'The impact screen with example data: tiles for alerts sent, acknowledged, time to respond, action taken and parents told, above a chart of alerts each week.', 'Demo · example numbers, not pilot results'),
+     'monitor', 'monitor-impact', 'The impact screen on a desktop screen, with example data: tiles for alerts sent, acknowledged, time to respond, action taken and parents told, above a chart of alerts each week.', 'Demo · example numbers, not pilot results'),
 ]
 
 
+MOCK = {  # photo mockups with the real screens composited in (assets/mock), width x height of the large file
+    'hero-laptop': (1800, 1275, 900), 'desk-laptop': (1400, 1190, 700),
+    'monitor-overview': (1400, 1000, 700), 'monitor-impact': (1400, 1000, 700), 'whiteboard': (1416, 1027, 700),
+}
+
+
+def photo(name, alt, sizes, eager=False, cls='photo'):
+    w, h, small = MOCK[name]
+    load = 'fetchpriority="high"' if eager else 'loading="lazy" decoding="async"'
+    return (f'<img class="{cls}" src="/assets/mock/{name}-{small}.webp" srcset="/assets/mock/{name}-{small}.webp {small}w, /assets/mock/{name}-{w}.webp {w}w" '
+            f'sizes="{sizes}" width="{w}" height="{h}" {load} alt="{E(alt)}">')
+
+
+EN_MSG = 'Dunia Alerts: Air near Neema Junior School is unhealthy today. PE and outdoor games are moving indoors. Please send your child’s inhaler if they use one.'
+SW_MSG = 'Dunia Alerts: Hewa karibu na Neema Junior School si salama leo. Michezo na masomo ya nje yatafanyika ndani. Tafadhali mpe mtoto wako dawa yake ya pumu kama anaitumia.'
+
+
+def phone():
+    return f'''<div class="handset" role="img" aria-label="A parent’s phone receiving the Dunia Alerts message by SMS, in English and Kiswahili. Example message from the demo.">
+          <img class="handset__frame" src="/assets/mock/phone-frame.png" width="824" height="1732" alt="" loading="lazy" decoding="async">
+          <div class="hs" aria-hidden="true">
+            <div class="hs-status"><span>07:52</span><span><b></b><i></i></span></div>
+            <div class="hs-notif"><span class="hs-av"></span><b>Dunia Alerts <span>now</span></b><p>{E(EN_MSG)}</p></div>
+            <div class="hs-head"><span class="hs-av"></span><b>Dunia Alerts</b><span>Text message</span></div>
+            <div class="hs-body">
+              <span class="hs-day">Today 07:52</span>
+              <p class="hs-msg"><small>English</small>{E(EN_MSG)}</p>
+              <p class="hs-msg"><small>Kiswahili</small>{E(SW_MSG)}</p>
+              <span class="hs-sent">Delivered</span>
+            </div>
+            <div class="hs-input">Text message<i></i></div>
+          </div>
+        </div>'''
+
+
 def panel(i, p):
-    v, h3, ticks, w, hgt, alt, cap = p
+    v, h3, ticks, dev, shot, alt, cap = p
+    device = phone() if dev == 'phone' else photo(shot, alt, '(max-width: 980px) 86vw, 600px')
     hidden = '' if i == 0 else ' hidden'
     lis = '\n'.join(f'          <li>{CHECK}{E(t)}</li>' for t in ticks)
     return f'''    <div class="panel" role="tabpanel" id="p-{v}" aria-labelledby="t-{v}" tabindex="0"{hidden}>
@@ -492,7 +527,7 @@ def panel(i, p):
         <a class="more" href="/demo#{v}">Open it in the demo{ARROW}</a>
       </div>
       <figure>
-        <img class="panel__shot" src="/assets/shots/{v}-960.webp" srcset="/assets/shots/{v}-960.webp 960w, /assets/shots/{v}.webp 1920w" sizes="(max-width: 980px) 88vw, 620px" width="{w}" height="{hgt}" loading="lazy" alt="{E(alt)}">
+        {f'<div class="stage stage--mint">{device}</div>' if dev == 'phone' else device}
         <figcaption class="panel__cap">{E(cap)}</figcaption>
       </figure>
     </div>'''
@@ -524,6 +559,8 @@ def build():
     page = page.replace('__PANELS__', '\n'.join(panel(i, p) for i, p in enumerate(PANELS)))
     page = page.replace('__HAZARDS__', '\n'.join(hazard(h) for h in HAZARDS))
     page = page.replace('__FAQ__', faq_html())
+    page = page.replace('__WHITEBOARD__', photo('whiteboard', 'The classroom screen on a classroom whiteboard, with example data: ‘Our classroom is ready for learning’, tiles for temperature, fresh air, dust and humidity, each with a three-step meter, the weather outside and a Climate Detective question.', '(max-width: 980px) 86vw, 560px', cls='board-img'))
+    page = page.replace('__LAPTOP_HERO__', photo('hero-laptop', 'A laptop held in one hand, showing the Dunia Alerts overview with example data: open alerts, the worst air now, warnings for the next 48 hours and a list of schools that need attention.', '(max-width: 980px) 92vw, 920px', eager=True, cls='photo photo--hero'))
     page = page.replace('__ARROW__', ARROW).replace('__CHECK__', CHECK).replace('__LOCK__', ic('lock'))
     import re
     page = re.sub(r'__IC_([a-z]+)__', lambda m: ic(m.group(1)), page)

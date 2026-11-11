@@ -165,7 +165,7 @@ api/pilot.js          the live dashboard (/pilot), only for signed-in people
 api/auth/             sign in, sign out, and who is signed in (needs SESSION_SECRET and PILOT_USERS)
 api/_lib/auth.js      password hashing, signed sessions, rate limits
 api/_lib/shell.js     the dashboard page, shared by /demo and /pilot
-assets/shots/         screenshots of the demo for the home page
+assets/mock/          device mockups for the home page (photos supplied by Dunia Endelevu, with demo screens composited in)
 classroom.html        the classroom wall screen (/classroom), with assets/classroom.js and .css
 assets/app.css        design
 assets/app.js         the app

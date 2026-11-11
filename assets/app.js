@@ -419,7 +419,7 @@ function mapSVG(d) {
     const [bx, by] = iso(u, v), [tx, ty] = iso(u, v, h);
     minY = Math.min(minY, ty - (open ? 40 : 26) - fs);
     const o = k + 0.3;
-    let b = `<g class="bar-g" data-action="pick-school" data-id="${esc(s.id)}" role="button" tabindex="0" aria-label="${esc(s.name)}, ${esc(s.area)}, ${pm != null ? 'PM2.5 ' + pm : 'no reading'}${open ? ', open alert' : ''}"><title>${esc(s.name)} · ${esc(s.area)}</title>`;
+    let b = `<g class="bar-g" data-action="pick-school" data-id="${esc(s.id)}" role="button" tabindex="0" aria-label="${pm != null ? pm : '–'} ${esc(s.area)}: ${esc(s.name)}, ${pm != null ? 'PM2.5 ' + pm + ' µg/m³' : 'no reading'}${open ? ', open alert' : ''}"><title>${esc(s.name)} · ${esc(s.area)}</title>`;
     b += `<ellipse cx="${bx}" cy="${by + 2}" rx="${ISO.A * .8}" ry="${ISO.B * .8}" fill="rgba(18,24,20,.07)"/>`;
     if (sel) b += `<polygon points="${P([iso(u - o, v - o), iso(u + o, v - o), iso(u + o, v + o), iso(u - o, v + o)])}" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>`;
     b += `<polygon points="${P([W(0), S(0), S(h), W(h)])}" fill="${shade(hex, .84)}"/><polygon points="${P([S(0), E(0), E(h), S(h)])}" fill="${shade(hex, .68)}"/><polygon points="${P([N(h), E(h), S(h), W(h)])}" fill="${shade(hex, 1.05)}"/>`;
