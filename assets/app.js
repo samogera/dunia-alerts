@@ -681,41 +681,226 @@ function viewParents() {
 }
 
 /* ----- Impact ----- */
+/* ---------- Impact: results for schools, counties, ministries, NGOs and funders ---------- */
+const IMP = { air: ['Unhealthy air', '#17483B'], rain: ['Heavy rain', '#2F6FCB'], heat: ['Great heat', '#E5602A'] };
+const RANGES = [['all', 'All time'], ['28', 'Last 4 weeks'], ['7', 'Last 7 days']];
+const weekStart = (t) => { const d = new Date(dayStart(t)); const g = (d.getDay() + 6) % 7; return d.getTime() - g * DAY; };
+function impactScope(d) {
+  const r = state.impactRange || 'all';
+  const from = r === 'all' ? Math.min(d.start, ...d.alerts.map((a) => a.raisedAt)) : d.now - Number(r) * DAY;
+  return { from, alerts: d.alerts.filter((a) => a.raisedAt >= from && a.raisedAt <= d.now) };
+}
+function impactBuckets(from, now) {
+  const daily = now - from <= 15 * DAY, size = daily ? DAY : 7 * DAY, out = [];
+  for (let t = daily ? dayStart(from) : weekStart(from); t <= now; t += size) out.push({ t0: t, t1: t + size, label: daily ? new Date(t).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' }) : fmtDate(t) });
+  return { list: out, daily };
+}
+function spark(vals, color, better = 'up') {
+  const pts = vals.map((v, i) => [i, v]).filter((p) => p[1] != null);
+  if (pts.length < 2) return '<span class="spark spark--empty" aria-hidden="true"></span>';
+  const W = 104, H = 34, lo = Math.min(...pts.map((p) => p[1])), hi = Math.max(...pts.map((p) => p[1])), span = hi - lo || 1;
+  const x = (i) => 2 + i * (W - 4) / Math.max(1, vals.length - 1), y = (v) => H - 4 - (v - lo) / span * (H - 10);
+  const line = pts.map((p) => `${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');
+  const area = `${x(pts[0][0]).toFixed(1)},${H} ${line} ${x(pts[pts.length - 1][0]).toFixed(1)},${H}`;
+  const last = pts[pts.length - 1], id = 'sp' + Math.random().toString(36).slice(2, 7);
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".22"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><polygon points="${area}" fill="url(#${id})"/><polyline points="${line}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${x(last[0]).toFixed(1)}" cy="${y(last[1]).toFixed(1)}" r="2.6" fill="#fff" stroke="${color}" stroke-width="1.8"/></svg>`;
+}
+function trendNote(vals, unit, better) {
+  const xs = vals.filter((v) => v != null);
+  if (xs.length < 2) return '';
+  const a = xs[0], b = xs[xs.length - 1], diff = Math.round((b - a) * 10) / 10;
+  if (!diff) return '<span class="delta">steady</span>';
+  const good = better === 'down' ? diff < 0 : diff > 0;
+  return `<span class="delta ${good ? 'delta--good' : 'delta--bad'}">${diff > 0 ? '↑' : '↓'} ${Math.abs(diff)}${unit}</span>`;
+}
+function kpi(label, value, sub, vals, color, unit, better) {
+  return `<div class="kpi"><div class="kpi__top"><span class="label">${label}</span>${trendNote(vals, unit, better)}</div>
+    <div class="kpi__row"><span class="kpi__value num">${value}</span>${spark(vals, color, better)}</div><span class="tile__sub">${sub}</span></div>`;
+}
+function donut(parts, total, caption) {
+  const R = 44, C = 2 * Math.PI * R; let off = 0;
+  const segs = parts.filter((p) => p.n).map((p) => { const len = C * p.n / total, gap = parts.filter((q) => q.n).length > 1 ? 2.5 : 0;
+    const s = `<circle cx="60" cy="60" r="${R}" fill="none" stroke="${p.c}" stroke-width="16" stroke-dasharray="${Math.max(0, len - gap).toFixed(2)} ${(C - Math.max(0, len - gap)).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 60 60)" stroke-linecap="butt"/>`; off += len; return s; }).join('');
+  return `<svg class="donut" viewBox="0 0 120 120" role="img" aria-label="${esc(caption)}"><circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--soft)" stroke-width="16"/>${segs}<text x="60" y="58" text-anchor="middle" font-size="22" font-weight="700" fill="var(--ink)" style="font-variant-numeric:tabular-nums">${total}</text><text x="60" y="74" text-anchor="middle" font-size="9" fill="var(--muted)">alerts</text></svg>`;
+}
+function lineChart(points, ref, refLabel) {
+  const W = window.innerWidth <= 720 ? 340 : 520, H = window.innerWidth <= 720 ? 190 : 200, L = 30, B = 26, T = 14, R = 24;
+  const vals = points.map((p) => p.v).filter((v) => v != null);
+  if (vals.length < 2) return '<p class="muted">Not enough replies yet to draw a trend.</p>';
+  const hi = Math.ceil(Math.max(ref + 10, ...vals) * 1.08 / 10) * 10, n = points.length;
+  const x = (i) => L + i * (W - L - R) / Math.max(1, n - 1), y = (v) => T + (1 - v / hi) * (H - T - B);
+  const pts = points.map((p, i) => [i, p.v]).filter((p) => p[1] != null);
+  const line = pts.map((p) => `${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');
+  const area = `${x(pts[0][0]).toFixed(1)},${(H - B).toFixed(1)} ${line} ${x(pts[pts.length - 1][0]).toFixed(1)},${(H - B).toFixed(1)}`;
+  const ticks = [0, Math.round(hi / 2), Math.round(hi)].map((v) => `<text x="${L - 8}" y="${(y(v) + 3.5).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--muted)">${v}</text><line x1="${L}" x2="${W - R}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}" stroke="var(--line)"/>`).join('');
+  const every = Math.ceil(n / (W < 400 ? 4 : 7));
+  const labels = points.map((p, i) => i % every === 0 || i === n - 1 ? `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="${i === n - 1 && n > 1 ? 'end' : i === 0 ? 'start' : 'middle'}" font-size="10" fill="var(--muted)">${esc(p.label)}</text>` : '').join('');
+  const dots = pts.map((p) => `<circle cx="${x(p[0]).toFixed(1)}" cy="${y(p[1]).toFixed(1)}" r="3.2" fill="#fff" stroke="var(--accent)" stroke-width="2"><title>${esc(points[p[0]].label)}: ${p[1]} min</title></circle>`).join('');
+  return `<svg class="linechart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Median minutes to acknowledge: ${points.map((p) => p.label + ' ' + (p.v ?? 'no replies')).join(', ')}">
+    <defs><linearGradient id="lcfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17483B" stop-opacity=".18"/><stop offset="1" stop-color="#17483B" stop-opacity="0"/></linearGradient></defs>
+    ${ticks}<line x1="${L}" x2="${W - R}" y1="${y(ref).toFixed(1)}" y2="${y(ref).toFixed(1)}" stroke="var(--wait)" stroke-width="1.4" stroke-dasharray="5 4"/>
+    <text x="${W - R}" y="${(y(ref) - 6).toFixed(1)}" text-anchor="end" font-size="10" font-weight="600" fill="var(--wait)">${esc(refLabel)}</text>
+    <polygon points="${area}" fill="url(#lcfill)"/><polyline points="${line}" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}</svg>`;
+}
+const isClosedOk = (a) => a.closedAt && a.result && !/^No |^Expired|^Dismissed/.test(a.result);
+function outcomeOf(a) {
+  if (!a.closedAt) return 'Still open';
+  if (/^Expired|^No response/.test(a.result || '')) return 'No reply';
+  return a.result || 'Closed';
+}
+function caseStudies(alerts, schools) {
+  const S = (id) => schools.find((s) => s.id === id) || {};
+  const plus = (a, t) => `+${mins(a.raisedAt, t)} min`;
+  const out = [];
+  const full = alerts.filter((a) => a.ackAt && a.actionAt && a.parentsAt && !a.dismissedAt).sort((a, b) => (a.parentsAt - a.raisedAt) - (b.parentsAt - b.raisedAt))[0];
+  if (full) out.push({ a: full, kicker: 'Fast response', title: `From warning to parents in ${mins(full.raisedAt, full.parentsAt)} minutes`,
+    steps: [[fmtTime(full.raisedAt), 'Alert sent to the school'], [plus(full, full.ackAt), `${full.ackBy || 'Head teacher'} replied`], [plus(full, full.actionAt), (full.actions || []).join('; ') || 'Action recorded'], [plus(full, full.parentsAt), 'Parents told in English and Kiswahili']],
+    result: full.result });
+  const days = {};
+  alerts.filter((a) => !a.dismissedAt).forEach((a) => { const k = dayStart(a.raisedAt) + a.hazard; (days[k] = days[k] || []).push(a); });
+  const big = Object.values(days).sort((x, y) => y.length - x.length)[0];
+  if (big && big.length >= 2) {
+    const a0 = big[0], learners = big.reduce((n, a) => n + (S(a.schoolId).pupils || 0), 0);
+    const fast = big.filter((a) => a.ackAt && mins(a.raisedAt, a.ackAt) <= ESCALATE_MIN).length, told = big.filter((a) => a.parentsAt).length;
+    out.push({ a: a0, kicker: 'One forecast, many schools', title: `${IMP[a0.hazard][0]} on ${fmtDay(a0.raisedAt)}: ${big.length} schools warned`,
+      steps: [[learners.toLocaleString('en-GB'), 'learners at those schools'], [`${fast} of ${big.length}`, `replied within ${ESCALATE_MIN} minutes`], [`${big.filter((a) => a.actionAt).length} of ${big.length}`, 'took a recorded action'], [`${told} of ${big.length}`, 'told parents']],
+      result: `${[...new Set(big.flatMap((a) => a.actions || []))].slice(0, 2).join(' · ') || 'Actions recorded in the school desk'}` });
+  }
+  const help = alerts.filter((a) => a.result === RESULTS[2]).sort((a, b) => b.raisedAt - a.raisedAt)[0]
+    || alerts.filter((a) => a.escalatedAt).sort((a, b) => b.raisedAt - a.raisedAt)[0]
+    || alerts.filter((a) => a.result === RESULTS[1]).sort((a, b) => b.raisedAt - a.raisedAt)[0];
+  if (help) out.push({ a: help, kicker: help.result === RESULTS[2] ? 'Partners needed' : help.escalatedAt ? 'Follow-up' : 'Care needed',
+    title: help.result === RESULTS[2] ? 'When a school needed partner help' : help.escalatedAt ? `No reply after ${ESCALATE_MIN} minutes: the team called` : 'Some pupils needed care',
+    steps: [[fmtTime(help.raisedAt), 'Alert sent to the school'], ...(help.escalatedAt ? [[plus(help, help.escalatedAt), 'Team called the school']] : []), ...(help.ackAt ? [[plus(help, help.ackAt), `${help.ackBy || 'Head teacher'} replied`]] : []), ...(help.actionAt ? [[plus(help, help.actionAt), (help.actions || []).join('; ') || 'Action recorded']] : [])],
+    result: help.note || help.result || '' });
+  return out;
+}
+function indicatorRows(alerts, schools, st) {
+  const sent = alerts.filter((a) => !a.dismissedAt), raised = alerts.length;
+  const within = sent.filter((a) => a.ackAt && mins(a.raisedAt, a.ackAt) <= ESCALATE_MIN).length;
+  const learners = schools.reduce((n, s) => n + (s.pupils || 0), 0);
+  const complete = sent.filter((a) => a.ackAt && a.actionAt && a.parentsAt && a.closedAt && a.result).length;
+  const P3 = 'Pillar 3 · Communication', P4 = 'Pillar 4 · Response', P2 = 'Pillar 2 · Monitoring';
+  return [
+    ['Schools covered', schools.length, '', 'Pilot schools with live readings and forecasts', ['County', 'Ministry', 'Funders'], P2],
+    ['Learners at pilot schools', learners.toLocaleString('en-GB'), '', 'Enrolment reported by each school', ['County', 'Ministry', 'Funders'], P2],
+    ['Areas covered', new Set(schools.map((s) => s.area)).size, '', 'Distinct areas (wards and estates) with a pilot school', ['County'], P2],
+    ['Warnings sent', st.total, '', 'Alerts a person checked and sent to a school', ['All'], P3],
+    ['False alarms', pct(raised - sent.length, raised), '%', 'Alerts dismissed after checking ÷ all alerts raised', ['Evaluators', 'Met services'], P2],
+    ['Acknowledged', st.ackRate, '%', 'Alerts the head teacher replied to ÷ alerts sent', ['All'], P3],
+    [`Acknowledged within ${ESCALATE_MIN} min`, pct(within, sent.length), '%', `Replies within ${ESCALATE_MIN} minutes of sending ÷ alerts sent`, ['County', 'NGOs'], P3],
+    ['Median minutes to acknowledge', st.medAck ?? '–', st.medAck != null ? ' min' : '', 'Middle value of the minutes from sending to the reply', ['All'], P3],
+    ['Escalated', pct(sent.filter((a) => a.escalatedAt).length, sent.length), '%', `No reply after ${ESCALATE_MIN} minutes, so the team called the school`, ['NGOs', 'Evaluators'], P3],
+    ['Schools took action', st.actRate, '%', 'Alerts with a recorded school action ÷ alerts sent', ['All'], P4],
+    ['Pupil-days protected', st.pupils.toLocaleString('en-GB'), '', 'For each alert a school acted on, the number of pupils at that school', ['Funders', 'Ministry'], P4],
+    ['Parents informed', st.toldRate, '%', 'Alerts where parents were told ÷ alerts sent', ['County', 'NGOs'], P3],
+    ['Needed partner help', sent.filter((a) => a.result === RESULTS[2]).length, '', 'Alerts closed as needing county or partner support', ['County', 'NGOs'], P4],
+    ['Complete records', pct(complete, sent.length), '%', 'Alerts with a reply, action, parents told and a result', ['Evaluators', 'Funders'], '–'],
+  ];
+}
 function viewImpact() {
   const d = data();
   if (!d.schools.length) return emptyLive();
-  const st = stats(d.alerts, d.schools);
-  const head = `<div class="toolbar"><div><h1 class="h">Pilot results</h1><span class="muted">${d.alerts.length ? `${fmtDay(d.start)} – ${fmtDay(d.now)}` : 'No alerts yet'}${state.mode === 'demo' ? ' · example data' : ''}</span></div>
-    <div class="btns"><button class="btn btn--ghost" type="button" data-action="audit-csv">${icon('down')}Record</button><button class="btn btn--ghost" type="button" data-action="csv">${icon('down')}Download CSV</button></div></div>`;
-  if (!d.alerts.length) return head + `<section class="card"><div class="empty"><span class="h">Nothing to report yet</span><span>Results build up as alerts are sent and schools respond.</span></div></section>`;
-  const tiles = `<section class="stats stats--5">
-    ${tile('Alerts sent', st.total, `${d.schools.length} schools${st.dismissed ? ` · ${st.dismissed} dismissed` : ''}`)}
-    ${tile('Acknowledged', st.ackRate + '%', 'by the head teacher')}
-    ${tile('Time to respond', `${st.medAck ?? '–'} <small>min</small>`, 'median')}
-    ${tile('Action taken', st.actRate + '%', `${st.pupils.toLocaleString('en-GB')} pupil-days covered`)}
-    ${tile('Parents told', st.toldRate + '%', 'in English and Kiswahili')}</section>`;
-  const wk = (t) => Math.floor((t - dayStart(d.start)) / (7 * DAY));
-  const weeks = Math.max(1, wk(d.now) + 1);
-  const per = Array.from({ length: weeks }, () => ({ air: 0, rain: 0, heat: 0 }));
-  d.alerts.forEach((a) => { const i = wk(a.raisedAt); if (per[i]) per[i][a.hazard] = (per[i][a.hazard] || 0) + 1; });
-  const maxW = Math.max(4, ...per.map((p) => p.air + p.rain + p.heat));
-  const wl = (i) => fmtDate(dayStart(d.start) + i * 7 * DAY);
-  const cols = per.map((p, i) => { const tot = p.air + p.rain + p.heat;
-    return `<div class="wk__col" title="Week of ${wl(i)}: ${tot} alerts"><div class="wk__plot"><span class="wk__n num">${tot || ''}</span><div class="wk__stack" style="height:${(86 * tot / maxW).toFixed(1)}%">${['heat', 'rain', 'air'].filter((k) => p[k]).map((k) => `<i style="flex:${p[k]};background:${HZ[k][1]}" title="${p[k]} ${HZ[k][0].toLowerCase()}"></i>`).join('')}</div></div><span class="wk__l">${wl(i)}</span></div>`; }).join('');
+  const range = state.impactRange || 'all';
+  const { from, alerts } = impactScope(d);
+  const st = stats(alerts, d.schools);
+  const demo = state.mode === 'demo';
+  const seg = `<div class="seg" role="group" aria-label="Period">${RANGES.map(([k, l]) => `<button type="button" data-action="impact-range" data-v="${k}" aria-pressed="${range === k}">${l}</button>`).join('')}</div>`;
+  const head = `<div class="toolbar imp-head"><div><h1 class="h">Impact</h1><span class="muted">${alerts.length ? `${fmtDay(from)} – ${fmtDay(d.now)}` : 'No alerts in this period'}${demo ? ' · <b class="ex">Example data, not pilot results</b>' : ''}</span></div>
+    <div class="btns">${seg}<button class="btn btn--ghost" type="button" data-action="copy-summary">${icon('copy')}Copy summary</button><button class="btn btn--ghost" type="button" data-action="print-report">${icon('down')}Print or PDF</button></div></div>`;
+  if (!alerts.length) return head + `<section class="card"><div class="empty"><span class="h">Nothing to report yet</span><span>Results build up as alerts are sent and schools respond.${range !== 'all' ? ' Try “All time”.' : ''}</span></div></section>`;
+  const sent = alerts.filter((a) => !a.dismissedAt);
+  const learners = d.schools.reduce((n, s) => n + (s.pupils || 0), 0);
+  const { list: bk, daily } = impactBuckets(from, d.now);
+  const inB = (b) => sent.filter((a) => a.raisedAt >= b.t0 && a.raisedAt < b.t1);
+  // trends use finished alerts only, so today's open alerts don't look like a drop
+  const per = bk.map((b) => { const xs = inB(b), done = xs.filter((a) => a.closedAt), x = stats(done, d.schools); return { b, xs, n: xs.length, ack: done.length ? x.ackRate : null, med: x.medAck, act: done.length ? x.actRate : null, told: done.length ? x.toldRate : null }; });
+  const weeksRunning = Math.max(1, Math.ceil((d.now - from) / (7 * DAY)));
+
+  const hero = `<section class="imp-hero">
+    <div class="imp-hero__main"><span class="label">Pupil-days protected</span><span class="imp-hero__big num">${st.pupils.toLocaleString('en-GB')}</span>
+      <p>Each time a school acted on a warning, we count the pupils at that school. ${pct(sent.filter((a) => a.actionAt).length, sent.length)}% of warnings led to a recorded action.</p></div>
+    <div class="imp-hero__grid">
+      <div class="glass"><span class="label">Schools</span><b class="num">${d.schools.length}</b><span>${new Set(d.schools.map((s) => s.area)).size} areas of Nairobi</span></div>
+      <div class="glass"><span class="label">Learners</span><b class="num">${learners.toLocaleString('en-GB')}</b><span>at pilot schools</span></div>
+      <div class="glass"><span class="label">Warnings sent</span><b class="num">${st.total}</b><span>${st.dismissed} dismissed after checking</span></div>
+      <div class="glass"><span class="label">${daily ? 'Days' : 'Weeks'} running</span><b class="num">${daily ? Math.max(1, Math.ceil((d.now - from) / DAY)) : weeksRunning}</b><span>in this view</span></div>
+    </div></section>`;
+
+  const within = sent.filter((a) => a.ackAt && mins(a.raisedAt, a.ackAt) <= ESCALATE_MIN).length;
+  const fastest = st.ackMins.length ? Math.min(...st.ackMins) : null;
+  const kpis = `<section class="kpis">
+    ${kpi('Acknowledged', st.ackRate + '%', `${pct(within, sent.length)}% within ${ESCALATE_MIN} min`, per.map((p) => p.ack), '#17483B', ' pts', 'up')}
+    ${kpi('Time to respond', `${st.medAck ?? '–'}<small>min</small>`, `median${fastest != null ? ` · fastest ${fastest} min` : ''}`, per.map((p) => p.med), '#D98A1C', ' min', 'down')}
+    ${kpi('Action taken', st.actRate + '%', 'warnings with a recorded step', per.map((p) => p.act), '#17483B', ' pts', 'up')}
+    ${kpi('Parents told', st.toldRate + '%', 'in English and Kiswahili', per.map((p) => p.told), '#2F6FCB', ' pts', 'up')}
+  </section>`;
+
+  const maxW = Math.max(4, ...per.map((p) => p.n));
+  const cols = per.map((p) => { const by = { air: 0, rain: 0, heat: 0 }; p.xs.forEach((a) => { by[a.hazard] = (by[a.hazard] || 0) + 1; });
+    return `<div class="wk__col" title="${daily ? '' : 'Week of '}${p.b.label}: ${p.n} alerts"><div class="wk__plot"><span class="wk__n num">${p.n || ''}</span><div class="wk__stack" style="height:${(86 * p.n / maxW).toFixed(1)}%">${['heat', 'rain', 'air'].filter((k) => by[k]).map((k) => `<i style="flex:${by[k]};background:${IMP[k][1]}" title="${by[k]} ${IMP[k][0].toLowerCase()}"></i>`).join('')}</div></div><span class="wk__l">${esc(p.b.label)}</span></div>`; }).join('');
+  const byHz = Object.keys(IMP).map((k) => ({ k, n: sent.filter((a) => a.hazard === k).length, c: IMP[k][1], l: IMP[k][0] }));
+  const row1 = `<div class="imp-grid imp-grid--2-1">
+    <section class="card"><div class="card__head"><div><h2 class="card__title">Warnings ${daily ? 'each day' : 'each week'}</h2><span class="muted">${st.total} sent to ${new Set(sent.map((a) => a.schoolId)).size} schools</span></div><div class="keys" style="margin:0">${byHz.map((h) => `<span><i style="background:${h.c}"></i>${h.l}</span>`).join('')}</div></div>
+      <div class="wk" role="img" aria-label="Warnings per ${daily ? 'day' : 'week'}: ${per.map((p) => p.b.label + ' ' + p.n).join(', ')}">${cols}</div></section>
+    <section class="card"><div class="card__head"><h2 class="card__title">By danger</h2></div>
+      <div class="donutwrap">${donut(byHz, st.total, 'Warnings by danger: ' + byHz.map((h) => `${h.l} ${h.n}`).join(', '))}
+      <ul class="legend">${byHz.map((h) => `<li><i style="background:${h.c}"></i><span>${h.l}</span><b class="num">${h.n}</b><span class="muted num">${pct(h.n, st.total)}%</span></li>`).join('')}</ul></div></section></div>`;
+
+  const steps = [['Warnings sent', sent.length], ['Head teacher replied', sent.filter((a) => a.ackAt).length], ['School took action', sent.filter((a) => a.actionAt).length], ['Parents told', sent.filter((a) => a.parentsAt).length], ['Closed with a result', sent.filter(isClosedOk).length]];
+  const funnel = `<div class="funnel">${steps.map(([l, n], i) => `<div class="funnel__row"><span class="funnel__l">${l}</span><span class="funnel__bar"><i style="width:${Math.max(2, 100 * n / Math.max(1, sent.length)).toFixed(1)}%;opacity:${(1 - i * 0.13).toFixed(2)}"></i></span><b class="num">${n}</b><span class="muted num">${pct(n, sent.length)}%</span></div>`).join('')}</div>`;
+  const row2 = `<div class="imp-grid imp-grid--1-1">
+    <section class="card"><div class="card__head"><div><h2 class="card__title">From warning to action</h2><span class="muted">How far each warning got</span></div></div>${funnel}</section>
+    <section class="card"><div class="card__head"><div><h2 class="card__title">Time to respond</h2><span class="muted">Median minutes to the head teacher’s reply, ${daily ? 'by day' : 'by week'}</span></div></div>${lineChart(per.map((p) => ({ label: p.b.label, v: p.med })), ESCALATE_MIN, `Call the school after ${ESCALATE_MIN} min`)}</section></div>`;
+
   const buckets = [['5 min or less', (m) => m <= 5], ['6–15 min', (m) => m > 5 && m <= 15], ['16–30 min', (m) => m > 15 && m <= 30], ['31–60 min', (m) => m > 30 && m <= 60], ['Over 60 min', (m) => m > 60]];
   const counts = buckets.map(([, f]) => st.ackMins.filter(f).length), maxC = Math.max(1, ...counts);
-  const actCount = {};
-  d.alerts.forEach((a) => (a.actions || []).forEach((x) => { actCount[x] = (actCount[x] || 0) + 1; }));
+  const actCount = {}; sent.forEach((a) => (a.actions || []).forEach((x) => { actCount[x] = (actCount[x] || 0) + 1; }));
   const acts = Object.entries(actCount).sort((a, b) => b[1] - a[1]).slice(0, 6), maxA = Math.max(1, ...acts.map((x) => x[1]));
-  const charts = `<div class="grid-2">
-    <section class="card span-2"><div class="card__head"><h2 class="card__title">Alerts each week</h2><div class="keys" style="margin:0">${Object.values(HZ).map(([l, c]) => `<span><i style="background:${c}"></i>${l}</span>`).join('')}</div></div>
-      <div class="wk" role="img" aria-label="Alerts per week: ${per.map((p, i) => wl(i) + ' ' + (p.air + p.rain + p.heat)).join(', ')}">${cols}</div></section>
-    <section class="card"><div class="card__head"><h2 class="card__title">Minutes to acknowledge</h2></div><div class="hbars">${counts.map((c, i) => `<div class="hbar"><span>${buckets[i][0]}</span><span class="hbar__track"><i style="width:${(100 * c / maxC).toFixed(1)}%;background:${i < 2 ? 'var(--accent)' : i < 4 ? 'var(--sun)' : 'var(--bad)'}"></i></span><span class="num">${c}</span></div>`).join('')}</div></section>
-    <section class="card"><div class="card__head"><h2 class="card__title">What schools did</h2></div><div class="hbars">${acts.map(([k, c]) => `<div class="hbar hbar--stack"><span>${esc(k)}</span><span class="hbar__track"><i style="width:${(100 * c / maxA).toFixed(1)}%;background:var(--accent)"></i></span><span class="num">${c}</span></div>`).join('') || '<span class="muted">No actions recorded yet.</span>'}</div></section></div>`;
-  const rows = d.schools.map((s) => { const al = d.alerts.filter((a) => a.schoolId === s.id), x = stats(al, d.schools);
-    return `<tr class="is-click" data-action="pick-school" data-id="${esc(s.id)}" data-goto-desk="1"><td><b>${esc(s.name)}</b><br><span class="muted">${esc(s.area)}</span></td><td class="r num">${x.total}</td><td class="r num">${x.total ? x.ackRate + '%' : '–'}</td><td class="r num hide-sm">${x.medAck ?? '–'}</td><td class="r num hide-sm">${x.total ? x.actRate + '%' : '–'}</td><td class="r num">${x.total ? x.toldRate + '%' : '–'}</td></tr>`; }).join('');
-  const table = `<section class="card"><div class="card__head"><h2 class="card__title">By school</h2></div><div class="tablewrap"><table><thead><tr><th>School</th><th class="r">Alerts</th><th class="r">Acknowledged</th><th class="r hide-sm">Median min</th><th class="r hide-sm">Action</th><th class="r">Parents told</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
-  return head + tiles + charts + table;
+  const oc = {}; sent.forEach((a) => { const k = outcomeOf(a); oc[k] = (oc[k] || 0) + 1; });
+  const OC = { [RESULTS[0]]: 'var(--ok)', [RESULTS[1]]: 'var(--wait)', [RESULTS[2]]: 'var(--bad)', 'No action recorded': '#A4ABA7', 'No reply': '#7C847F', 'Still open': 'var(--rain)' };
+  const ocs = Object.entries(oc).sort((a, b) => b[1] - a[1]), maxO = Math.max(1, ...ocs.map((x) => x[1]));
+  const row3 = `<div class="imp-grid imp-grid--3">
+    <section class="card"><div class="card__head"><h2 class="card__title">Minutes to reply</h2></div><div class="hbars">${counts.map((c, i) => `<div class="hbar"><span>${buckets[i][0]}</span><span class="hbar__track"><i style="width:${(100 * c / maxC).toFixed(1)}%;background:${i < 2 ? 'var(--accent)' : i < 3 ? 'var(--sun)' : 'var(--bad)'}"></i></span><span class="num">${c}</span></div>`).join('')}</div></section>
+    <section class="card"><div class="card__head"><h2 class="card__title">What schools did</h2></div><div class="hbars">${acts.map(([k, c]) => `<div class="hbar hbar--stack"><span>${esc(k)}</span><span class="hbar__track"><i style="width:${(100 * c / maxA).toFixed(1)}%;background:var(--accent)"></i></span><span class="num">${c}</span></div>`).join('') || '<span class="muted">No actions recorded yet.</span>'}</div></section>
+    <section class="card"><div class="card__head"><h2 class="card__title">Outcomes</h2></div><div class="hbars">${ocs.map(([k, c]) => `<div class="hbar hbar--stack"><span>${esc(k)}</span><span class="hbar__track"><i style="width:${(100 * c / maxO).toFixed(1)}%;background:${OC[k] || 'var(--accent)'}"></i></span><span class="num">${c}</span></div>`).join('')}</div></section></div>`;
+
+  const cases = caseStudies(sent, d.schools);
+  const caseHtml = cases.length ? `<section class="cases"><div class="sec-head"><h2 class="card__title">Stories from the record</h2><span class="muted">Picked automatically from real steps in the record${demo ? ' (example data)' : ''}. No pupils’ names.</span></div>
+    <div class="imp-grid imp-grid--3">${cases.map((c) => `<article class="case"><span class="case__kicker">${esc(c.kicker)}</span><h3>${esc(c.title)}</h3><span class="muted">${esc(schoolName(c.a))} · ${esc((schoolById(c.a.schoolId) || {}).area || '')} · ${fmtDay(c.a.raisedAt)}</span>
+      <ol class="case__steps">${c.steps.map(([t, s]) => `<li><b class="num">${esc(t)}</b><span>${esc(s)}</span></li>`).join('')}</ol>
+      ${c.result ? `<p class="case__result">${esc(c.result)}</p>` : ''}<button class="link" type="button" data-action="pick-alert" data-id="${esc(c.a.id)}" data-goto-desk="1">Open in school desk</button></article>`).join('')}</div></section>` : '';
+
+  const rows = d.schools.map((s) => { const al = alerts.filter((a) => a.schoolId === s.id), x = stats(al, d.schools), help = al.filter((a) => a.result === RESULTS[2]).length;
+    return `<tr class="is-click" data-action="pick-school" data-id="${esc(s.id)}" data-goto-desk="1"><td><b>${esc(s.name)}</b><br><span class="muted">${esc(s.area)}</span></td><td class="r num hide-sm">${s.pupils ? s.pupils.toLocaleString('en-GB') : '–'}</td><td class="r num">${x.total}</td><td class="r"><span class="minibar"><i style="width:${x.total ? x.ackRate : 0}%"></i></span><span class="num">${x.total ? x.ackRate + '%' : '–'}</span></td><td class="r num hide-sm">${x.medAck ?? '–'}</td><td class="r num hide-sm">${x.total ? x.actRate + '%' : '–'}</td><td class="r num">${x.total ? x.toldRate + '%' : '–'}</td><td class="r num hide-sm">${help || '–'}</td></tr>`; }).join('');
+  const table = `<section class="card"><div class="card__head"><div><h2 class="card__title">By school</h2><span class="muted">For head teachers and the county education office</span></div></div><div class="tablewrap"><table><thead><tr><th>School</th><th class="r hide-sm">Learners</th><th class="r">Warnings</th><th class="r">Replied</th><th class="r hide-sm">Median min</th><th class="r hide-sm">Action</th><th class="r">Parents told</th><th class="r hide-sm">Partner help</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+
+  const ind = indicatorRows(alerts, d.schools, st);
+  const indTable = `<section class="card"><div class="card__head"><div><h2 class="card__title">Indicators for partners</h2><span class="muted">For counties, the Ministry of Education, NGOs, evaluators and funders. Pillars are from the UN Early Warnings for All initiative: 2 detection, monitoring and forecasting; 3 warning dissemination and communication; 4 preparedness and response.</span></div><button class="btn btn--ghost btn--sm" type="button" data-action="indicators-csv">${icon('down')}Indicators (CSV)</button></div>
+    <div class="tablewrap"><table class="ind"><thead><tr><th>Indicator</th><th class="r">Value</th><th class="hide-sm">How it is measured</th><th class="hide-sm">Useful for</th><th class="hide-sm">EW4All</th></tr></thead><tbody>
+    ${ind.map(([n, v, u, how, who, p]) => `<tr><td><b>${esc(n)}</b><span class="muted show-sm">${esc(how)}</span></td><td class="r num"><b>${v}${u}</b></td><td class="muted hide-sm">${esc(how)}</td><td class="hide-sm">${who.map((w) => `<span class="aud">${esc(w)}</span>`).join('')}</td><td class="hide-sm">${p === '–' ? '<span class="muted">–</span>' : `<span class="pill-s">${esc(p)}</span>`}</td></tr>`).join('')}</tbody></table></div></section>`;
+
+  const exports = `<section class="card exports"><div><h2 class="card__title">Data and methods</h2><p class="muted">Every number here comes from the alert record: times are stamped when each step is recorded and can’t be edited. Dismissed alerts are left out of rates. Pupil-days protected counts the pupils at a school each time it acted; it is not a count of children who would otherwise have been harmed. ${demo ? 'This page uses example data for training and demonstrations.' : 'Records are kept on this device and in its backups.'}</p></div>
+    <div class="btns"><button class="btn btn--ghost" type="button" data-action="csv">${icon('down')}Alerts (CSV)</button><button class="btn btn--ghost" type="button" data-action="audit-csv">${icon('down')}Full record (CSV)</button><button class="btn btn--ghost" type="button" data-action="indicators-csv">${icon('down')}Indicators (CSV)</button></div></section>`;
+
+  return head + hero + kpis + row1 + row2 + row3 + caseHtml + table + indTable + exports;
+}
+function impactSummary() {
+  const d = data(), { from, alerts } = impactScope(d), st = stats(alerts, d.schools), sent = alerts.filter((a) => !a.dismissedAt);
+  const learners = d.schools.reduce((n, s) => n + (s.pupils || 0), 0);
+  return `Dunia Alerts${state.mode === 'demo' ? ' (EXAMPLE DATA, not real pilot results)' : ' pilot'}, ${fmtDay(from)} – ${fmtDay(d.now)}: ${st.total} warnings sent to ${new Set(sent.map((a) => a.schoolId)).size} of ${d.schools.length} pilot schools in Nairobi (${learners.toLocaleString('en-GB')} learners across the pilot). `
+    + `Head teachers acknowledged ${st.ackRate}% (median ${st.medAck ?? '–'} minutes). Schools took action on ${st.actRate}%, covering ${st.pupils.toLocaleString('en-GB')} pupil-days, and parents were told for ${st.toldRate}%, in English and Kiswahili. `
+    + `${sent.filter((a) => a.result === RESULTS[2]).length} needed partner help. A Dunia Endelevu pilot · alerts.duniaendelevu.org`;
+}
+const ymd = (t) => { const x = new Date(t); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
+function exportIndicators() {
+  const d = data(), { from, alerts } = impactScope(d), st = stats(alerts, d.schools);
+  const q = (x) => '"' + String(x ?? '').replace(/"/g, '""') + '"';
+  const dataset = state.mode === 'demo' ? 'EXAMPLE DATA (demo, not real pilot results)' : 'pilot';
+  const lines = [['dataset', 'period_start', 'period_end', 'indicator', 'value', 'unit', 'definition', 'useful_for', 'ew4all_pillar'].join(',')];
+  indicatorRows(alerts, d.schools, st).forEach(([n, v, u, how, who, p]) => lines.push([dataset, ymd(from), ymd(d.now), n, String(v).replace(/,/g, ''), u.trim(), how, who.join('; '), p].map(q).join(',')));
+  download(`dunia-alerts-indicators-${state.mode === 'demo' ? 'demo-example-data' : 'pilot'}-${today()}.csv`, '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+  toast('Indicators downloaded.');
 }
 
 /* ----- Schools ----- */
@@ -948,7 +1133,7 @@ async function act(el) {
       if (el.dataset.gotoDesk) return setView('desk');
       if (el.dataset.gotoOverview) return setView('overview');
       break;
-    case 'pick-alert': { const a = data().alerts.find((x) => x.id === id); if (!a) break; state.alertId = id; if (schoolById(a.schoolId)) state.schoolId = a.schoolId; resetDraft(); if (state.view === 'overview') return setView('desk'); break; }
+    case 'pick-alert': { const a = data().alerts.find((x) => x.id === id); if (!a) break; state.alertId = id; if (schoolById(a.schoolId)) state.schoolId = a.schoolId; resetDraft(); if (state.view === 'overview' || el.dataset.gotoDesk) return setView('desk'); break; }
     case 'open-desk': state.alertId = id || null; return setView('desk');
     case 'go-parents': state.alertId = id; return setView('parents');
     case 'raise': prefillRaise('air'); break;
@@ -983,6 +1168,10 @@ async function act(el) {
       return;
     }
     case 'csv': exportCsv(); return;
+    case 'indicators-csv': exportIndicators(); return;
+    case 'impact-range': state.impactRange = v || 'all'; break;
+    case 'print-report': window.print(); return;
+    case 'copy-summary': { const t = impactSummary(); try { await navigator.clipboard.writeText(t); toast('Summary copied. Paste it into a report or email.'); } catch (e) { toast('Copying is blocked in this browser.'); } return; }
     case 'backup': download(`dunia-alerts-backup-${today()}.json`, JSON.stringify({ app: 'dunia-alerts', version: 1, exportedAt: new Date().toISOString(), ...live }, null, 1), 'application/json'); toast('Backup downloaded.'); return;
     case 'restore': $('#restoreFile').click(); return;
     case 'edit-school': state.editing = id; state.removing = null; render(); $('#fName') && $('#fName').focus(); return;

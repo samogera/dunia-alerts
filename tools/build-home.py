@@ -480,8 +480,8 @@ PANELS = [
      'laptop', 'desk-laptop', 'The school desk on a laptop, with example data: an unhealthy air alert, the step for the school, and a timeline from alert sent to the head teacher’s reply.', 'Demo · made-up schools and example data'),
     ('parents', 'Parents hear it in two languages.', ['Ready-made messages in English and Kiswahili.', 'SMS length counted, so the cost is clear before sending.', 'Mark parents as told, for the pilot record.'],
      'phone', 'parents', '', 'Example message from the demo'),
-    ('impact', 'Every response, timed and recorded.', ['Alerts sent, answered and acted on, week by week.', 'How fast schools replied and what they did.', 'Download the pilot record as a spreadsheet (CSV).'],
-     'monitor', 'monitor-impact', 'The impact screen on a desktop screen, with example data: tiles for alerts sent, acknowledged, time to respond, action taken and parents told, above a chart of alerts each week.', 'Demo · example numbers, not pilot results'),
+    ('impact', 'Every response, timed and recorded.', ['Response rates and trends, from warning to action.', 'Stories from the record and results by school.', 'Indicators for counties, ministries, NGOs and funders, with CSV and PDF.'],
+     'monitor', 'monitor-impact', 'The impact screen on a desktop screen, with example data: pupil-days protected, schools, learners and warnings sent, then response rates with trend lines.', 'Demo · example numbers, not pilot results'),
 ]
 
 
