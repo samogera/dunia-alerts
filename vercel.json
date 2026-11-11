@@ -153,7 +153,7 @@
       ]
     },
     {
-      "source": "/assets/shots/(.*)",
+      "source": "/assets/mock/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
