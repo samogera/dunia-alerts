@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Join the pilot · Dunia Alerts</title>
+<meta name="description" content="Bring free early warnings for air, heat, heavy rain and rivers to your school in Nairobi. Join the Dunia Alerts pilot in two minutes. Partners and funders welcome.">
+<link rel="canonical" href="https://alerts.duniaendelevu.org/join">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#F2F3F1">
+<meta name="author" content="Dunia Endelevu">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dunia Alerts">
+<meta property="og:title" content="Join the Dunia Alerts pilot">
+<meta property="og:description" content="Free early warnings for Nairobi schools: air, heat, heavy rain and rivers, one clear step for the head teacher, and messages for parents in English and Kiswahili.">
+<meta property="og:url" content="https://alerts.duniaendelevu.org/join">
+<meta property="og:image" content="https://alerts.duniaendelevu.org/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dunia Alerts: early warnings that reach children at school, shown on a laptop.">
+<meta property="og:locale" content="en_KE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Join the Dunia Alerts pilot">
+<meta name="twitter:description" content="Free early warnings for Nairobi schools. Join the pilot in two minutes.">
+<meta name="twitter:image" content="https://alerts.duniaendelevu.org/og-image.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/join.js" defer></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebPage", "@id": "https://alerts.duniaendelevu.org/join#webpage", "url": "https://alerts.duniaendelevu.org/join", "name": "Join the Dunia Alerts pilot", "description": "Schools in Nairobi can join the free Dunia Alerts pilot: early warnings for air, heat, heavy rain and rivers. Partners, county offices and funders are welcome too.", "isPartOf": {"@id": "https://alerts.duniaendelevu.org/#website"}, "about": {"@id": "https://alerts.duniaendelevu.org/#app"}, "inLanguage": "en", "dateModified": "2026-11-11", "potentialAction": {"@type": "JoinAction", "target": "https://alerts.duniaendelevu.org/join#form", "object": {"@id": "https://alerts.duniaendelevu.org/#app"}}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Dunia Alerts", "item": "https://alerts.duniaendelevu.org/"}, {"@type": "ListItem", "position": 2, "name": "Join the pilot", "item": "https://alerts.duniaendelevu.org/join"}]}]}</script>
+</head>
+<body class="join-page">
+<a class="skip" href="#form">Skip to the form</a>
+
+<header class="nav">
+  <div class="nav__bar">
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
+    <nav class="nav__links" aria-label="Sections">
+      <a href="/#how">How it works</a>
+      <a href="/#dashboard">Dashboard</a>
+      <a href="/#classroom">Classroom</a>
+      <a href="/#faq">FAQ</a>
+      <a class="nav__join" href="/join" aria-current="page">Join the pilot</a>
+    </nav>
+    <div class="nav__end">
+      <a class="nav__signin" href="/login">Sign in</a>
+      <a class="btn btn--dark btn--sm" href="/demo"><span class="nav__long">See the demo</span><span class="nav__short">Demo</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="frame">
+<main id="main">
+
+  <section class="join-head">
+    <span class="kicker">Free for schools · Nairobi pilot</span>
+    <h1 class="h1 h1--join">Bring early warnings to <span class="hl">your school</span></h1>
+    <p class="lede">Tell us a little about your school or organisation. It takes about two minutes, and the Dunia team reads every reply.</p>
+  </section>
+
+  <div class="join">
+    <section class="jform" id="form" aria-labelledby="form-h" tabindex="-1">
+      <div class="jform__head">
+        <span class="tile tile--lg"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#school"/></svg></span>
+        <div><h2 id="form-h">Join the pilot</h2><p>Anything marked <span class="opt">optional</span> can be left empty.</p></div>
+      </div>
+
+      <form id="join" method="post" action="/api/join" novalidate>
+        <div class="msg msg--info" id="msg" role="alert" hidden></div>
+
+        <fieldset>
+          <legend>About you</legend>
+          <label class="field" for="role"><span>I am</span>
+            <select class="input select" id="role" name="role" required>
+              <option value="">Choose one</option>
+              <option value="head">Head teacher or deputy</option>
+              <option value="teacher">Teacher</option>
+              <option value="school">School owner, manager or board member</option>
+              <option value="parent">Parent or guardian</option>
+              <option value="gov">County or national government</option>
+              <option value="partner">NGO, researcher or partner</option>
+              <option value="funder">Funder or donor</option>
+              <option value="other">Something else</option>
+            </select>
+          </label>
+          <div class="two">
+            <label class="field" for="name"><span>Your name</span>
+              <input class="input" id="name" name="name" type="text" autocomplete="name" maxlength="80" required>
+            </label>
+            <label class="field" for="email"><span>Email</span>
+              <input class="input" id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" required>
+            </label>
+          </div>
+          <label class="field" for="phone"><span>Phone or WhatsApp <span class="opt">optional</span></span>
+            <input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="+254 …">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Your school or organisation</legend>
+          <label class="field" for="org"><span>Name of the school or organisation</span>
+            <input class="input" id="org" name="org" type="text" autocomplete="organization" maxlength="120" required>
+          </label>
+          <div class="two">
+            <label class="field" for="area"><span>Area or town <span class="opt">optional</span></span>
+              <input class="input" id="area" name="area" type="text" autocomplete="address-level2" maxlength="80" placeholder="For example, Embakasi, Nairobi">
+            </label>
+            <label class="field" for="learners"><span>Learners at the school <span class="opt">optional</span></span>
+              <select class="input select" id="learners" name="learners">
+                <option value="">Choose one</option>
+                <option value="u300">Under 300</option>
+                <option value="300-700">300 to 700</option>
+                <option value="700-1500">700 to 1,500</option>
+                <option value="1500+">Over 1,500</option>
+                <option value="na">Not a school</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>What worries you most? <span class="opt">optional</span></legend>
+          <div class="picks">
+            <label class="pick"><input type="checkbox" name="concerns" value="air"><span><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#air"/></svg>Dirty air</span></label>
+            <label class="pick"><input type="checkbox" name="concerns" value="heat"><span><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#heat"/></svg>Great heat</span></label>
+            <label class="pick"><input type="checkbox" name="concerns" value="rain"><span><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#rain"/></svg>Heavy rain and floods</span></label>
+            <label class="pick"><input type="checkbox" name="concerns" value="river"><span><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#river"/></svg>Rising rivers</span></label>
+            <label class="pick"><input type="checkbox" name="concerns" value="room"><span><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#comfort"/></svg>Classroom air and comfort</span></label>
+          </div>
+        </fieldset>
+
+        <label class="field" for="message"><span>Anything else? <span class="opt">optional</span></span>
+          <textarea class="input textarea" id="message" name="message" rows="4" maxlength="1000" placeholder="Questions, what your school needs, or the best time to call"></textarea>
+          <small class="hint">Please don’t write children’s names or details.</small>
+        </label>
+
+        <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+
+        <label class="consent" for="consent">
+          <input type="checkbox" id="consent" name="consent" required>
+          <span>The Dunia team may contact me about the pilot.</span>
+        </label>
+
+        <button class="btn btn--dark btn--block" id="submit" type="submit">Send my reply<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></button>
+        <noscript><p class="msg msg--bad">This form needs JavaScript. You can also write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a> with your school’s name, area and a contact.</p></noscript>
+        <p class="fine"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#privacy"/></svg><span>We use your details only to talk with you about the pilot. They’re kept privately on the Dunia Alerts server, seen only by the signed-in Dunia team, and never shared or sold. To see, change or delete them, write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>.</span></p>
+      </form>
+
+      <div class="done" id="done" hidden>
+        <span class="tile tile--lg"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg></span>
+        <h2 id="done-h" tabindex="-1">Thank you. Your reply is in.</h2>
+        <p id="done-p">The Dunia team reads every reply and will get in touch about the next step.</p>
+        <div class="btns btns--left">
+          <a class="btn btn--dark" href="/demo">See the demo<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
+          <a class="btn btn--light" href="/assets/docs/how-dunia-alerts-works.pdf">Read the 2-page guide</a>
+        </div>
+      </div>
+    </section>
+
+    <aside class="jside" aria-label="About joining">
+      <div class="jcard">
+        <h2>What your school gets</h2>
+        <ul class="ticks">
+          <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg><span>Warnings for air, heat, heavy rain and rivers around your school, up to 48 hours ahead</span></li>
+          <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg><span>One clear step for the head teacher, by WhatsApp or SMS</span></li>
+          <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg><span>Ready-made messages for parents in English and Kiswahili</span></li>
+          <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg><span>Free. No app to install, and it works on any phone</span></li>
+        </ul>
+      </div>
+      <div class="jcard">
+        <h2>What we ask of you</h2>
+        <ul class="ticks">
+          <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg><span>A named contact who can reply when a warning comes</span></li>
+          <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg><span>A short chat with the Dunia team before you start</span></li>
+          <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg><span>Permission to record how the school responds, never children’s names</span></li>
+        </ul>
+      </div>
+      <div class="jcard">
+        <h2>What happens next</h2>
+        <ol class="nsteps">
+          <li><b>We read your reply.</b> Every reply reaches the Dunia team.</li>
+          <li><b>We get in touch</b> by email or phone for a short chat.</li>
+          <li><b>We set up your school</b> on the dashboard and agree who gets the alerts.</li>
+        </ol>
+        <p class="jnote">The pilot starts small, so schools may join in stages.</p>
+      </div>
+      <div class="jcard jcard--dark">
+        <h2>Not a school?</h2>
+        <p>County and national offices, NGOs, researchers and funders: use the same form and choose who you are. We would love to work with you.</p>
+        <a class="doc" href="/assets/docs/how-dunia-alerts-works.pdf"><span class="doc__ic"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#down"/></svg></span><span><b>How Dunia Alerts works</b><small>A 2-page guide in simple words · PDF</small></span></a>
+      </div>
+    </aside>
+  </div>
+
+</main>
+
+<footer class="foot">
+  <div>
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
+    <p>A <a href="https://duniaendelevu.org/">Dunia Endelevu</a> pilot, led by <a href="https://alanachelangat.com/">Alana Chelangat</a>.</p>
+  </div>
+  <nav aria-label="Footer">
+    <a href="/join">Join the pilot</a>
+    <a href="/demo">Demo</a>
+    <a href="/classroom?demo=1">Classroom screen</a>
+    <a href="/assets/docs/how-dunia-alerts-works.pdf">2-page guide (PDF)</a>
+    <a href="/login">Pilot sign in</a>
+    <a href="https://duniaendelevu.org/contact">Contact</a>
+    <a href="https://duniaendelevu.org/donate">Donate</a>
+  </nav>
+  <p class="foot__note">Data: Open-Meteo (weather, Copernicus CAMS air, GloFAS rivers) and OpenAQ. Air bands: US EPA AQI (2024). Icons: Phosphor. © <span data-year>2026</span> Dunia Endelevu.</p>
+</footer>
+</div>
+</body>
+</html>

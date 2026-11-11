@@ -7,19 +7,29 @@ The Dunia team watches the readings, sends an alert to a school, and records how
 the head teacher acknowledges, the school acts, parents are told in English and Kiswahili, and the alert is closed with a result.
 Every step is timed, so the pilot can show how quickly schools act.
 
-## Three doors
+## Four doors
 
 | Address | Who it is for |
 | --- | --- |
 | **`/`** | Everyone. The public home page: what Dunia Alerts does, how it works, the classroom screen, status and FAQ. (`/about` now opens it.) |
+| **`/join`** | Schools, partners, county offices and funders who want to take part. A two-minute form; replies go to the team's private sign-ups list. (`/signup` opens it too.) |
 | **`/demo`** | Everyone, no sign-in. The full dashboard with made-up schools and example data, marked as such on every screen and in every download. |
 | **`/pilot`** | The Dunia team only. The live dashboard, after signing in at **`/login`**. Anyone else is sent to the sign-in page. |
 
 `/classroom` stays public (add `?demo=1` for example data). Old bookmarks such as `/#desk` open `/pilot#desk`.
 
+## Join the pilot (sign-ups)
+
+`/join` asks for an adult's own contact details only: who they are (head teacher, county officer, funder…), name, email, optional phone, school or organisation, optional area, number of learners and worries, a message, and their OK to be contacted. It asks people not to write children's names.
+
+- Replies are saved by `api/join.js` in Upstash Redis (the same private store as sign-in), so **Upstash for Redis must be connected** (see "Classroom screens and indoor sensors" below). Without it, the form tells people to email hello@duniaendelevu.org instead. Check with `/api/v1/health`: `"storage": true`.
+- The team reads them at **`/pilot/signups`** (signed in; also linked as **Sign-ups** in the pilot header): filter by status (New, Contacted, Joined, Not now), search, keep a short team note, delete a reply when someone asks, and download a CSV (cells are guarded so they cannot run as spreadsheet formulas).
+- Spam guard: a hidden field people never see, a minimum time on the page, five replies per network per hour, and at most 5,000 replies kept.
+- `/join?role=funder` (or `partner`, `gov`, `head`…) opens the form with that choice made.
+
 ## Sign-in for the pilot
 
-There is no public sign-up: the team creates each account, and passwords are never stored, only a strong hash.
+Dashboard accounts are not open for sign-up: the team creates each account, and passwords are never stored, only a strong hash.
 
 1. Make a session secret once: `node tools/new-user.js --secret`
 2. Add a person: `node tools/new-user.js name@duniaendelevu.org`. It prints one line for `PILOT_USERS` and a strong password to give that person privately (it is shown once and stored nowhere). Add `--ask` to type your own password instead (at least 12 characters).
@@ -157,6 +167,10 @@ That file is public, so only names, areas and pupil numbers go there, never phon
 
 ```
 index.html            the public home page (/), written by tools/build-home.py, with assets/site.css and assets/site.js
+join.html             Join the pilot (/join), also written by tools/build-home.py, with assets/join.js
+api/join.js           the sign-up form's replies: public POST, team-only list, status, note and delete
+api/signups.js        the team's sign-ups list (/pilot/signups), with assets/signups.js
+assets/docs/          how-dunia-alerts-works.pdf, the 2-page guide in simple words (/guide opens it)
 assets/icons.svg      the icon set (Phosphor Icons, duotone, MIT licence)
 assets/mark.svg       the Dunia Alerts logo mark (also favicon.svg, apple-touch-icon.png, icon-512.png, icon-maskable-512.png)
 demo.html             the dashboard with example data (/demo), written by tools/build-pages.js

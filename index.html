@@ -322,7 +322,23 @@
      "name": "Who can sign in to the live pilot?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "The Dunia team running the Nairobi pilot. There is no public sign-up: the team creates each account. Anyone can try the demo without signing in. Lost your password? Write to hello@duniaendelevu.org."
+      "text": "The Dunia team running the Nairobi pilot. The team creates each account, so there is no sign-up for the dashboard. Schools that want to take part can join the pilot instead, and anyone can try the demo without signing in. Lost your password? Write to hello@duniaendelevu.org."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What happens to the details I send in the join form?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "They are used only to talk with you about the pilot. They are kept privately on the Dunia Alerts server, seen only by the signed-in Dunia team, and never shared or sold. The form asks adults for their own contact details and never for children’s names. To see, change or delete your details, write to hello@duniaendelevu.org."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How can my school join the pilot?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Fill in the short form to join the pilot. It takes about two minutes. The Dunia team reads every reply and gets in touch about the next step. Joining is free, and schools never pay. The first pilot schools are in Nairobi, and schools elsewhere are welcome to register their interest."
      }
     },
     {
@@ -330,7 +346,7 @@
      "name": "How can I support or partner?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Donate or get in touch through Dunia Endelevu. Support pays for SMS to every parent, classroom sensors, training for head teachers, a login for every school and an open evaluation. Schools, county education offices, weather and air agencies and funders are all welcome."
+      "text": "Donate or get in touch through Dunia Endelevu. Support pays for SMS to every parent, classroom sensors, training for head teachers, a login for every school and an open evaluation. Schools, county education offices, weather and air agencies and funders are all welcome, and can also use the form to join the pilot."
      }
     },
     {
@@ -356,8 +372,8 @@
       <a href="#how">How it works</a>
       <a href="#dashboard">Dashboard</a>
       <a href="#classroom">Classroom</a>
-      <a href="#evidence">Evidence</a>
       <a href="#faq">FAQ</a>
+      <a class="nav__join" href="/join">Join the pilot</a>
     </nav>
     <div class="nav__end">
       <a class="nav__signin" href="/login">Sign in</a>
@@ -375,7 +391,7 @@
     <p class="lede">Dunia Alerts watches the air, heat, heavy rain and rivers around schools in Nairobi, Kenya, up to 48 hours ahead. When danger is coming, the head teacher gets one clear step, and parents hear it in English and Kiswahili.</p>
     <div class="btns">
       <a class="btn btn--dark" href="/demo">See the demo<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
-      <a class="btn btn--light" href="/login"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#lock"/></svg>Pilot sign in</a>
+      <a class="btn btn--light" href="/join">Join the pilot</a>
     </div>
     <p class="micro">Free for schools · No app to install · A Dunia Endelevu pilot</p>
 
@@ -664,9 +680,9 @@
   </section>
 
   <section class="sec center" id="access" aria-labelledby="access-h">
-    <span class="kicker">Two ways in</span>
-    <h2 class="h2" id="access-h">Look around, or get to work.</h2>
-    <div class="ways">
+    <span class="kicker">Three ways in</span>
+    <h2 class="h2" id="access-h">Look around, join, or get to work.</h2>
+    <div class="ways ways--3">
       <article class="way">
         <span class="way__tag">Open to everyone</span>
         <h3>Demo</h3>
@@ -677,6 +693,17 @@
           <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg>Clearly marked as example data</li>
         </ul>
         <a class="btn btn--dark btn--block" href="/demo">See the demo<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
+      </article>
+      <article class="way way--join">
+        <span class="way__tag">For schools and partners</span>
+        <h3>Join the pilot</h3>
+        <p>Bring early warnings to your school, or work with us as a partner, county office or funder.</p>
+        <ul class="ticks">
+          <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg>Free for schools</li>
+          <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg>A two-minute form</li>
+          <li><svg class="ic ic--tick" aria-hidden="true"><use href="/assets/icons.svg#check"/></svg>We reply to every school</li>
+        </ul>
+        <a class="btn btn--dark btn--block" href="/join">Join the pilot<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
       </article>
       <article class="way way--pilot">
         <span class="way__tag"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#lock"/></svg>For the Dunia team</span>
@@ -690,7 +717,7 @@
         <a class="btn btn--light btn--block" href="/login"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#lock"/></svg>Pilot sign in</a>
       </article>
     </div>
-    <p class="micro">No public sign-up. The Dunia team creates each account.</p>
+    <p class="micro">Dashboard accounts are made by the Dunia team. Schools join through the form.</p>
   </section>
 
   <section class="sec sec--tight" aria-labelledby="fund-h">
@@ -701,7 +728,7 @@
       </div>
       <div class="btns">
         <a class="btn btn--light" href="https://duniaendelevu.org/donate">Donate</a>
-        <a class="btn btn--ghost" href="https://duniaendelevu.org/contact">Partner with us</a>
+        <a class="btn btn--ghost" href="/join">Partner with us</a>
       </div>
     </div>
   </section>
@@ -750,11 +777,13 @@
         <h3>Privacy, safety and access</h3>
         <details><summary>What happens to children’s information?</summary><p>Dunia Alerts never records children’s names. It records what the school did, how fast it replied and whether parents were told. Research data stays at class level, needs school and research approvals, and small groups are never shown in public summaries. The pilot’s records stay on the Dunia team’s devices and in their backups.</p></details>
         <details><summary>Is the demo real?</summary><p>No. The demo uses made-up schools and example data, so anyone can try every step safely. It is clearly marked, and nothing in it is a real reading or a real result.</p></details>
-        <details><summary>Who can sign in to the live pilot?</summary><p>The Dunia team running the Nairobi pilot. There is no public sign-up: the team creates each account. Anyone can try the demo without signing in. Lost your password? Write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>.</p></details>
+        <details><summary>Who can sign in to the live pilot?</summary><p>The Dunia team running the Nairobi pilot. The team creates each account, so there is no sign-up for the dashboard. Schools that want to take part can <a href="/join">join the pilot</a> instead, and anyone can try the demo without signing in. Lost your password? Write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>.</p></details>
+        <details><summary>What happens to the details I send in the join form?</summary><p>They are used only to talk with you about the pilot. They are kept privately on the Dunia Alerts server, seen only by the signed-in Dunia team, and never shared or sold. The form asks adults for their own contact details and never for children’s names. To see, change or delete your details, write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>.</p></details>
       </div>
       <div class="faq__group">
         <h3>Support and partners</h3>
-        <details><summary>How can I support or partner?</summary><p><a href="https://duniaendelevu.org/donate">Donate</a> or <a href="https://duniaendelevu.org/contact">get in touch through Dunia Endelevu</a>. Support pays for SMS to every parent, classroom sensors, training for head teachers, a login for every school and an open evaluation. Schools, county education offices, weather and air agencies and funders are all welcome.</p></details>
+        <details><summary>How can my school join the pilot?</summary><p><a href="/join">Fill in the short form to join the pilot</a>. It takes about two minutes. The Dunia team reads every reply and gets in touch about the next step. Joining is free, and schools never pay. The first pilot schools are in Nairobi, and schools elsewhere are welcome to register their interest.</p></details>
+        <details><summary>How can I support or partner?</summary><p><a href="https://duniaendelevu.org/donate">Donate</a> or <a href="https://duniaendelevu.org/contact">get in touch through Dunia Endelevu</a>. Support pays for SMS to every parent, classroom sensors, training for head teachers, a login for every school and an open evaluation. Schools, county education offices, weather and air agencies and funders are all welcome, and can also <a href="/join">use the form to join the pilot</a>.</p></details>
         <details><summary>Can another city or school network use it?</summary><p>We hope so. The forecasts it reads cover the whole world, so the same approach can work elsewhere. <a href="https://duniaendelevu.org/contact">Get in touch through Dunia Endelevu</a> and we will share what we learn from the pilot.</p></details>
       </div>
     </div>
@@ -768,8 +797,10 @@
     <p>A <a href="https://duniaendelevu.org/">Dunia Endelevu</a> pilot, led by <a href="https://alanachelangat.com/">Alana Chelangat</a>.</p>
   </div>
   <nav aria-label="Footer">
+    <a href="/join">Join the pilot</a>
     <a href="/demo">Demo</a>
     <a href="/classroom?demo=1">Classroom screen</a>
+    <a href="/assets/docs/how-dunia-alerts-works.pdf">2-page guide (PDF)</a>
     <a href="/login">Pilot sign in</a>
     <a href="https://duniaendelevu.org/contact">Contact</a>
     <a href="https://duniaendelevu.org/donate">Donate</a>

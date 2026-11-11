@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Writes index.html (the public home page) from the content below.
+"""Writes index.html (the public home page) and join.html (Join the pilot) from the content below.
 
     python3 tools/build-home.py
 
@@ -105,17 +105,24 @@ FAQ = [
         ('Is the demo real?',
          'No. The demo uses made-up schools and example data, so anyone can try every step safely. It is clearly marked, and nothing in it is a real reading or a real result.'),
         ('Who can sign in to the live pilot?',
-         'The Dunia team running the Nairobi pilot. There is no public sign-up: the team creates each account. Anyone can try the demo without signing in. Lost your password? Write to hello@duniaendelevu.org.'),
+         'The Dunia team running the Nairobi pilot. The team creates each account, so there is no sign-up for the dashboard. Schools that want to take part can join the pilot instead, and anyone can try the demo without signing in. Lost your password? Write to hello@duniaendelevu.org.'),
+        ('What happens to the details I send in the join form?',
+         'They are used only to talk with you about the pilot. They are kept privately on the Dunia Alerts server, seen only by the signed-in Dunia team, and never shared or sold. The form asks adults for their own contact details and never for children’s names. To see, change or delete your details, write to hello@duniaendelevu.org.'),
     ]),
     ('Support and partners', [
+        ('How can my school join the pilot?',
+         'Fill in the short form to join the pilot. It takes about two minutes. The Dunia team reads every reply and gets in touch about the next step. Joining is free, and schools never pay. The first pilot schools are in Nairobi, and schools elsewhere are welcome to register their interest.'),
         ('How can I support or partner?',
-         'Donate or get in touch through Dunia Endelevu. Support pays for SMS to every parent, classroom sensors, training for head teachers, a login for every school and an open evaluation. Schools, county education offices, weather and air agencies and funders are all welcome.'),
+         'Donate or get in touch through Dunia Endelevu. Support pays for SMS to every parent, classroom sensors, training for head teachers, a login for every school and an open evaluation. Schools, county education offices, weather and air agencies and funders are all welcome, and can also use the form to join the pilot.'),
         ('Can another city or school network use it?',
          'We hope so. The forecasts it reads cover the whole world, so the same approach can work elsewhere. Get in touch through Dunia Endelevu and we will share what we learn from the pilot.'),
     ]),
 ]
 
 LINKS = {'hello@duniaendelevu.org': '<a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>',
+         'Fill in the short form to join the pilot': '<a href="/join">Fill in the short form to join the pilot</a>',
+         'use the form to join the pilot': '<a href="/join">use the form to join the pilot</a>',
+         'can join the pilot instead': 'can <a href="/join">join the pilot</a> instead',
          'Get in touch through Dunia Endelevu': '<a href="https://duniaendelevu.org/contact">Get in touch through Dunia Endelevu</a>',
          'Donate or get in touch through Dunia Endelevu': '<a href="https://duniaendelevu.org/donate">Donate</a> or <a href="https://duniaendelevu.org/contact">get in touch through Dunia Endelevu</a>'}
 
@@ -166,6 +173,45 @@ LD = {
     ],
 }
 
+def nav(home=True):
+    """The floating menu, shared by the home page and the join page."""
+    p = '' if home else '/'
+    links = [('#how', 'How it works'), ('#dashboard', 'Dashboard'), ('#classroom', 'Classroom'), ('#faq', 'FAQ')]
+    items = '\n      '.join(f'<a href="{p}{h}">{t}</a>' for h, t in links)
+    cur = '' if home else ' aria-current="page"'
+    return f'''<header class="nav">
+  <div class="nav__bar">
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
+    <nav class="nav__links" aria-label="Sections">
+      {items}
+      <a class="nav__join" href="/join"{cur}>Join the pilot</a>
+    </nav>
+    <div class="nav__end">
+      <a class="nav__signin" href="/login">Sign in</a>
+      <a class="btn btn--dark btn--sm" href="/demo"><span class="nav__long">See the demo</span><span class="nav__short">Demo</span></a>
+    </div>
+  </div>
+</header>'''
+
+
+FOOT = '''<footer class="foot">
+  <div>
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
+    <p>A <a href="https://duniaendelevu.org/">Dunia Endelevu</a> pilot, led by <a href="https://alanachelangat.com/">Alana Chelangat</a>.</p>
+  </div>
+  <nav aria-label="Footer">
+    <a href="/join">Join the pilot</a>
+    <a href="/demo">Demo</a>
+    <a href="/classroom?demo=1">Classroom screen</a>
+    <a href="/assets/docs/how-dunia-alerts-works.pdf">2-page guide (PDF)</a>
+    <a href="/login">Pilot sign in</a>
+    <a href="https://duniaendelevu.org/contact">Contact</a>
+    <a href="https://duniaendelevu.org/donate">Donate</a>
+  </nav>
+  <p class="foot__note">Data: Open-Meteo (weather, Copernicus CAMS air, GloFAS rivers) and OpenAQ. Air bands: US EPA AQI (2024). Icons: Phosphor. © <span data-year>2026</span> Dunia Endelevu.</p>
+</footer>'''
+
+
 # ---------- Page ----------
 PAGE = '''<!doctype html>
 <html lang="en">
@@ -207,22 +253,7 @@ PAGE = '''<!doctype html>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<header class="nav">
-  <div class="nav__bar">
-    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
-    <nav class="nav__links" aria-label="Sections">
-      <a href="#how">How it works</a>
-      <a href="#dashboard">Dashboard</a>
-      <a href="#classroom">Classroom</a>
-      <a href="#evidence">Evidence</a>
-      <a href="#faq">FAQ</a>
-    </nav>
-    <div class="nav__end">
-      <a class="nav__signin" href="/login">Sign in</a>
-      <a class="btn btn--dark btn--sm" href="/demo"><span class="nav__long">See the demo</span><span class="nav__short">Demo</span></a>
-    </div>
-  </div>
-</header>
+__NAV__
 
 <div class="frame">
 <main id="main">
@@ -233,7 +264,7 @@ PAGE = '''<!doctype html>
     <p class="lede">Dunia Alerts watches the air, heat, heavy rain and rivers around schools in Nairobi, Kenya, up to 48 hours ahead. When danger is coming, the head teacher gets one clear step, and parents hear it in English and Kiswahili.</p>
     <div class="btns">
       <a class="btn btn--dark" href="/demo">See the demo__ARROW__</a>
-      <a class="btn btn--light" href="/login">__LOCK__Pilot sign in</a>
+      <a class="btn btn--light" href="/join">Join the pilot</a>
     </div>
     <p class="micro">Free for schools · No app to install · A Dunia Endelevu pilot</p>
 
@@ -399,9 +430,9 @@ __HAZARDS__
   </section>
 
   <section class="sec center" id="access" aria-labelledby="access-h">
-    <span class="kicker">Two ways in</span>
-    <h2 class="h2" id="access-h">Look around, or get to work.</h2>
-    <div class="ways">
+    <span class="kicker">Three ways in</span>
+    <h2 class="h2" id="access-h">Look around, join, or get to work.</h2>
+    <div class="ways ways--3">
       <article class="way">
         <span class="way__tag">Open to everyone</span>
         <h3>Demo</h3>
@@ -412,6 +443,17 @@ __HAZARDS__
           <li>__CHECK__Clearly marked as example data</li>
         </ul>
         <a class="btn btn--dark btn--block" href="/demo">See the demo__ARROW__</a>
+      </article>
+      <article class="way way--join">
+        <span class="way__tag">For schools and partners</span>
+        <h3>Join the pilot</h3>
+        <p>Bring early warnings to your school, or work with us as a partner, county office or funder.</p>
+        <ul class="ticks">
+          <li>__CHECK__Free for schools</li>
+          <li>__CHECK__A two-minute form</li>
+          <li>__CHECK__We reply to every school</li>
+        </ul>
+        <a class="btn btn--dark btn--block" href="/join">Join the pilot__ARROW__</a>
       </article>
       <article class="way way--pilot">
         <span class="way__tag">__LOCK__For the Dunia team</span>
@@ -425,7 +467,7 @@ __HAZARDS__
         <a class="btn btn--light btn--block" href="/login">__LOCK__Pilot sign in</a>
       </article>
     </div>
-    <p class="micro">No public sign-up. The Dunia team creates each account.</p>
+    <p class="micro">Dashboard accounts are made by the Dunia team. Schools join through the form.</p>
   </section>
 
   <section class="sec sec--tight" aria-labelledby="fund-h">
@@ -436,7 +478,7 @@ __HAZARDS__
       </div>
       <div class="btns">
         <a class="btn btn--light" href="https://duniaendelevu.org/donate">Donate</a>
-        <a class="btn btn--ghost" href="https://duniaendelevu.org/contact">Partner with us</a>
+        <a class="btn btn--ghost" href="/join">Partner with us</a>
       </div>
     </div>
   </section>
@@ -454,20 +496,7 @@ __FAQ__
 
 </main>
 
-<footer class="foot">
-  <div>
-    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia <span class="brand__sub">Alerts</span></a>
-    <p>A <a href="https://duniaendelevu.org/">Dunia Endelevu</a> pilot, led by <a href="https://alanachelangat.com/">Alana Chelangat</a>.</p>
-  </div>
-  <nav aria-label="Footer">
-    <a href="/demo">Demo</a>
-    <a href="/classroom?demo=1">Classroom screen</a>
-    <a href="/login">Pilot sign in</a>
-    <a href="https://duniaendelevu.org/contact">Contact</a>
-    <a href="https://duniaendelevu.org/donate">Donate</a>
-  </nav>
-  <p class="foot__note">Data: Open-Meteo (weather, Copernicus CAMS air, GloFAS rivers) and OpenAQ. Air bands: US EPA AQI (2024). Icons: Phosphor. © <span data-year>2026</span> Dunia Endelevu.</p>
-</footer>
+__FOOT__
 </div>
 </body>
 </html>
@@ -590,7 +619,7 @@ def hazard(h):
 def llms_full():
     out = ['# Dunia Alerts: full guide', '',
            '> Early warnings for schools in Nairobi, Kenya, and the start of climate-smart classrooms. Dunia Alerts watches air quality (PM2.5), heat, heavy rain and river flow around pilot schools, up to 48 hours ahead. A person on the Dunia team checks each warning and sends the head teacher one clear step; parents are told in English and Kiswahili. A Dunia Endelevu pilot, led by Alana Chelangat.', '',
-           'Website: https://alerts.duniaendelevu.org/  ·  Demo with example data: https://alerts.duniaendelevu.org/demo  ·  Classroom screen (example data): https://alerts.duniaendelevu.org/classroom?demo=1', '',
+           'Website: https://alerts.duniaendelevu.org/  ·  Demo with example data: https://alerts.duniaendelevu.org/demo  ·  Classroom screen (example data): https://alerts.duniaendelevu.org/classroom?demo=1  ·  Join the pilot (schools and partners): https://alerts.duniaendelevu.org/join  ·  Two-page guide (PDF): https://alerts.duniaendelevu.org/assets/docs/how-dunia-alerts-works.pdf', '',
            '## Why schools', '']
     for st in STATS:
         import re as _re
@@ -615,8 +644,219 @@ def llms_full():
     return '\n'.join(out).rstrip() + '\n'
 
 
+# ---------- Join the pilot (join.html) ----------
+ROLES = [('head', 'Head teacher or deputy'), ('teacher', 'Teacher'), ('school', 'School owner, manager or board member'),
+         ('parent', 'Parent or guardian'), ('gov', 'County or national government'), ('partner', 'NGO, researcher or partner'),
+         ('funder', 'Funder or donor'), ('other', 'Something else')]
+LEARNERS = [('', 'Choose one'), ('u300', 'Under 300'), ('300-700', '300 to 700'), ('700-1500', '700 to 1,500'),
+            ('1500+', 'Over 1,500'), ('na', 'Not a school')]
+CONCERNS = [('air', 'air', 'Dirty air'), ('heat', 'heat', 'Great heat'), ('rain', 'rain', 'Heavy rain and floods'),
+            ('river', 'river', 'Rising rivers'), ('room', 'comfort', 'Classroom air and comfort')]
+GUIDE = '/assets/docs/how-dunia-alerts-works.pdf'
+
+JOIN_LD = {
+    '@context': 'https://schema.org',
+    '@graph': [
+        {'@type': 'WebPage', '@id': SITE + '/join#webpage', 'url': SITE + '/join', 'name': 'Join the Dunia Alerts pilot',
+         'description': 'Schools in Nairobi can join the free Dunia Alerts pilot: early warnings for air, heat, heavy rain and rivers. Partners, county offices and funders are welcome too.',
+         'isPartOf': {'@id': SITE + '/#website'}, 'about': {'@id': SITE + '/#app'}, 'inLanguage': 'en', 'dateModified': MODIFIED,
+         'potentialAction': {'@type': 'JoinAction', 'target': SITE + '/join#form', 'object': {'@id': SITE + '/#app'}}},
+        {'@type': 'BreadcrumbList', 'itemListElement': [
+            {'@type': 'ListItem', 'position': 1, 'name': 'Dunia Alerts', 'item': SITE + '/'},
+            {'@type': 'ListItem', 'position': 2, 'name': 'Join the pilot', 'item': SITE + '/join'}]},
+    ],
+}
+
+JOIN_PAGE = '''<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Join the pilot · Dunia Alerts</title>
+<meta name="description" content="Bring free early warnings for air, heat, heavy rain and rivers to your school in Nairobi. Join the Dunia Alerts pilot in two minutes. Partners and funders welcome.">
+<link rel="canonical" href="https://alerts.duniaendelevu.org/join">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#F2F3F1">
+<meta name="author" content="Dunia Endelevu">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dunia Alerts">
+<meta property="og:title" content="Join the Dunia Alerts pilot">
+<meta property="og:description" content="Free early warnings for Nairobi schools: air, heat, heavy rain and rivers, one clear step for the head teacher, and messages for parents in English and Kiswahili.">
+<meta property="og:url" content="https://alerts.duniaendelevu.org/join">
+<meta property="og:image" content="https://alerts.duniaendelevu.org/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dunia Alerts: early warnings that reach children at school, shown on a laptop.">
+<meta property="og:locale" content="en_KE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Join the Dunia Alerts pilot">
+<meta name="twitter:description" content="Free early warnings for Nairobi schools. Join the pilot in two minutes.">
+<meta name="twitter:image" content="https://alerts.duniaendelevu.org/og-image.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/join.js" defer></script>
+<script type="application/ld+json">__JLD__</script>
+</head>
+<body class="join-page">
+<a class="skip" href="#form">Skip to the form</a>
+
+__NAV__
+
+<div class="frame">
+<main id="main">
+
+  <section class="join-head">
+    <span class="kicker">Free for schools · Nairobi pilot</span>
+    <h1 class="h1 h1--join">Bring early warnings to <span class="hl">your school</span></h1>
+    <p class="lede">Tell us a little about your school or organisation. It takes about two minutes, and the Dunia team reads every reply.</p>
+  </section>
+
+  <div class="join">
+    <section class="jform" id="form" aria-labelledby="form-h" tabindex="-1">
+      <div class="jform__head">
+        <span class="tile tile--lg">__IC_school__</span>
+        <div><h2 id="form-h">Join the pilot</h2><p>Anything marked <span class="opt">optional</span> can be left empty.</p></div>
+      </div>
+
+      <form id="join" method="post" action="/api/join" novalidate>
+        <div class="msg msg--info" id="msg" role="alert" hidden></div>
+
+        <fieldset>
+          <legend>About you</legend>
+          <label class="field" for="role"><span>I am</span>
+            <select class="input select" id="role" name="role" required>
+              <option value="">Choose one</option>
+__ROLES__
+            </select>
+          </label>
+          <div class="two">
+            <label class="field" for="name"><span>Your name</span>
+              <input class="input" id="name" name="name" type="text" autocomplete="name" maxlength="80" required>
+            </label>
+            <label class="field" for="email"><span>Email</span>
+              <input class="input" id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" required>
+            </label>
+          </div>
+          <label class="field" for="phone"><span>Phone or WhatsApp <span class="opt">optional</span></span>
+            <input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="+254 …">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Your school or organisation</legend>
+          <label class="field" for="org"><span>Name of the school or organisation</span>
+            <input class="input" id="org" name="org" type="text" autocomplete="organization" maxlength="120" required>
+          </label>
+          <div class="two">
+            <label class="field" for="area"><span>Area or town <span class="opt">optional</span></span>
+              <input class="input" id="area" name="area" type="text" autocomplete="address-level2" maxlength="80" placeholder="For example, Embakasi, Nairobi">
+            </label>
+            <label class="field" for="learners"><span>Learners at the school <span class="opt">optional</span></span>
+              <select class="input select" id="learners" name="learners">
+__LEARNERS__
+              </select>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>What worries you most? <span class="opt">optional</span></legend>
+          <div class="picks">
+__CONCERNS__
+          </div>
+        </fieldset>
+
+        <label class="field" for="message"><span>Anything else? <span class="opt">optional</span></span>
+          <textarea class="input textarea" id="message" name="message" rows="4" maxlength="1000" placeholder="Questions, what your school needs, or the best time to call"></textarea>
+          <small class="hint">Please don’t write children’s names or details.</small>
+        </label>
+
+        <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+
+        <label class="consent" for="consent">
+          <input type="checkbox" id="consent" name="consent" required>
+          <span>The Dunia team may contact me about the pilot.</span>
+        </label>
+
+        <button class="btn btn--dark btn--block" id="submit" type="submit">Send my reply__ARROW__</button>
+        <noscript><p class="msg msg--bad">This form needs JavaScript. You can also write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a> with your school’s name, area and a contact.</p></noscript>
+        <p class="fine">__IC_privacy__<span>We use your details only to talk with you about the pilot. They’re kept privately on the Dunia Alerts server, seen only by the signed-in Dunia team, and never shared or sold. To see, change or delete them, write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>.</span></p>
+      </form>
+
+      <div class="done" id="done" hidden>
+        <span class="tile tile--lg">__IC_check__</span>
+        <h2 id="done-h" tabindex="-1">Thank you. Your reply is in.</h2>
+        <p id="done-p">The Dunia team reads every reply and will get in touch about the next step.</p>
+        <div class="btns btns--left">
+          <a class="btn btn--dark" href="/demo">See the demo__ARROW__</a>
+          <a class="btn btn--light" href="__GUIDE__">Read the 2-page guide</a>
+        </div>
+      </div>
+    </section>
+
+    <aside class="jside" aria-label="About joining">
+      <div class="jcard">
+        <h2>What your school gets</h2>
+        <ul class="ticks">
+          <li>__CHECK__<span>Warnings for air, heat, heavy rain and rivers around your school, up to 48 hours ahead</span></li>
+          <li>__CHECK__<span>One clear step for the head teacher, by WhatsApp or SMS</span></li>
+          <li>__CHECK__<span>Ready-made messages for parents in English and Kiswahili</span></li>
+          <li>__CHECK__<span>Free. No app to install, and it works on any phone</span></li>
+        </ul>
+      </div>
+      <div class="jcard">
+        <h2>What we ask of you</h2>
+        <ul class="ticks">
+          <li>__CHECK__<span>A named contact who can reply when a warning comes</span></li>
+          <li>__CHECK__<span>A short chat with the Dunia team before you start</span></li>
+          <li>__CHECK__<span>Permission to record how the school responds, never children’s names</span></li>
+        </ul>
+      </div>
+      <div class="jcard">
+        <h2>What happens next</h2>
+        <ol class="nsteps">
+          <li><b>We read your reply.</b> Every reply reaches the Dunia team.</li>
+          <li><b>We get in touch</b> by email or phone for a short chat.</li>
+          <li><b>We set up your school</b> on the dashboard and agree who gets the alerts.</li>
+        </ol>
+        <p class="jnote">The pilot starts small, so schools may join in stages.</p>
+      </div>
+      <div class="jcard jcard--dark">
+        <h2>Not a school?</h2>
+        <p>County and national offices, NGOs, researchers and funders: use the same form and choose who you are. We would love to work with you.</p>
+        <a class="doc" href="__GUIDE__"><span class="doc__ic">__IC_down__</span><span><b>How Dunia Alerts works</b><small>A 2-page guide in simple words · PDF</small></span></a>
+      </div>
+    </aside>
+  </div>
+
+</main>
+
+__FOOT__
+</div>
+</body>
+</html>
+'''
+
+
+def join_page():
+    import re
+    page = JOIN_PAGE.replace('__NAV__', nav(False)).replace('__FOOT__', FOOT)
+    page = page.replace('__JLD__', json.dumps(JOIN_LD, ensure_ascii=False))
+    page = page.replace('__ROLES__', '\n'.join(f'              <option value="{v}">{E(t)}</option>' for v, t in ROLES))
+    page = page.replace('__LEARNERS__', '\n'.join(f'                <option value="{v}">{E(t)}</option>' for v, t in LEARNERS))
+    page = page.replace('__CONCERNS__', '\n'.join(f'            <label class="pick"><input type="checkbox" name="concerns" value="{v}"><span>{ic(i)}{E(t)}</span></label>' for v, i, t in CONCERNS))
+    page = page.replace('__GUIDE__', GUIDE).replace('__ARROW__', ARROW).replace('__CHECK__', CHECK)
+    page = re.sub(r'__IC_([a-z]+)__', lambda m: ic(m.group(1)), page)
+    left = re.findall(r'__[A-Z][A-Za-z_]*__', page)
+    assert not left, left
+    return page
+
+
 def build():
-    page = PAGE
+    page = PAGE.replace('__NAV__', nav(True)).replace('__FOOT__', FOOT)
     page = page.replace('__LD__', json.dumps(LD, ensure_ascii=False, indent=1))
     page = page.replace('__STATS__', '\n      '.join(stat(s, i) for i, s in enumerate(STATS)))
     page = page.replace('__PANELS__', '\n'.join(panel(i, p) for i, p in enumerate(PANELS)))
@@ -634,7 +874,9 @@ def build():
         f.write(page)
     with open(os.path.join(ROOT, 'llms-full.txt'), 'w') as f:
         f.write(llms_full())
-    print('Wrote index.html and llms-full.txt ·', sum(len(q) for _, q in FAQ), 'questions')
+    with open(os.path.join(ROOT, 'join.html'), 'w') as f:
+        f.write(join_page())
+    print('Wrote index.html, join.html and llms-full.txt ·', sum(len(q) for _, q in FAQ), 'questions')
 
 
 if __name__ == '__main__':

@@ -1,0 +1,160 @@
+// /api/join · "Join the pilot" replies from schools, partners and funders.
+//
+//   POST    (anyone, from this site's own /join page)  {role, name, email, phone?, org, area?, learners?, concerns?, message?, consent:true}
+//           201 {ok:true} · 400 {error, fields} · 403 · 413 · 415 · 429 too many · 503 storage not connected
+//   GET     (signed-in Dunia team)  200 {items:[…newest first], count}
+//   PATCH   (signed-in Dunia team)  {id, status?, note?}  200 {ok:true, item}
+//   DELETE  (signed-in Dunia team)  {id}                  200 {ok:true}
+//
+// Replies are kept in Upstash Redis (the same private store as sign-in), in one hash: da:join  id → JSON.
+// Only adults' contact details are asked for. The form asks people not to write children's names.
+// Spam guard: a hidden field people never see, a minimum time on the page, and 5 replies per address per hour.
+const crypto = require('crypto');
+const { storage, redis, send } = require('./_lib/core');
+const A = require('./_lib/auth');
+
+const KEY = 'da:join';
+const MAX_ITEMS = 5000;
+const PER_HOUR = 5;
+const MIN_MS = 2500;
+const ROLES = {
+  head: 'Head teacher or deputy', teacher: 'Teacher', school: 'School owner, manager or board member', parent: 'Parent or guardian',
+  gov: 'County or national government', partner: 'NGO, researcher or partner', funder: 'Funder or donor', other: 'Something else',
+};
+const LEARNERS = { '': '', u300: 'Under 300', '300-700': '300 to 700', '700-1500': '700 to 1,500', '1500+': 'Over 1,500', na: 'Not a school' };
+const CONCERNS = { air: 'Dirty air', heat: 'Great heat', rain: 'Heavy rain and floods', river: 'Rising rivers', room: 'Classroom air and comfort' };
+const STATUS = { new: 'New', contacted: 'Contacted', joined: 'Joined', not_now: 'Not now' };
+const PHONE = /^\+?[0-9][0-9 ()-]{6,19}$/;
+const ID = /^j[a-z0-9]{8,24}$/;
+
+// Plain text only: no control characters, single spaces, trimmed, cut to length.
+function clean(v, max, multiline = false) {
+  if (typeof v !== 'string') return '';
+  let s = v.normalize('NFKC').replace(multiline ? /[\u0000-\u0009\u000b-\u001f\u007f\u2028\u2029]/g : /[\u0000-\u001f\u007f\u2028\u2029]/g, ' ');
+  s = multiline ? s.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n') : s.replace(/\s+/g, ' ');
+  return s.trim().slice(0, max);
+}
+
+function check(body) {
+  const f = {}, bad = [];
+  f.role = typeof body.role === 'string' && ROLES[body.role] ? body.role : '';
+  if (!f.role) bad.push('role');
+  f.name = clean(body.name, 80);
+  if (f.name.length < 2) bad.push('name');
+  f.email = clean(body.email, 254).toLowerCase();
+  if (!A.EMAIL.test(f.email)) bad.push('email');
+  f.phone = clean(body.phone, 24);
+  if (f.phone && !PHONE.test(f.phone)) bad.push('phone');
+  f.org = clean(body.org, 120);
+  if (f.org.length < 2) bad.push('org');
+  f.area = clean(body.area, 80);
+  f.learners = typeof body.learners === 'string' && body.learners in LEARNERS ? body.learners : '';
+  f.concerns = Array.isArray(body.concerns) ? [...new Set(body.concerns.filter((c) => typeof c === 'string' && CONCERNS[c]))] : [];
+  f.message = clean(body.message, 1000, true);
+  if (body.consent !== true) bad.push('consent');
+  return { f, bad };
+}
+
+// Replies per address per hour: Redis when connected, otherwise this function's memory.
+const memory = new Map();
+async function overLimit(ip) {
+  const k = 'da:join:ip:' + crypto.createHash('sha256').update(ip).digest('hex').slice(0, 24);
+  try {
+    const [n] = await redis([['INCR', k], ['EXPIRE', k, '3600']]);
+    return Number(n) > PER_HOUR;
+  } catch (e) {
+    const now = Date.now(), m = memory.get(k);
+    const n = m && m.until > now ? m.n + 1 : 1;
+    memory.set(k, { n, until: m && m.until > now ? m.until : now + 3600e3 });
+    return n > PER_HOUR;
+  }
+}
+
+function parse(req) {
+  let body = req.body;
+  if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = null; } }
+  return body && typeof body === 'object' && !Array.isArray(body) ? body : null;
+}
+
+async function all() {
+  const flat = (await redis([['HGETALL', KEY]]))[0] || [];
+  const items = [];
+  for (let i = 0; i + 1 < flat.length; i += 2) {
+    try { const it = JSON.parse(flat[i + 1]); if (it && it.id) items.push(it); } catch (e) { /* skip a broken entry */ }
+  }
+  return items.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+}
+
+async function submit(req, res) {
+  if (!A.sameOrigin(req)) return send(res, 403, { error: 'forbidden' });
+  if (!/application\/json/.test(String(req.headers['content-type'] || ''))) return send(res, 415, { error: 'json_only' });
+  const body = parse(req);
+  if (!body) return send(res, 400, { error: 'bad_request' });
+  if (JSON.stringify(body).length > 8000) return send(res, 413, { error: 'too_long' });
+
+  // Robots fill the hidden field or send the form at once. Say thank you, keep nothing.
+  const spent = Number(body.t);
+  if ((typeof body.website === 'string' && body.website.trim()) || !Number.isFinite(spent) || spent < MIN_MS) return send(res, 201, { ok: true });
+
+  const { f, bad } = check(body);
+  if (bad.length) return send(res, 400, { error: 'invalid', fields: bad });
+  if (!storage()) return send(res, 503, { error: 'not_configured' });
+  if (await overLimit(A.clientIp(req))) { res.setHeader('Retry-After', '3600'); return send(res, 429, { error: 'too_many' }); }
+
+  try {
+    const [count] = await redis([['HLEN', KEY]]);
+    if (Number(count) >= MAX_ITEMS) return send(res, 503, { error: 'full' });
+    const id = 'j' + Date.now().toString(36) + crypto.randomBytes(4).toString('hex');
+    const item = { id, at: new Date().toISOString(), ...f, status: 'new', note: '' };
+    await redis([['HSET', KEY, id, JSON.stringify(item)]]);
+    return send(res, 201, { ok: true });
+  } catch (e) {
+    return send(res, 503, { error: 'storage' });
+  }
+}
+
+module.exports = async function handler(req, res) {
+  A.noStore(res);
+  const m = req.method;
+  if (m === 'POST') return submit(req, res);
+  if (!['GET', 'PATCH', 'DELETE'].includes(m)) { res.setHeader('Allow', 'GET, POST, PATCH, DELETE'); return send(res, 405, { error: 'method_not_allowed' }); }
+
+  const s = await A.session(req);
+  if (!s) return send(res, 401, { error: 'sign_in' });
+  if (!storage()) return send(res, 503, { error: 'not_configured' });
+
+  try {
+    if (m === 'GET') {
+      const items = await all();
+      return send(res, 200, { items, count: items.length, labels: { roles: ROLES, learners: LEARNERS, concerns: CONCERNS, status: STATUS } });
+    }
+    if (!A.sameOrigin(req)) return send(res, 403, { error: 'forbidden' });
+    const body = parse(req) || {};
+    const id = typeof body.id === 'string' ? body.id : String((req.query && req.query.id) || '');
+    if (!ID.test(id)) return send(res, 400, { error: 'bad_id' });
+
+    if (m === 'DELETE') {
+      await redis([['HDEL', KEY, id]]);
+      return send(res, 200, { ok: true });
+    }
+    const [raw] = await redis([['HGET', KEY, id]]);
+    if (!raw) return send(res, 404, { error: 'not_found' });
+    const item = JSON.parse(raw);
+    if (body.status !== undefined) {
+      if (!STATUS[body.status]) return send(res, 400, { error: 'bad_status' });
+      item.status = body.status;
+    }
+    if (body.note !== undefined) item.note = clean(body.note, 500, true);
+    item.updatedAt = new Date().toISOString();
+    item.updatedBy = s.email;
+    await redis([['HSET', KEY, id, JSON.stringify(item)]]);
+    return send(res, 200, { ok: true, item });
+  } catch (e) {
+    return send(res, 503, { error: 'storage' });
+  }
+};
+
+module.exports.ROLES = ROLES;
+module.exports.LEARNERS = LEARNERS;
+module.exports.CONCERNS = CONCERNS;
+module.exports.STATUS = STATUS;

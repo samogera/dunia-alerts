@@ -37,12 +37,31 @@
       "source": "/live",
       "destination": "/pilot",
       "permanent": false
+    },
+    {
+      "source": "/signup",
+      "destination": "/join",
+      "permanent": true
+    },
+    {
+      "source": "/sign-up",
+      "destination": "/join",
+      "permanent": true
+    },
+    {
+      "source": "/guide",
+      "destination": "/assets/docs/how-dunia-alerts-works.pdf",
+      "permanent": false
     }
   ],
   "rewrites": [
     {
       "source": "/pilot",
       "destination": "/api/pilot"
+    },
+    {
+      "source": "/pilot/signups",
+      "destination": "/api/signups"
     },
     {
       "source": "/api/v1/classrooms/:room/latest",
@@ -140,6 +159,32 @@
       ]
     },
     {
+      "source": "/pilot/signups",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, private"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/api/join",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, private"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
       "source": "/api/auth/(.*)",
       "headers": [
         {
@@ -185,6 +230,15 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/assets/docs/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, must-revalidate"
         }
       ]
     }

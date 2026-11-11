@@ -2,7 +2,7 @@
 
 > Early warnings for schools in Nairobi, Kenya, and the start of climate-smart classrooms. Dunia Alerts watches air quality (PM2.5), heat, heavy rain and river flow around pilot schools, up to 48 hours ahead. A person on the Dunia team checks each warning and sends the head teacher one clear step; parents are told in English and Kiswahili. A Dunia Endelevu pilot, led by Alana Chelangat.
 
-Website: https://alerts.duniaendelevu.org/  ·  Demo with example data: https://alerts.duniaendelevu.org/demo  ·  Classroom screen (example data): https://alerts.duniaendelevu.org/classroom?demo=1
+Website: https://alerts.duniaendelevu.org/  ·  Demo with example data: https://alerts.duniaendelevu.org/demo  ·  Classroom screen (example data): https://alerts.duniaendelevu.org/classroom?demo=1  ·  Join the pilot (schools and partners): https://alerts.duniaendelevu.org/join  ·  Two-page guide (PDF): https://alerts.duniaendelevu.org/assets/docs/how-dunia-alerts-works.pdf
 
 ## Why schools
 
@@ -115,12 +115,18 @@ Dunia Alerts never records children’s names. It records what the school did, h
 No. The demo uses made-up schools and example data, so anyone can try every step safely. It is clearly marked, and nothing in it is a real reading or a real result.
 
 **Who can sign in to the live pilot?**
-The Dunia team running the Nairobi pilot. There is no public sign-up: the team creates each account. Anyone can try the demo without signing in. Lost your password? Write to hello@duniaendelevu.org.
+The Dunia team running the Nairobi pilot. The team creates each account, so there is no sign-up for the dashboard. Schools that want to take part can join the pilot instead, and anyone can try the demo without signing in. Lost your password? Write to hello@duniaendelevu.org.
+
+**What happens to the details I send in the join form?**
+They are used only to talk with you about the pilot. They are kept privately on the Dunia Alerts server, seen only by the signed-in Dunia team, and never shared or sold. The form asks adults for their own contact details and never for children’s names. To see, change or delete your details, write to hello@duniaendelevu.org.
 
 ### Support and partners
 
+**How can my school join the pilot?**
+Fill in the short form to join the pilot. It takes about two minutes. The Dunia team reads every reply and gets in touch about the next step. Joining is free, and schools never pay. The first pilot schools are in Nairobi, and schools elsewhere are welcome to register their interest.
+
 **How can I support or partner?**
-Donate or get in touch through Dunia Endelevu. Support pays for SMS to every parent, classroom sensors, training for head teachers, a login for every school and an open evaluation. Schools, county education offices, weather and air agencies and funders are all welcome.
+Donate or get in touch through Dunia Endelevu. Support pays for SMS to every parent, classroom sensors, training for head teachers, a login for every school and an open evaluation. Schools, county education offices, weather and air agencies and funders are all welcome, and can also use the form to join the pilot.
 
 **Can another city or school network use it?**
 We hope so. The forecasts it reads cover the whole world, so the same approach can work elsewhere. Get in touch through Dunia Endelevu and we will share what we learn from the pilot.
