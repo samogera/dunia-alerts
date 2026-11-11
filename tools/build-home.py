@@ -495,8 +495,21 @@ MOCK = {  # photo mockups with the real screens composited in (assets/mock): wid
 }
 
 
+def ver(name):
+    """A short fingerprint of an image's current files, added to its address so browsers fetch a new version
+    as soon as it changes (the images themselves can then be cached for a long time)."""
+    import hashlib
+    h = hashlib.sha1()
+    for w in MOCK[name][0]:
+        for ext in ('avif', 'webp'):
+            with open(os.path.join(ROOT, 'assets', 'mock', f'{name}-{w}.{ext}'), 'rb') as f:
+                h.update(f.read())
+    return h.hexdigest()[:8]
+
+
 def srcset(name, ext):
-    return ', '.join(f'/assets/mock/{name}-{w}.{ext} {w}w' for w in MOCK[name][0])
+    v = ver(name)
+    return ', '.join(f'/assets/mock/{name}-{w}.{ext}?v={v} {w}w' for w in MOCK[name][0])
 
 
 def photo(name, alt, sizes, eager=False, cls='photo'):
@@ -505,7 +518,7 @@ def photo(name, alt, sizes, eager=False, cls='photo'):
     load = 'fetchpriority="high" decoding="async"' if eager else 'loading="lazy" decoding="async"'
     return (f'<picture><source type="image/avif" srcset="{srcset(name, "avif")}" sizes="{sizes}">'
             f'<source type="image/webp" srcset="{srcset(name, "webp")}" sizes="{sizes}">'
-            f'<img class="{cls}" src="/assets/mock/{name}-{fallback}.webp" width="{w}" height="{h}" {load} alt="{E(alt)}"></picture>')
+            f'<img class="{cls}" src="/assets/mock/{name}-{fallback}.webp?v={ver(name)}" width="{w}" height="{h}" {load} alt="{E(alt)}"></picture>')
 
 
 HERO_SIZES = '(max-width: 560px) calc(100vw - 72px), (max-width: 1080px) calc(100vw - 140px), 940px'

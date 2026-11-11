@@ -465,3 +465,5 @@ svg.pi { fill: currentColor !important; stroke: none !important; flex: none; }
 .btn svg.pi { width: 17px; height: 17px; }
 .hz svg.pi { width: 21px; height: 21px; }
 @media (max-width: 720px) { .tabs svg.pi { width: 22px; height: 22px; } }
+/* the map sits under its title, sized to the map itself (no empty band above it) */
+.card--map .mapbox { flex: none; display: block; }
