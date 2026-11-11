@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://alerts.duniaendelevu.org/</loc><lastmod>2026-11-11</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://alerts.duniaendelevu.org/</loc><lastmod>2026-11-11</lastmod><changefreq>weekly</changefreq><priority>1.0</priority>
+    <image:image><image:loc>https://alerts.duniaendelevu.org/og-image.png</image:loc></image:image>
+    <image:image><image:loc>https://alerts.duniaendelevu.org/assets/mock/hero-laptop-1800.webp</image:loc></image:image>
+    <image:image><image:loc>https://alerts.duniaendelevu.org/assets/mock/whiteboard-1400.webp</image:loc></image:image>
+    <image:image><image:loc>https://alerts.duniaendelevu.org/assets/mock/monitor-overview-1400.webp</image:loc></image:image>
+  </url>
   <url><loc>https://alerts.duniaendelevu.org/demo</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://alerts.duniaendelevu.org/classroom</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://alerts.duniaendelevu.org/llms-full.txt</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.3</priority></url>
 </urlset>

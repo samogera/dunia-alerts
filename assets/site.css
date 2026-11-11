@@ -283,6 +283,7 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.04em; font-weight: 650; }
 .stage { position: relative; display: grid; place-items: center; padding: clamp(18px, 4%, 40px); border-radius: 24px; background: radial-gradient(120% 90% at 50% 30%, #FFFFFF 0%, #EEF3EF 60%, #E4ECE6 100%); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
 .stage--mint { background: radial-gradient(120% 90% at 50% 25%, #F4FBF6 0%, #DDF1E6 70%, #CFE8DA 100%); }
 /* photo mockups: real devices with the real screens composited in (assets/mock) */
+picture { display: contents; }
 .photo { display: block; width: 100%; height: auto; border-radius: 22px; background: #E9ECEC; box-shadow: 0 0 0 1px var(--line), 0 30px 60px -44px rgba(15,23,19,.55); }
 .photo--hero { position: relative; z-index: 1; border-radius: 28px; }
 /* phone */
@@ -319,8 +320,8 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.04em; font-weight: 650; }
 .panel:not([hidden]) .hs-msg:nth-of-type(3) { animation-delay: 1.9s; }
 .panel:not([hidden]) .hs-sent { animation: hs-pop .5s var(--ease) 2.5s both; }
 /* whiteboard on a classroom wall */
-.wall { position: relative; padding: clamp(22px, 6%, 52px) clamp(18px, 5%, 44px) clamp(28px, 7%, 60px); border-radius: 24px; background: linear-gradient(180deg, #F5F2EB 0%, #EEE9DF 78%, #E2DBCD 78.2%, #E8E2D6 100%); box-shadow: inset 0 0 0 1px #E4DED2; overflow: hidden; }
-.board-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 22px 24px rgba(60,48,20,.28)); }
+.wall { position: relative; padding: clamp(20px, 6%, 48px) clamp(16px, 5%, 40px) clamp(24px, 7%, 54px); border-radius: 24px; background: radial-gradient(120% 90% at 50% 20%, #FFFFFF 0%, #F6F7F5 60%, #EDF0EC 100%); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+.board-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 18px 22px rgba(15,23,19,.18)) drop-shadow(0 2px 3px rgba(15,23,19,.12)); }
 
 /* Sign-in page */
 .auth { min-height: 100vh; min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto; }

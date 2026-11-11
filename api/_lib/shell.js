@@ -37,8 +37,16 @@ ${live ? `<meta name="da-user" content="${esc(user)}">` : ''}
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:image" content="https://alerts.duniaendelevu.org/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dunia Alerts: early warnings that reach children at school, shown on a laptop.">
+<meta property="og:locale" content="en_KE">
+${live ? '' : '<meta property="og:url" content="https://alerts.duniaendelevu.org/demo">'}
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#F5F6F4">
+<meta name="twitter:title" content="${title}">
+<meta name="twitter:description" content="${esc(desc)}">
+<meta name="twitter:image" content="https://alerts.duniaendelevu.org/og-image.png">
+<meta name="theme-color" content="#F2F3F1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">

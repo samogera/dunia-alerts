@@ -12,6 +12,8 @@ import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = 'https://alerts.duniaendelevu.org'
+import datetime
+MODIFIED = datetime.date.today().isoformat()
 E = html.escape
 
 
@@ -156,7 +158,11 @@ LD = {
         {'@type': 'NGO', '@id': 'https://duniaendelevu.org/#organization', 'name': 'Dunia Endelevu', 'url': 'https://duniaendelevu.org/',
          'logo': 'https://duniaendelevu.org/assets/img/icon-512.png',
          'founder': {'@type': 'Person', 'name': 'Alana Chelangat', 'url': 'https://alanachelangat.com/'}, 'areaServed': 'Kenya'},
-        {'@type': 'FAQPage', '@id': SITE + '/#faq', 'mainEntity': faq_jsonld()},
+        {'@type': 'WebPage', '@id': SITE + '/#webpage', 'url': SITE + '/', 'name': 'Dunia Alerts · Early warnings for schools in Nairobi, Kenya',
+         'isPartOf': {'@id': SITE + '/#website'}, 'about': {'@id': SITE + '/#app'}, 'inLanguage': 'en', 'dateModified': MODIFIED,
+         'primaryImageOfPage': {'@type': 'ImageObject', 'url': SITE + '/og-image.png', 'width': 1200, 'height': 630},
+         'speakable': {'@type': 'SpeakableSpecification', 'cssSelector': ['.h1', '.lede']}},
+        {'@type': 'FAQPage', '@id': SITE + '/#faq', 'isPartOf': {'@id': SITE + '/#website'}, 'mainEntity': faq_jsonld()},
     ],
 }
 
@@ -166,8 +172,8 @@ PAGE = '''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dunia Alerts · Early warnings and climate-smart classrooms for Nairobi schools</title>
-<meta name="description" content="Dunia Alerts warns Nairobi schools about unhealthy air, heat, heavy rain and rising rivers up to 48 hours ahead, helps head teachers act in time, and is building classroom sensors that help schools adapt. Try the demo. A Dunia Endelevu pilot in Kenya.">
+<title>Dunia Alerts · Early warnings for schools in Nairobi, Kenya</title>
+<meta name="description" content="Dunia Alerts warns Nairobi schools about unhealthy air, heat, heavy rain and rising rivers up to 48 hours ahead, and helps head teachers act in time. Try the free demo.">
 <link rel="canonical" href="https://alerts.duniaendelevu.org/">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="theme-color" content="#F2F3F1">
@@ -188,10 +194,12 @@ PAGE = '''<!doctype html>
 <meta name="twitter:title" content="Dunia Alerts · Early warnings that reach children at school">
 <meta name="twitter:description" content="Air, heat, rain and river warnings for Nairobi schools, and classroom screens that help schools adapt. A Dunia Endelevu pilot.">
 <meta name="twitter:image" content="https://alerts.duniaendelevu.org/og-image.png">
+<meta name="twitter:image:alt" content="Dunia Alerts: early warnings that reach children at school, shown on a laptop.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" type="image/avif" imagesrcset="__HERO_SRCSET__" imagesizes="__HERO_SIZES__" fetchpriority="high">
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js" defer></script>
 <script type="application/ld+json">__LD__</script>
@@ -477,17 +485,31 @@ PANELS = [
 ]
 
 
-MOCK = {  # photo mockups with the real screens composited in (assets/mock), width x height of the large file
-    'hero-laptop': (1800, 1275, 900), 'desk-laptop': (1400, 1190, 700),
-    'monitor-overview': (1400, 1000, 700), 'monitor-impact': (1400, 1000, 700), 'whiteboard': (1416, 1027, 700),
+MOCK = {  # photo mockups with the real screens composited in (assets/mock): widths made, and the size of the largest
+    'hero-laptop': ([640, 960, 1280, 1800], 1800, 1275),
+    'desk-laptop': ([480, 720, 1080, 1400], 1400, 1143),
+    'monitor-overview': ([480, 720, 1080, 1400], 1400, 1000),
+    'monitor-impact': ([480, 720, 1080, 1400], 1400, 1000),
+    'whiteboard': ([480, 720, 1080, 1400], 1400, 1015),
+    'phone-frame': ([300, 600, 824], 824, 1732),
 }
 
 
+def srcset(name, ext):
+    return ', '.join(f'/assets/mock/{name}-{w}.{ext} {w}w' for w in MOCK[name][0])
+
+
 def photo(name, alt, sizes, eager=False, cls='photo'):
-    w, h, small = MOCK[name]
-    load = 'fetchpriority="high"' if eager else 'loading="lazy" decoding="async"'
-    return (f'<img class="{cls}" src="/assets/mock/{name}-{small}.webp" srcset="/assets/mock/{name}-{small}.webp {small}w, /assets/mock/{name}-{w}.webp {w}w" '
-            f'sizes="{sizes}" width="{w}" height="{h}" {load} alt="{E(alt)}">')
+    widths, w, h = MOCK[name]
+    fallback = widths[-2] if len(widths) > 1 else widths[-1]
+    load = 'fetchpriority="high" decoding="async"' if eager else 'loading="lazy" decoding="async"'
+    return (f'<picture><source type="image/avif" srcset="{srcset(name, "avif")}" sizes="{sizes}">'
+            f'<source type="image/webp" srcset="{srcset(name, "webp")}" sizes="{sizes}">'
+            f'<img class="{cls}" src="/assets/mock/{name}-{fallback}.webp" width="{w}" height="{h}" {load} alt="{E(alt)}"></picture>')
+
+
+HERO_SIZES = '(max-width: 560px) calc(100vw - 72px), (max-width: 1080px) calc(100vw - 140px), 940px'
+PANEL_SIZES = '(max-width: 560px) calc(100vw - 80px), (max-width: 980px) calc(100vw - 160px), 560px'
 
 
 EN_MSG = 'Dunia Alerts: Air near Neema Junior School is unhealthy today. PE and outdoor games are moving indoors. Please send your child’s inhaler if they use one.'
@@ -496,7 +518,7 @@ SW_MSG = 'Dunia Alerts: Hewa karibu na Neema Junior School si salama leo. Michez
 
 def phone():
     return f'''<div class="handset" role="img" aria-label="A parent’s phone receiving the Dunia Alerts message by SMS, in English and Kiswahili. Example message from the demo.">
-          <img class="handset__frame" src="/assets/mock/phone-frame.png" width="824" height="1732" alt="" loading="lazy" decoding="async">
+          {photo('phone-frame', '', '300px', cls='handset__frame')}
           <div class="hs" aria-hidden="true">
             <div class="hs-status"><span>07:52</span><span><b></b><i></i></span></div>
             <div class="hs-notif"><span class="hs-av"></span><b>Dunia Alerts <span>now</span></b><p>{E(EN_MSG)}</p></div>
@@ -514,7 +536,7 @@ def phone():
 
 def panel(i, p):
     v, h3, ticks, dev, shot, alt, cap = p
-    device = phone() if dev == 'phone' else photo(shot, alt, '(max-width: 980px) 86vw, 600px')
+    device = phone() if dev == 'phone' else photo(shot, alt, PANEL_SIZES)
     hidden = '' if i == 0 else ' hidden'
     lis = '\n'.join(f'          <li>{CHECK}{E(t)}</li>' for t in ticks)
     return f'''    <div class="panel" role="tabpanel" id="p-{v}" aria-labelledby="t-{v}" tabindex="0"{hidden}>
@@ -552,6 +574,34 @@ def hazard(h):
       </article>'''
 
 
+def llms_full():
+    out = ['# Dunia Alerts: full guide', '',
+           '> Early warnings for schools in Nairobi, Kenya, and the start of climate-smart classrooms. Dunia Alerts watches air quality (PM2.5), heat, heavy rain and river flow around pilot schools, up to 48 hours ahead. A person on the Dunia team checks each warning and sends the head teacher one clear step; parents are told in English and Kiswahili. A Dunia Endelevu pilot, led by Alana Chelangat.', '',
+           'Website: https://alerts.duniaendelevu.org/  ·  Demo with example data: https://alerts.duniaendelevu.org/demo  ·  Classroom screen (example data): https://alerts.duniaendelevu.org/classroom?demo=1', '',
+           '## Why schools', '']
+    for st in STATS:
+        import re as _re
+        label = _re.sub(r'<[^>]+>', '', st['label'])
+        out.append(f"- {st['prefix']}{st['value']}{st['suffix']}: {label} ({st['src']}, {st['href']})")
+    out += ['', '## How it works', '', '1. Watch: the dashboard reads air quality, weather and river forecasts for each school every 15 minutes.',
+            '2. Spot it early: it flags danger now and up to 48 hours ahead.', '3. A person decides: the Dunia team checks, then sends the head teacher a short WhatsApp or SMS with one clear step.',
+            '4. Act and learn: the school acts, parents are told, and every response is timed and recorded.', '',
+            '## Alert levels', '']
+    for h in HAZARDS:
+        out.append(f'- {h[2]}: {h[3]}. School step: {h[4]} Data: {h[5]}.')
+    out += ['', '## Where it is going (planned, not results)', '',
+            '- Measure: indoor and outdoor PM2.5, CO₂, temperature and humidity, with quality checks.',
+            '- Interpret: screens for learners and teachers.', '- Act: human-approved alerts and a record that cannot be changed.',
+            '- Prove: compare classrooms over two terms with an independent evaluator, then share class-level evidence with county and national offices and funders.',
+            '- Aims: environmental monitoring in schools; a way for children to raise environmental concerns and get answers from decision-makers; studying how heat and classroom air affect attendance, concentration and the school day.', '',
+            '## Questions and answers', '']
+    for group, qs in FAQ:
+        out += [f'### {group}', '']
+        for q, a in qs:
+            out += [f'**{q}**', a, '']
+    return '\n'.join(out).rstrip() + '\n'
+
+
 def build():
     page = PAGE
     page = page.replace('__LD__', json.dumps(LD, ensure_ascii=False, indent=1))
@@ -559,8 +609,9 @@ def build():
     page = page.replace('__PANELS__', '\n'.join(panel(i, p) for i, p in enumerate(PANELS)))
     page = page.replace('__HAZARDS__', '\n'.join(hazard(h) for h in HAZARDS))
     page = page.replace('__FAQ__', faq_html())
-    page = page.replace('__WHITEBOARD__', photo('whiteboard', 'The classroom screen on a classroom whiteboard, with example data: ‘Our classroom is ready for learning’, tiles for temperature, fresh air, dust and humidity, each with a three-step meter, the weather outside and a Climate Detective question.', '(max-width: 980px) 86vw, 560px', cls='board-img'))
-    page = page.replace('__LAPTOP_HERO__', photo('hero-laptop', 'A laptop held in one hand, showing the Dunia Alerts overview with example data: open alerts, the worst air now, warnings for the next 48 hours and a list of schools that need attention.', '(max-width: 980px) 92vw, 920px', eager=True, cls='photo photo--hero'))
+    page = page.replace('__HERO_SRCSET__', srcset('hero-laptop', 'avif')).replace('__HERO_SIZES__', HERO_SIZES)
+    page = page.replace('__WHITEBOARD__', photo('whiteboard', 'The classroom screen on a classroom whiteboard, with example data: ‘Our classroom is ready for learning’, tiles for temperature, fresh air, dust and humidity, each with a three-step meter, the weather outside and a Climate Detective question.', PANEL_SIZES, cls='board-img'))
+    page = page.replace('__LAPTOP_HERO__', photo('hero-laptop', 'A laptop held in one hand, showing the Dunia Alerts overview with example data: open alerts, the worst air now, warnings for the next 48 hours and a list of schools that need attention.', HERO_SIZES, eager=True, cls='photo photo--hero'))
     page = page.replace('__ARROW__', ARROW).replace('__CHECK__', CHECK).replace('__LOCK__', ic('lock'))
     import re
     page = re.sub(r'__IC_([a-z]+)__', lambda m: ic(m.group(1)), page)
@@ -568,7 +619,9 @@ def build():
     assert not left, left
     with open(os.path.join(ROOT, 'index.html'), 'w') as f:
         f.write(page)
-    print('Wrote index.html ·', sum(len(q) for _, q in FAQ), 'questions')
+    with open(os.path.join(ROOT, 'llms-full.txt'), 'w') as f:
+        f.write(llms_full())
+    print('Wrote index.html and llms-full.txt ·', sum(len(q) for _, q in FAQ), 'questions')
 
 
 if __name__ == '__main__':

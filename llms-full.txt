@@ -1,0 +1,126 @@
+# Dunia Alerts: full guide
+
+> Early warnings for schools in Nairobi, Kenya, and the start of climate-smart classrooms. Dunia Alerts watches air quality (PM2.5), heat, heavy rain and river flow around pilot schools, up to 48 hours ahead. A person on the Dunia team checks each warning and sends the head teacher one clear step; parents are told in English and Kiswahili. A Dunia Endelevu pilot, led by Alana Chelangat.
+
+Website: https://alerts.duniaendelevu.org/  ·  Demo with example data: https://alerts.duniaendelevu.org/demo  ·  Classroom screen (example data): https://alerts.duniaendelevu.org/classroom?demo=1
+
+## Why schools
+
+- 93%: Children under 15 breathe air dirtier than the WHO guidelines (WHO, 2018, https://www.paho.org/en/news/29-10-2018-more-90-worlds-children-breathe-toxic-air-every-day)
+- 3.7×: Nairobi’s fine dust over three years, against the WHO yearly guideline (Environmental Epidemiology, 2024, https://pmc.ncbi.nlm.nih.gov/articles/PMC11115977)
+- 131K+: People forced from home by Kenya’s 2024 floods, which also delayed the school term (Nation, 2024, https://nation.africa/kenya/news/education/cs-machogu-postpones-opening-of-schools-to-may-6-4606688)
+- ~60: Countries still without warnings for many dangers. The UN aims to cover everyone by 2027 (Climate Home News, 2026, https://www.climatechangenews.com/2026/09/23/despite-real-progress-third-of-countries-still-lack-early-warning-systems/)
+
+## How it works
+
+1. Watch: the dashboard reads air quality, weather and river forecasts for each school every 15 minutes.
+2. Spot it early: it flags danger now and up to 48 hours ahead.
+3. A person decides: the Dunia team checks, then sends the head teacher a short WhatsApp or SMS with one clear step.
+4. Act and learn: the school acts, parents are told, and every response is timed and recorded.
+
+## Alert levels
+
+- Unhealthy air: PM2.5 ≥ 35.5 µg/m³. School step: PE indoors; children with asthma stay inside. Data: Copernicus CAMS · ground sensors.
+- Heavy rain: ≥ 30 mm in a day. School step: Away from drains; a safe early release. Data: Open-Meteo · Kenya Met Department.
+- Great heat: A high of 30 °C or more. School step: Water breaks, shade, and PE early in the day. Data: Open-Meteo forecast.
+- Rising river: Twice its usual flow. School step: Check routes home; plan the release. Data: Global Flood Awareness System.
+
+## Where it is going (planned, not results)
+
+- Measure: indoor and outdoor PM2.5, CO₂, temperature and humidity, with quality checks.
+- Interpret: screens for learners and teachers.
+- Act: human-approved alerts and a record that cannot be changed.
+- Prove: compare classrooms over two terms with an independent evaluator, then share class-level evidence with county and national offices and funders.
+- Aims: environmental monitoring in schools; a way for children to raise environmental concerns and get answers from decision-makers; studying how heat and classroom air affect attendance, concentration and the school day.
+
+## Questions and answers
+
+### About Dunia Alerts
+
+**What is Dunia Alerts?**
+Dunia Alerts is an early warning and learning system for schools in Nairobi, Kenya. It watches air quality, heat, heavy rain and rivers around each school, now and up to 48 hours ahead. The Dunia team checks each warning and sends the head teacher one clear step, parents are told in English and Kiswahili, and every response is recorded. It is a Dunia Endelevu pilot, led by Alana Chelangat.
+
+**Who is it for?**
+Learners, teachers and head teachers first. Learners see a simple classroom screen, teachers and head teachers get clear steps, and the Dunia team runs the warnings. Later, researchers, county officials and funders will see class-level summaries only, never information about a single child.
+
+**Who runs Dunia Alerts?**
+Dunia Endelevu, a youth-led climate organisation in Kenya founded by Alana Chelangat. The pilot is supported by donors and partners.
+
+**Is Dunia Alerts free for schools?**
+Yes. Schools never pay. The pilot is run by Dunia Endelevu and supported by donors.
+
+**Are there pilot results yet?**
+Not yet. The dashboard is built and runs on live data, and the first pilot schools are being added. Results, including what did not work, will be published openly.
+
+### Warnings and data
+
+**What dangers does it warn about?**
+Unhealthy air (fine dust, PM2.5, of 35.5 µg/m³ or more), heavy rain (30 mm or more in a day), great heat (a high of 30 °C or more) and rising rivers (twice their usual flow), now and up to 48 hours ahead.
+
+**Where does the data come from?**
+Weather forecasts from Open-Meteo, air quality from the Copernicus Atmosphere Monitoring Service, river flow from the Global Flood Awareness System, and, where available, ground sensors through OpenAQ, including AirQo sensors in Nairobi. Classroom sensors are the next step.
+
+**How often is the data updated?**
+Weather, air and river forecasts are read every 15 minutes. Classroom readings appear as soon as they arrive and pass quality checks. A reading that is too old is marked “Data not current” instead of looking live.
+
+**Does a computer send the warnings?**
+No. The dashboard suggests an alert when a reading or forecast crosses a safe level. A person on the Dunia team checks it and decides to send it.
+
+**How do schools and parents receive alerts?**
+The head teacher gets a short WhatsApp message or SMS with one clear step. Parents get a ready-made message in English and Kiswahili. Nobody needs to install an app.
+
+**Does it replace Kenya Meteorological Department warnings?**
+No. It adds to them. For heavy rain it follows Kenya Meteorological Department advisories, and its job is to help each school act on warnings in time.
+
+### Classroom screen and sensors
+
+**What is the classroom screen?**
+A wall screen that shows the room’s fresh air (CO₂), temperature, dust (PM2.5) and humidity, and the weather outside, in English and Kiswahili. A Climate Detective question each day turns the numbers into a class discussion.
+
+**What sensors will a pilot classroom have?**
+An indoor sensor for PM2.5, CO₂, temperature and humidity, an outdoor sensor to compare with, a small gateway that stores readings if the internet drops, and a wall screen. Final positions follow a site survey, safe mounting out of children’s reach, and calibration.
+
+**What happens if a sensor or the internet stops working?**
+The screen keeps the last valid reading with its time and shows “Data not current” instead of looking live. Readings are kept on the gateway and sent when the connection returns.
+
+**Does the classroom screen collect anything about children?**
+No. It shows the room’s temperature, fresh air (CO₂), dust and humidity, and the weather outside. It has no camera or microphone, shows no names and has no controls for learners.
+
+**Does CO₂ show how well children concentrate?**
+No. CO₂ shows how fresh the air is, which tells you about ventilation. Any effect on concentration and learning needs a careful study with a trained evaluator.
+
+### From classroom data to policy
+
+**What data will the pilot collect?**
+Room conditions (temperature, humidity, CO₂, PM2.5 and how long each stays above a safe level), school-approved attendance and lesson interruptions for the whole class, short voluntary teacher surveys, and the cost of each change. Never children’s names.
+
+**How will schools use the data to adapt?**
+To see when and where rooms get too hot, stuffy or dusty, to try changes such as shade, better ventilation, moving PE or adding water breaks, and to check whether conditions really improved.
+
+**How could the data shape policy?**
+Class-level and school-level summaries, checked by an independent evaluator, can show county and national education and environment offices what works for schools and what it costs. Wider county or national dashboards come only after the data has been validated.
+
+**How will you know if it works?**
+The first study uses one school and two similar classrooms. Both are monitored and kept safe; one also gets shade and ventilation improvements. After a 4 to 6 week baseline, both are followed for at least two school terms, with an independent evaluator. Two classrooms can show whether it is practical and which way things move, not national proof.
+
+**Can children take part?**
+Yes. Classes read their own screen and discuss a Climate Detective question every day. A planned feature will let classes share observations and concerns and receive replies from decision-makers.
+
+### Privacy, safety and access
+
+**What happens to children’s information?**
+Dunia Alerts never records children’s names. It records what the school did, how fast it replied and whether parents were told. Research data stays at class level, needs school and research approvals, and small groups are never shown in public summaries. The pilot’s records stay on the Dunia team’s devices and in their backups.
+
+**Is the demo real?**
+No. The demo uses made-up schools and example data, so anyone can try every step safely. It is clearly marked, and nothing in it is a real reading or a real result.
+
+**Who can sign in to the live pilot?**
+The Dunia team running the Nairobi pilot. There is no public sign-up: the team creates each account. Anyone can try the demo without signing in. Lost your password? Write to hello@duniaendelevu.org.
+
+### Support and partners
+
+**How can I support or partner?**
+Donate or get in touch through Dunia Endelevu. Support pays for SMS to every parent, classroom sensors, training for head teachers, a login for every school and an open evaluation. Schools, county education offices, weather and air agencies and funders are all welcome.
+
+**Can another city or school network use it?**
+We hope so. The forecasts it reads cover the whole world, so the same approach can work elsewhere. Get in touch through Dunia Endelevu and we will share what we learn from the pilot.

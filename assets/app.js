@@ -375,7 +375,7 @@ function attentionCard(d) {
 }
 function mapCard(d) {
   const open = d.alerts.filter((a) => !a.closedAt).length;
-  return `<div class="card__head"><h2 class="card__title">Air at each school now</h2><span class="muted">Column height is PM2.5, µg/m³${open ? ` · <span style="color:var(--wait)">●</span> open alert` : ''}</span></div>
+  return `<div class="card__head"><h2 class="card__title">Air at each school now</h2><span class="muted">Each pin shows PM2.5, µg/m³, coloured by air band${open ? ` · <span style="color:var(--wait)">●</span> open alert` : ''}</span></div>
     <div class="mapbox">${mapSVG(d)}</div>
     <div class="keys" aria-label="Air quality bands">${AIR.slice(0, 5).map((b) => `<span><i style="background:${b.c}"></i>${esc(short(b))}</span>`).join('')}</div>`;
 }
@@ -407,29 +407,77 @@ function mapSVG(d) {
   g += `<g transform="translate(${L[0] + 26},${L[1] - 18})" aria-hidden="true"><line x1="0" y1="0" x2="0" y2="-30" stroke="var(--ink-2)" stroke-width="1.5"/><polygon points="0,-36 -4.5,-27 4.5,-27" fill="var(--ink-2)"/><text x="0" y="-40" text-anchor="middle" font-size="${fs}" font-weight="600" fill="var(--ink-2)">N</text></g>`;
   let minY = T[1];
   const items = d.schools.map((s) => ({ s, u: pos[s.id][0], v: pos[s.id][1] })).sort((a, b) => (a.u + a.v) - (b.u + b.v));
+  const sc = narrow ? 0.78 : 1;
   items.forEach(({ s, u, v }) => {
     const r = reading(d.readings[s.id], d.now);
     const pm = r ? r.value : null;
-    const hex = pm != null ? airBand(pm).hex : '#C9CFCB';
-    const h = pm != null ? Math.max(6, Math.min(narrow ? 120 : 150, pm * (narrow ? 1.8 : 2.3))) : 4;
-    const k = narrow ? 0.27 : 0.36;
-    const N = (z) => iso(u - k, v - k, z), E = (z) => iso(u + k, v - k, z), S = (z) => iso(u + k, v + k, z), W = (z) => iso(u - k, v + k, z);
+    const hex = pm != null ? airBand(pm).hex : '#AEB5B0';
     const sel = s.id === state.schoolId;
     const open = openAlertFor(s.id);
-    const [bx, by] = iso(u, v), [tx, ty] = iso(u, v, h);
-    minY = Math.min(minY, ty - (open ? 40 : 26) - fs);
-    const o = k + 0.3;
+    const [bx, by] = iso(u, v);
+    const pin = pinAt(iso(u, v, 31 * sc), hex, pm != null ? String(pm) : '–', fs, sel, open);
+    minY = Math.min(minY, pin.top);
+    const o = 0.62 * sc + 0.14;
     let b = `<g class="bar-g" data-action="pick-school" data-id="${esc(s.id)}" role="button" tabindex="0" aria-label="${pm != null ? pm : '–'} ${esc(s.area)}: ${esc(s.name)}, ${pm != null ? 'PM2.5 ' + pm + ' µg/m³' : 'no reading'}${open ? ', open alert' : ''}"><title>${esc(s.name)} · ${esc(s.area)}</title>`;
-    b += `<ellipse cx="${bx}" cy="${by + 2}" rx="${ISO.A * .8}" ry="${ISO.B * .8}" fill="rgba(18,24,20,.07)"/>`;
-    if (sel) b += `<polygon points="${P([iso(u - o, v - o), iso(u + o, v - o), iso(u + o, v + o), iso(u - o, v + o)])}" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>`;
-    b += `<polygon points="${P([W(0), S(0), S(h), W(h)])}" fill="${shade(hex, .84)}"/><polygon points="${P([S(0), E(0), E(h), S(h)])}" fill="${shade(hex, .68)}"/><polygon points="${P([N(h), E(h), S(h), W(h)])}" fill="${shade(hex, 1.05)}"/>`;
-    if (open) b += `<circle cx="${tx}" cy="${ty - 16 - fs}" r="5" fill="var(--wait)"/><circle cx="${tx}" cy="${ty - 16 - fs}" r="9" fill="none" stroke="var(--wait)" stroke-opacity=".35" stroke-width="2"/>`;
-    b += `<text x="${tx}" y="${ty - 9}" text-anchor="middle" font-size="${fs * 1.08}" font-weight="600" fill="var(--ink)" style="font-variant-numeric:tabular-nums">${pm != null ? pm : '–'}</text>`;
-    if (!tight || sel) b += `<text x="${bx}" y="${by + 14 + fs}" text-anchor="middle" font-size="${fs}" fill="${sel ? 'var(--accent)' : 'var(--muted)'}" font-weight="${sel ? 600 : 400}">${esc(s.area)}</text>`;
+    b += `<ellipse cx="${bx}" cy="${by + 3}" rx="${ISO.A * 1.05 * sc}" ry="${ISO.B * 1.05 * sc}" fill="rgba(18,24,20,.08)"/>`;
+    if (sel) b += `<polygon points="${P([iso(u - o, v - o), iso(u + o, v - o), iso(u + o, v + o), iso(u - o, v + o)])}" fill="rgba(23,72,59,.06)" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>`;
+    b += schoolBuilding(u, v, sc);
+    b += pin.svg;
+    if (!tight || sel) b += `<text x="${bx}" y="${by + 16 + fs}" text-anchor="middle" font-size="${fs}" fill="${sel ? 'var(--accent)' : 'var(--muted)'}" font-weight="${sel ? 600 : 400}">${esc(s.area)}</text>`;
     g += b + '</g>';
   });
   const vx = L[0] - 10, vy = minY - 6, vh = B[1] + 10 - vy;
-  return `<svg class="map" viewBox="${vx.toFixed(0)} ${vy.toFixed(0)} ${vbw.toFixed(0)} ${vh.toFixed(0)}" role="img" aria-label="Schematic map of the pilot schools, west to east, north at the back. Each column is as tall as the school's latest PM2.5 reading.">${g}</svg>`;
+  return `<svg class="map" viewBox="${vx.toFixed(0)} ${vy.toFixed(0)} ${vbw.toFixed(0)} ${vh.toFixed(0)}" role="img" aria-label="Schematic map of the pilot schools, west to east, north at the back. Each school has a pin with its latest PM2.5 reading, coloured by air quality band.">${g}</svg>`;
+}
+/* A small isometric school on its own green plot: two storeys, a hipped green roof, windows, a front door,
+   a flagpole and two trees. Drawn back to front so nothing overlaps wrongly. */
+function schoolBuilding(u, v, sc) {
+  const I = (du, dv, z = 0) => iso(u + du * sc, v + dv * sc, z * sc);
+  const poly = (pts, fill, extra = '') => `<polygon points="${P(pts)}" fill="${fill}"${extra}/>`;
+  const quadS = (du0, du1, dv, z0, z1) => [I(du0, dv, z0), I(du1, dv, z0), I(du1, dv, z1), I(du0, dv, z1)];   // on a face facing south (+v)
+  const quadE = (dv0, dv1, du, z0, z1) => [I(du, dv0, z0), I(du, dv1, z0), I(du, dv1, z1), I(du, dv0, z1)];   // on a face facing east (+u)
+  const tree = (du, dv) => { const [x, y] = I(du, dv, 2); const r = 5.2 * sc; return `<line x1="${x}" y1="${y}" x2="${x}" y2="${y - 7 * sc}" stroke="#7A5B3A" stroke-width="${1.6 * sc}" stroke-linecap="round"/><circle cx="${x}" cy="${y - 10 * sc}" r="${r}" fill="#4E9364"/><circle cx="${x - 1.6 * sc}" cy="${y - 11.6 * sc}" r="${r * .55}" fill="#6DB283"/>`; };
+  const pw = 0.62, pd = 0.46, bw = 0.44, bd = 0.2, H = 17, Z = 2, R = 27, ov = 0.05;
+  let o = '';
+  // plot: grass with a thin edge, and a paved forecourt
+  o += poly([I(-pw, pd, 0), I(pw, pd, 0), I(pw, pd, Z), I(-pw, pd, Z)], '#A6CDB2') + poly([I(pw, -pd, 0), I(pw, pd, 0), I(pw, pd, Z), I(pw, -pd, Z)], '#94BFA2');
+  o += poly([I(-pw, -pd, Z), I(pw, -pd, Z), I(pw, pd, Z), I(-pw, pd, Z)], '#D3EBDA');
+  o += poly([I(-0.2, bd, Z), I(0.2, bd, Z), I(0.2, pd, Z), I(-0.2, pd, Z)], '#ECE7DC');
+  o += tree(0.52, -0.36) + tree(-0.52, -0.34);
+  // walls
+  o += poly(quadS(-bw, bw, bd, Z, Z + H), '#F4E7D4') + poly(quadE(-bd, bd, bw, Z, Z + H), '#E1CCAE');
+  // windows: two floors along the front, two along the side
+  for (const z0 of [Z + 4, Z + 10.5]) {
+    for (const c of [-0.36, -0.24, -0.12, 0.12, 0.24, 0.36]) o += poly(quadS(c - 0.04, c + 0.04, bd, z0, z0 + 4), '#8DB7CC');
+    for (const c of [-0.09, 0.09]) o += poly(quadE(c - 0.045, c + 0.045, bw, z0, z0 + 4), '#7FA8BD');
+  }
+  // entrance: door, white frame and a small pediment
+  o += poly(quadS(-0.07, 0.07, bd, Z, Z + 11), '#FFFFFF') + poly(quadS(-0.045, 0.045, bd, Z, Z + 8.5), '#35514A');
+  o += poly([I(-0.09, bd, Z + 11), I(0.09, bd, Z + 11), I(0, bd, Z + 15)], '#FFFFFF');
+  // hipped roof: back planes first, then the two we see
+  const e = [I(-bw - ov, bd + ov, Z + H), I(bw + ov, bd + ov, Z + H), I(bw + ov, -bd - ov, Z + H), I(-bw - ov, -bd - ov, Z + H)];
+  const r0 = I(-bw + 0.12, 0, R), r1 = I(bw - 0.12, 0, R);
+  o += poly([e[3], e[2], r1, r0], '#3B826A') + poly([e[0], e[3], r0], '#2F6E59');
+  o += poly([e[0], e[1], r1, r0], '#2B6A55') + poly([e[1], e[2], r1], '#1F5444');
+  o += `<polyline points="${P([r0, r1])}" fill="none" stroke="#4C9479" stroke-width="${1.2 * sc}"/>`;
+  // flagpole in the forecourt
+  const [fx, fy] = I(-0.32, 0.36, Z);
+  o += `<line x1="${fx}" y1="${fy}" x2="${fx}" y2="${fy - 24 * sc}" stroke="#8E9691" stroke-width="${1.2 * sc}"/><polygon points="${P([[fx, fy - 24 * sc], [fx + 8 * sc, fy - 21.5 * sc], [fx, fy - 19 * sc]])}" fill="#F2B233"/>`;
+  return o;
+}
+/* A map pin above each school, in the colour of its air band, with the reading inside. */
+function pinAt([x, y], hex, label, fs, sel, open) {
+  const k = sel ? 1.15 : 1, r = Math.max(11.5, Math.min(fs * 1.25, 12.5 + (fs - 10.5) * 0.45)) * k, cy = y - r * 1.9;
+  const n = parseInt(hex.slice(1), 16), lum = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+  const ink = lum > 0.66 ? '#0F1713' : '#FFFFFF';
+  const tip = `M${x} ${y} L${(x - r * 0.62).toFixed(1)} ${(cy + r * 0.72).toFixed(1)} A${r} ${r} 0 1 1 ${(x + r * 0.62).toFixed(1)} ${(cy + r * 0.72).toFixed(1)} Z`;
+  let svg = `<ellipse cx="${x}" cy="${y + 1}" rx="${r * 0.42}" ry="${r * 0.16}" fill="rgba(18,24,20,.22)"/>`;
+  if (sel) svg += `<circle cx="${x}" cy="${cy}" r="${r + 5}" fill="none" stroke="${hex}" stroke-opacity=".35" stroke-width="3"/>`;
+  svg += `<path d="${tip}" fill="${hex}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>`;
+  const tf = Math.min(r * 0.78, fs * 0.95) * (label.length > 4 ? 0.86 : 1);
+  svg += `<text x="${x}" y="${(cy + tf * 0.36).toFixed(1)}" text-anchor="middle" font-size="${tf.toFixed(1)}" font-weight="700" fill="${ink}" style="font-variant-numeric:tabular-nums">${esc(label)}</text>`;
+  if (open) svg += `<circle cx="${x + r * 0.78}" cy="${cy - r * 0.72}" r="5" fill="var(--wait)" stroke="#fff" stroke-width="1.6"/><circle cx="${x + r * 0.78}" cy="${cy - r * 0.72}" r="9" fill="none" stroke="var(--wait)" stroke-opacity=".35" stroke-width="2"/>`;
+  return { svg, top: cy - r - (open ? 8 : 4) };
 }
 function scaleBar(pm) {
   const v = Math.min(pm, 250), b = airBand(v), i = AIR.indexOf(b);

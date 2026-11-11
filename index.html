@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dunia Alerts · Early warnings and climate-smart classrooms for Nairobi schools</title>
-<meta name="description" content="Dunia Alerts warns Nairobi schools about unhealthy air, heat, heavy rain and rising rivers up to 48 hours ahead, helps head teachers act in time, and is building classroom sensors that help schools adapt. Try the demo. A Dunia Endelevu pilot in Kenya.">
+<title>Dunia Alerts · Early warnings for schools in Nairobi, Kenya</title>
+<meta name="description" content="Dunia Alerts warns Nairobi schools about unhealthy air, heat, heavy rain and rising rivers up to 48 hours ahead, and helps head teachers act in time. Try the free demo.">
 <link rel="canonical" href="https://alerts.duniaendelevu.org/">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="theme-color" content="#F2F3F1">
@@ -25,10 +25,12 @@
 <meta name="twitter:title" content="Dunia Alerts · Early warnings that reach children at school">
 <meta name="twitter:description" content="Air, heat, rain and river warnings for Nairobi schools, and classroom screens that help schools adapt. A Dunia Endelevu pilot.">
 <meta name="twitter:image" content="https://alerts.duniaendelevu.org/og-image.png">
+<meta name="twitter:image:alt" content="Dunia Alerts: early warnings that reach children at school, shown on a laptop.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" type="image/avif" imagesrcset="/assets/mock/hero-laptop-640.avif 640w, /assets/mock/hero-laptop-960.avif 960w, /assets/mock/hero-laptop-1280.avif 1280w, /assets/mock/hero-laptop-1800.avif 1800w" imagesizes="(max-width: 560px) calc(100vw - 72px), (max-width: 1080px) calc(100vw - 140px), 940px" fetchpriority="high">
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js" defer></script>
 <script type="application/ld+json">{
@@ -98,8 +100,38 @@
    "areaServed": "Kenya"
   },
   {
+   "@type": "WebPage",
+   "@id": "https://alerts.duniaendelevu.org/#webpage",
+   "url": "https://alerts.duniaendelevu.org/",
+   "name": "Dunia Alerts · Early warnings for schools in Nairobi, Kenya",
+   "isPartOf": {
+    "@id": "https://alerts.duniaendelevu.org/#website"
+   },
+   "about": {
+    "@id": "https://alerts.duniaendelevu.org/#app"
+   },
+   "inLanguage": "en",
+   "dateModified": "2026-11-11",
+   "primaryImageOfPage": {
+    "@type": "ImageObject",
+    "url": "https://alerts.duniaendelevu.org/og-image.png",
+    "width": 1200,
+    "height": 630
+   },
+   "speakable": {
+    "@type": "SpeakableSpecification",
+    "cssSelector": [
+     ".h1",
+     ".lede"
+    ]
+   }
+  },
+  {
    "@type": "FAQPage",
    "@id": "https://alerts.duniaendelevu.org/#faq",
+   "isPartOf": {
+    "@id": "https://alerts.duniaendelevu.org/#website"
+   },
    "mainEntity": [
     {
      "@type": "Question",
@@ -350,7 +382,7 @@
     <div class="shot">
       <span class="chip chip--a"><span class="chip__ico" style="--c:var(--accent)"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#early"/></svg></span>Up to 48 hours ahead</span>
       <span class="chip chip--b"><span class="chip__ico" style="--c:var(--rain)"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#decide"/></svg></span>A person checks every alert</span>
-      <img class="photo photo--hero" src="/assets/mock/hero-laptop-900.webp" srcset="/assets/mock/hero-laptop-900.webp 900w, /assets/mock/hero-laptop-1800.webp 1800w" sizes="(max-width: 980px) 92vw, 920px" width="1800" height="1275" fetchpriority="high" alt="A laptop held in one hand, showing the Dunia Alerts overview with example data: open alerts, the worst air now, warnings for the next 48 hours and a list of schools that need attention.">
+      <picture><source type="image/avif" srcset="/assets/mock/hero-laptop-640.avif 640w, /assets/mock/hero-laptop-960.avif 960w, /assets/mock/hero-laptop-1280.avif 1280w, /assets/mock/hero-laptop-1800.avif 1800w" sizes="(max-width: 560px) calc(100vw - 72px), (max-width: 1080px) calc(100vw - 140px), 940px"><source type="image/webp" srcset="/assets/mock/hero-laptop-640.webp 640w, /assets/mock/hero-laptop-960.webp 960w, /assets/mock/hero-laptop-1280.webp 1280w, /assets/mock/hero-laptop-1800.webp 1800w" sizes="(max-width: 560px) calc(100vw - 72px), (max-width: 1080px) calc(100vw - 140px), 940px"><img class="photo photo--hero" src="/assets/mock/hero-laptop-1280.webp" width="1800" height="1275" fetchpriority="high" decoding="async" alt="A laptop held in one hand, showing the Dunia Alerts overview with example data: open alerts, the worst air now, warnings for the next 48 hours and a list of schools that need attention."></picture>
     </div>
   </section>
 
@@ -428,7 +460,7 @@
         <a class="more" href="/demo#overview">Open it in the demo<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
       </div>
       <figure>
-        <img class="photo" src="/assets/mock/monitor-overview-700.webp" srcset="/assets/mock/monitor-overview-700.webp 700w, /assets/mock/monitor-overview-1400.webp 1400w" sizes="(max-width: 980px) 86vw, 600px" width="1400" height="1000" loading="lazy" decoding="async" alt="The overview on a desktop screen, with example data: a 3D map of air at each school, where column height is fine dust, and the selected school’s air now, last 24 hours and next 48 hours.">
+        <picture><source type="image/avif" srcset="/assets/mock/monitor-overview-480.avif 480w, /assets/mock/monitor-overview-720.avif 720w, /assets/mock/monitor-overview-1080.avif 1080w, /assets/mock/monitor-overview-1400.avif 1400w" sizes="(max-width: 560px) calc(100vw - 80px), (max-width: 980px) calc(100vw - 160px), 560px"><source type="image/webp" srcset="/assets/mock/monitor-overview-480.webp 480w, /assets/mock/monitor-overview-720.webp 720w, /assets/mock/monitor-overview-1080.webp 1080w, /assets/mock/monitor-overview-1400.webp 1400w" sizes="(max-width: 560px) calc(100vw - 80px), (max-width: 980px) calc(100vw - 160px), 560px"><img class="photo" src="/assets/mock/monitor-overview-1080.webp" width="1400" height="1000" loading="lazy" decoding="async" alt="The overview on a desktop screen, with example data: a 3D map of air at each school, where column height is fine dust, and the selected school’s air now, last 24 hours and next 48 hours."></picture>
         <figcaption class="panel__cap">Demo · made-up schools and example data</figcaption>
       </figure>
     </div>
@@ -444,7 +476,7 @@
         <a class="more" href="/demo#desk">Open it in the demo<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
       </div>
       <figure>
-        <img class="photo" src="/assets/mock/desk-laptop-700.webp" srcset="/assets/mock/desk-laptop-700.webp 700w, /assets/mock/desk-laptop-1400.webp 1400w" sizes="(max-width: 980px) 86vw, 600px" width="1400" height="1190" loading="lazy" decoding="async" alt="The school desk on a laptop, with example data: an unhealthy air alert, the step for the school, and a timeline from alert sent to the head teacher’s reply.">
+        <picture><source type="image/avif" srcset="/assets/mock/desk-laptop-480.avif 480w, /assets/mock/desk-laptop-720.avif 720w, /assets/mock/desk-laptop-1080.avif 1080w, /assets/mock/desk-laptop-1400.avif 1400w" sizes="(max-width: 560px) calc(100vw - 80px), (max-width: 980px) calc(100vw - 160px), 560px"><source type="image/webp" srcset="/assets/mock/desk-laptop-480.webp 480w, /assets/mock/desk-laptop-720.webp 720w, /assets/mock/desk-laptop-1080.webp 1080w, /assets/mock/desk-laptop-1400.webp 1400w" sizes="(max-width: 560px) calc(100vw - 80px), (max-width: 980px) calc(100vw - 160px), 560px"><img class="photo" src="/assets/mock/desk-laptop-1080.webp" width="1400" height="1143" loading="lazy" decoding="async" alt="The school desk on a laptop, with example data: an unhealthy air alert, the step for the school, and a timeline from alert sent to the head teacher’s reply."></picture>
         <figcaption class="panel__cap">Demo · made-up schools and example data</figcaption>
       </figure>
     </div>
@@ -461,7 +493,7 @@
       </div>
       <figure>
         <div class="stage stage--mint"><div class="handset" role="img" aria-label="A parent’s phone receiving the Dunia Alerts message by SMS, in English and Kiswahili. Example message from the demo.">
-          <img class="handset__frame" src="/assets/mock/phone-frame.png" width="824" height="1732" alt="" loading="lazy" decoding="async">
+          <picture><source type="image/avif" srcset="/assets/mock/phone-frame-300.avif 300w, /assets/mock/phone-frame-600.avif 600w, /assets/mock/phone-frame-824.avif 824w" sizes="300px"><source type="image/webp" srcset="/assets/mock/phone-frame-300.webp 300w, /assets/mock/phone-frame-600.webp 600w, /assets/mock/phone-frame-824.webp 824w" sizes="300px"><img class="handset__frame" src="/assets/mock/phone-frame-600.webp" width="824" height="1732" loading="lazy" decoding="async" alt=""></picture>
           <div class="hs" aria-hidden="true">
             <div class="hs-status"><span>07:52</span><span><b></b><i></i></span></div>
             <div class="hs-notif"><span class="hs-av"></span><b>Dunia Alerts <span>now</span></b><p>Dunia Alerts: Air near Neema Junior School is unhealthy today. PE and outdoor games are moving indoors. Please send your child’s inhaler if they use one.</p></div>
@@ -490,7 +522,7 @@
         <a class="more" href="/demo#impact">Open it in the demo<svg class="ic ic--arrow" aria-hidden="true"><use href="/assets/icons.svg#arrow"/></svg></a>
       </div>
       <figure>
-        <img class="photo" src="/assets/mock/monitor-impact-700.webp" srcset="/assets/mock/monitor-impact-700.webp 700w, /assets/mock/monitor-impact-1400.webp 1400w" sizes="(max-width: 980px) 86vw, 600px" width="1400" height="1000" loading="lazy" decoding="async" alt="The impact screen on a desktop screen, with example data: tiles for alerts sent, acknowledged, time to respond, action taken and parents told, above a chart of alerts each week.">
+        <picture><source type="image/avif" srcset="/assets/mock/monitor-impact-480.avif 480w, /assets/mock/monitor-impact-720.avif 720w, /assets/mock/monitor-impact-1080.avif 1080w, /assets/mock/monitor-impact-1400.avif 1400w" sizes="(max-width: 560px) calc(100vw - 80px), (max-width: 980px) calc(100vw - 160px), 560px"><source type="image/webp" srcset="/assets/mock/monitor-impact-480.webp 480w, /assets/mock/monitor-impact-720.webp 720w, /assets/mock/monitor-impact-1080.webp 1080w, /assets/mock/monitor-impact-1400.webp 1400w" sizes="(max-width: 560px) calc(100vw - 80px), (max-width: 980px) calc(100vw - 160px), 560px"><img class="photo" src="/assets/mock/monitor-impact-1080.webp" width="1400" height="1000" loading="lazy" decoding="async" alt="The impact screen on a desktop screen, with example data: tiles for alerts sent, acknowledged, time to respond, action taken and parents told, above a chart of alerts each week."></picture>
         <figcaption class="panel__cap">Demo · example numbers, not pilot results</figcaption>
       </figure>
     </div>
@@ -550,7 +582,7 @@
       </div>
       <figure class="split__shot">
         <div class="wall">
-          <img class="board-img" src="/assets/mock/whiteboard-700.webp" srcset="/assets/mock/whiteboard-700.webp 700w, /assets/mock/whiteboard-1416.webp 1416w" sizes="(max-width: 980px) 86vw, 560px" width="1416" height="1027" loading="lazy" decoding="async" alt="The classroom screen on a classroom whiteboard, with example data: ‘Our classroom is ready for learning’, tiles for temperature, fresh air, dust and humidity, each with a three-step meter, the weather outside and a Climate Detective question.">
+          <picture><source type="image/avif" srcset="/assets/mock/whiteboard-480.avif 480w, /assets/mock/whiteboard-720.avif 720w, /assets/mock/whiteboard-1080.avif 1080w, /assets/mock/whiteboard-1400.avif 1400w" sizes="(max-width: 560px) calc(100vw - 80px), (max-width: 980px) calc(100vw - 160px), 560px"><source type="image/webp" srcset="/assets/mock/whiteboard-480.webp 480w, /assets/mock/whiteboard-720.webp 720w, /assets/mock/whiteboard-1080.webp 1080w, /assets/mock/whiteboard-1400.webp 1400w" sizes="(max-width: 560px) calc(100vw - 80px), (max-width: 980px) calc(100vw - 160px), 560px"><img class="board-img" src="/assets/mock/whiteboard-1080.webp" width="1400" height="1015" loading="lazy" decoding="async" alt="The classroom screen on a classroom whiteboard, with example data: ‘Our classroom is ready for learning’, tiles for temperature, fresh air, dust and humidity, each with a three-step meter, the weather outside and a Climate Detective question."></picture>
         </div>
         <figcaption class="panel__cap">Example data, not real readings</figcaption>
       </figure>
