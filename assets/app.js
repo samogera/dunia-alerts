@@ -70,7 +70,9 @@ const ICONS = {
   plus: '<path d="M12 5v14M5 12h14"/>',
   arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
 };
-const icon = (n) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+// Same duotone icon set as the website (assets/icons.svg, Phosphor Icons, MIT); the line icons above stay as a fallback list of names.
+const SPRITE = { air: 'air', rain: 'rain', heat: 'heat', river: 'river', bell: 'act', copy: 'copy', down: 'down', up: 'up', phone: 'call', chat: 'whatsapp', sms: 'parents', refresh: 'refresh', plus: 'plus', arrow: 'arrow' };
+const icon = (n) => SPRITE[n] ? `<svg class="pi" aria-hidden="true"><use href="/assets/icons.svg#${SPRITE[n]}"/></svg>` : `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`;
 const hzMark = (a) => { const h = hazardOf(a); return `<span class="hz" style="--c:${h.c}">${icon(a.hazard)}</span>`; };
 const chip = (c, text) => `<span class="lvl" style="--c:${c}">${esc(text)}</span>`;
 
@@ -360,7 +362,7 @@ function statTiles(d) {
 function attentionRow(x, now) {
   const c = x.hazard === 'air' ? airBand(x.value).c : WEATHER[x.hazard].c;
   const when = whenText(x, now);
-  return `<div class="suggest"><span class="hz" style="--c:${c}">${icon(x.hazard)}</span>
+  return `<div class="suggest"><span class="hz" style="--c:${c}">${icon(x.kind === 'river' ? 'river' : x.hazard)}</span>
       <span class="arow__main"><b>${esc(x.s.name)}</b><span>${esc(x.text)}</span></span>
       <span class="suggest__when">${esc(when)}</span>
       <span class="btns"><button class="btn btn--sm" type="button" data-action="review" data-id="${esc(x.s.id)}" data-v="${x.hazard}" data-val="${x.hazard === 'rain' ? '' : r1(x.value)}" data-when="${esc(when === 'Now' ? '' : when)}">Prepare alert</button><button class="btn btn--sm btn--quiet" type="button" data-action="dismiss" data-id="${esc(x.s.id)}" data-v="${x.hazard}${x.kind || ''}">Dismiss</button></span></div>`;
@@ -423,7 +425,7 @@ function mapSVG(d) {
     if (sel) b += `<polygon points="${P([iso(u - o, v - o), iso(u + o, v - o), iso(u + o, v + o), iso(u - o, v + o)])}" fill="rgba(23,72,59,.06)" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>`;
     b += schoolBuilding(u, v, sc);
     b += pin.svg;
-    if (!tight || sel) b += `<text x="${bx}" y="${by + 16 + fs}" text-anchor="middle" font-size="${fs}" fill="${sel ? 'var(--accent)' : 'var(--muted)'}" font-weight="${sel ? 600 : 400}">${esc(s.area)}</text>`;
+    if (!tight || sel) b += `<text x="${bx}" y="${(by + (sel ? 2 * o * ISO.B + fs * 0.95 + 3 : 16 + fs)).toFixed(1)}" text-anchor="middle" font-size="${fs}" fill="${sel ? 'var(--accent)' : 'var(--muted)'}" font-weight="${sel ? 600 : 400}">${esc(s.area)}</text>`;
     g += b + '</g>';
   });
   const vx = L[0] - 10, vy = minY - 6, vh = B[1] + 10 - vy;
@@ -476,7 +478,7 @@ function pinAt([x, y], hex, label, fs, sel, open) {
   svg += `<path d="${tip}" fill="${hex}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>`;
   const tf = Math.min(r * 0.78, fs * 0.95) * (label.length > 4 ? 0.86 : 1);
   svg += `<text x="${x}" y="${(cy + tf * 0.36).toFixed(1)}" text-anchor="middle" font-size="${tf.toFixed(1)}" font-weight="700" fill="${ink}" style="font-variant-numeric:tabular-nums">${esc(label)}</text>`;
-  if (open) svg += `<circle cx="${x + r * 0.78}" cy="${cy - r * 0.72}" r="5" fill="var(--wait)" stroke="#fff" stroke-width="1.6"/><circle cx="${x + r * 0.78}" cy="${cy - r * 0.72}" r="9" fill="none" stroke="var(--wait)" stroke-opacity=".35" stroke-width="2"/>`;
+  if (open) { const dx = x + r * 0.98, dy = cy - r * 0.9; svg += `<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="8" fill="none" stroke="var(--wait)" stroke-opacity=".3" stroke-width="2"/><circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="4.5" fill="var(--wait)" stroke="#fff" stroke-width="1.5"/>`; }
   return { svg, top: cy - r - (open ? 8 : 4) };
 }
 function scaleBar(pm) {

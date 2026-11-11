@@ -4,11 +4,11 @@
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const TABS = [
-  ['overview', 'Overview', '<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>'],
-  ['desk', 'School desk', '<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1.5"/><path d="m9 14 2 2 4-4"/>'],
-  ['parents', 'Parents', '<path d="M4 18V7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H8z"/><path d="M8.5 9h7M8.5 12.5h4.5"/>'],
-  ['impact', 'Impact', '<path d="M4 20h16"/><rect x="6" y="11" width="3" height="6" rx="1"/><rect x="10.5" y="6" width="3" height="11" rx="1"/><rect x="15" y="13" width="3" height="4" rx="1"/>'],
-  ['schools', 'Schools', '<path d="M3 20h18"/><path d="M5 20V10l7-5 7 5v10"/><path d="M10 20v-5h4v5"/>'],
+  ['overview', 'Overview', 'overview'],
+  ['desk', 'School desk', 'desk'],
+  ['parents', 'Parents', 'parents'],
+  ['impact', 'Impact', 'impact'],
+  ['schools', 'Schools', 'school'],
 ];
 
 function dashboard({ mode, user }) {
@@ -17,7 +17,7 @@ function dashboard({ mode, user }) {
   const desc = live
     ? 'The Dunia Alerts pilot dashboard for the Dunia team.'
     : 'Try the Dunia Alerts dashboard with made-up schools and example data: early warnings for air, heat, rain and rivers at schools in Nairobi.';
-  const tabs = TABS.map(([v, label, svg]) => `<button type="button" data-view="${v}"><svg viewBox="0 0 24 24" aria-hidden="true">${svg}</svg><span>${label}</span></button>`).join('\n      ');
+  const tabs = TABS.map(([v, label, ic]) => `<button type="button" data-view="${v}"><svg class="pi" aria-hidden="true"><use href="/assets/icons.svg#${ic}"/></svg><span>${label}</span></button>`).join('\n      ');
   const end = live
     ? `<span class="who-chip" title="Signed in as ${esc(user)}"><span class="who-dot" aria-hidden="true"></span><span class="who-name">${esc(user)}</span></span>
       <button type="button" class="btn-ghost" data-signout>Sign out</button>`

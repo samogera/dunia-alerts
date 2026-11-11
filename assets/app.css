@@ -444,7 +444,9 @@ body { font-size: 14.5px; }
 .note--live { box-shadow: inset 0 0 0 1px rgba(23, 72, 59, .12); }
 .demo-chip { box-shadow: inset 0 0 0 1px rgba(107, 74, 6, .12); }
 .btn-ghost { height: 34px; padding: 0 15px; }
-.phone { border-radius: 40px; padding: 9px; background: #0F1713; box-shadow: 0 30px 60px -36px rgba(15, 23, 19, .6); }
+.phone { border-radius: 42px; padding: 6px; background: linear-gradient(160deg, #2A2F2D, #0B0D0C 40%); box-shadow: inset 0 0 0 1.5px #3A403D, 0 0 0 1px #8E9590, 0 30px 60px -36px rgba(15, 23, 19, .6); }
+.phone__screen { border-radius: 36px; }
+.phone__avatar { font-size: 0; background: url(mark.svg) center / cover; box-shadow: 0 2px 6px -2px rgba(14, 53, 43, .5); }
 .phone__screen { border-radius: 32px; background: #fff; box-shadow: none; }
 .foot { border-top-color: var(--line); }
 @media (max-width: 720px) {
@@ -456,3 +458,10 @@ body { font-size: 14.5px; }
   .card { padding: 18px; }
   .tile { padding: 14px 16px; }
 }
+
+/* duotone icons from the website's set: filled, not stroked */
+svg.pi { fill: currentColor !important; stroke: none !important; flex: none; }
+.tabs svg.pi { width: 18px; height: 18px; }
+.btn svg.pi { width: 17px; height: 17px; }
+.hz svg.pi { width: 21px; height: 21px; }
+@media (max-width: 720px) { .tabs svg.pi { width: 22px; height: 22px; } }
