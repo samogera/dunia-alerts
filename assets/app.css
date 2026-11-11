@@ -613,6 +613,7 @@ svg.pi { fill: currentColor !important; stroke: none !important; flex: none; }
 .su-org { margin: 4px 0 0; font-size: 15px; color: var(--ink-2); font-weight: 550; }
 .su-facts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .su-facts span { font-size: 12.5px; color: var(--ink-2); padding: 3px 9px; border-radius: 999px; background: var(--soft); box-shadow: inset 0 0 0 1px var(--line); }
+.su-facts .su-src { background: var(--accent-soft); box-shadow: inset 0 0 0 1px rgba(23, 72, 59, .14); color: var(--accent-2); font-weight: 600; }
 .su-facts .su-tag { background: #FFF6E6; box-shadow: inset 0 0 0 1px #F3DFB8; color: #6B4A06; }
 .su-msg { margin: 12px 0 0; padding: 10px 14px; border-radius: 12px; background: var(--soft); border-left: 3px solid var(--line-2); font-size: 14px; color: var(--ink-2); white-space: pre-wrap; overflow-wrap: anywhere; }
 .su-contact { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: 13.5px; font-weight: 600; }

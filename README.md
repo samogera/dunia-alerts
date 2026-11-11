@@ -26,6 +26,7 @@ Every step is timed, so the pilot can show how quickly schools act.
 - The team reads them at **`/pilot/signups`** (signed in; also linked as **Sign-ups** in the pilot header): filter by status (New, Contacted, Joined, Not now), search, keep a short team note, delete a reply when someone asks, and download a CSV (cells are guarded so they cannot run as spreadsheet formulas).
 - Spam guard: a hidden field people never see, a minimum time on the page, five replies per network per hour, and at most 5,000 replies kept.
 - `/join?role=funder` (or `partner`, `gov`, `head`…) opens the form with that choice made.
+- `?src=qr` (or any short word, such as `?src=poster`) is kept with the reply and shown as "Via QR code" on the team list, so you can see which links work. The printed QR code (`assets/docs/join-qr.svg` and `.png`) opens `https://alerts.duniaendelevu.org/join?src=qr`.
 
 ## Sign-in for the pilot
 

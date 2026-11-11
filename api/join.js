@@ -51,6 +51,7 @@ function check(body) {
   f.learners = typeof body.learners === 'string' && body.learners in LEARNERS ? body.learners : '';
   f.concerns = Array.isArray(body.concerns) ? [...new Set(body.concerns.filter((c) => typeof c === 'string' && CONCERNS[c]))] : [];
   f.message = clean(body.message, 1000, true);
+  f.src = typeof body.src === 'string' && /^[a-z0-9-]{1,24}$/.test(body.src) ? body.src : '';   // where the link came from, e.g. qr
   if (body.consent !== true) bad.push('consent');
   return { f, bad };
 }

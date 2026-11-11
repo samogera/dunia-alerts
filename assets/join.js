@@ -11,7 +11,10 @@
   var NAMES = { role: 'who you are', name: 'your name', email: 'a working email', phone: 'a phone number with digits only', org: 'the name of your school or organisation', consent: 'your OK for us to contact you' };
 
   // Arriving from "Partner with us" or a link like /join?role=funder: choose that role for them.
-  var want = new URLSearchParams(location.search).get('role');
+  var params = new URLSearchParams(location.search);
+  var want = params.get('role');
+  // Where the link was shared (?src=qr on the printed QR code), kept with the reply so the team knows what works.
+  var src = String(params.get('src') || params.get('utm_source') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 24);
   if (want && $('role').querySelector('option[value="' + want.replace(/[^a-z]/g, '') + '"]')) $('role').value = want;
 
   function show(kind, html) { msg.className = 'msg msg--' + kind; msg.innerHTML = html; msg.hidden = false; }
@@ -33,7 +36,7 @@
     return {
       role: $('role').value, name: $('name').value.trim(), email: $('email').value.trim(), phone: $('phone').value.trim(),
       org: $('org').value.trim(), area: $('area').value.trim(), learners: $('learners').value, concerns: concerns,
-      message: $('message').value.trim(), consent: $('consent').checked, website: $('website').value, t: Date.now() - started
+      message: $('message').value.trim(), consent: $('consent').checked, website: $('website').value, src: src, t: Date.now() - started
     };
   }
   function problems(v) {

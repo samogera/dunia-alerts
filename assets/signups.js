@@ -103,6 +103,7 @@
       wa ? h('a', { class: 'su-wa', href: wa, target: '_blank', rel: 'noopener', text: 'WhatsApp' }) : null
     ]);
     var facts = h('div', { class: 'su-facts' }, [
+      it.src ? h('span', { class: 'su-src', text: it.src === 'qr' ? 'Via QR code' : 'Via ' + it.src }) : null,
       it.area ? h('span', { text: it.area }) : null,
       it.learners && labels.learners[it.learners] ? h('span', { text: labels.learners[it.learners] + (it.learners === 'na' ? '' : ' learners') }) : null
     ].concat((it.concerns || []).map(function (c) { return h('span', { class: 'su-tag', text: labels.concerns[c] || c }); })));
@@ -164,10 +165,10 @@
     return '"' + s.replace(/"/g, '""') + '"';
   }
   function csv() {
-    var head = ['Received', 'Status', 'Name', 'Role', 'Email', 'Phone', 'School or organisation', 'Area', 'Learners', 'Concerns', 'Message', 'Team note'];
+    var head = ['Received', 'Status', 'Name', 'Role', 'Email', 'Phone', 'School or organisation', 'Area', 'Learners', 'Concerns', 'Message', 'Team note', 'Came from'];
     var rows = items.filter(matches).map(function (it) {
       return [it.at, labels.status[it.status] || it.status, it.name, labels.roles[it.role] || it.role, it.email, it.phone, it.org, it.area,
-        labels.learners[it.learners] || '', (it.concerns || []).map(function (c) { return labels.concerns[c] || c; }).join('; '), it.message, it.note];
+        labels.learners[it.learners] || '', (it.concerns || []).map(function (c) { return labels.concerns[c] || c; }).join('; '), it.message, it.note, it.src === 'qr' ? 'QR code' : (it.src || 'Website')];
     });
     var text = '﻿' + [head].concat(rows).map(function (r) { return r.map(cell).join(','); }).join('\r\n');
     var url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
