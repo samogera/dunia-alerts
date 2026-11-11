@@ -194,11 +194,14 @@ function initLive() {
 let live = initLive();
 function saveLive() { if (!write(KEY, live)) toast('This browser isn’t saving. Download a backup from Schools before you close the page.'); }
 const prefs = read(PREF) || {};
+// /demo and /pilot each lock the dashboard to one mode (set on <html data-mode>); the signed-in person comes from the page.
+const LOCK = ['demo', 'live'].includes(document.documentElement.dataset.mode) ? document.documentElement.dataset.mode : null;
+const USER = (document.querySelector('meta[name="da-user"]') || {}).content || '';
 
 /* ---------- State ---------- */
 const VIEWS = ['overview', 'desk', 'parents', 'impact', 'schools'];
 const state = {
-  mode: prefs.mode === 'live' || prefs.mode === 'demo' ? prefs.mode : 'live', sensors: null,
+  mode: LOCK || (prefs.mode === 'live' || prefs.mode === 'demo' ? prefs.mode : 'live'), sensors: null,
   view: 'overview', schoolId: null, alertId: null, panel: null, filter: 'open', showAll: false, channel: 'sms',
   editing: null, removing: null, fetching: false, fetchError: false, dismissed: new Set(), demo: buildDemo(),
   draft: { hazard: 'air', value: '', step: '', actions: [], note: '', result: '', reason: '' },
@@ -214,7 +217,7 @@ const schoolName = (a) => (schoolById(a.schoolId) || {}).name || a.schoolName ||
 const openAlertFor = (sid) => data().alerts.find((a) => a.schoolId === sid && !a.closedAt);
 const statusOf = (a) => a.dismissedAt ? 'dismissed' : a.expiredAt ? 'expired' : a.closedAt ? (a.ackAt ? 'closed' : 'missed') : a.actionAt ? 'acted' : a.ackAt ? 'acknowledged' : a.escalatedAt ? 'escalated' : 'waiting';
 const STATUS = { waiting: ['Waiting for reply', 'var(--wait)'], escalated: ['Escalated', 'var(--bad)'], acknowledged: ['Acknowledged', 'var(--sun)'], acted: ['Action recorded', 'var(--rain)'], closed: ['Closed', 'var(--ok)'], missed: ['No response', 'var(--bad)'], expired: ['Expired', 'var(--bad)'], dismissed: ['Dismissed', 'var(--faint)'] };
-const who = () => state.mode === 'demo' ? 'Practice user' : (prefs.who || 'Dunia team');
+const who = () => state.mode === 'demo' ? 'Practice user' : (prefs.who || USER || 'Dunia team');
 function addLog(a, at, what, detail, by) {
   a.log = Array.isArray(a.log) ? a.log : [];
   a.log.push({ at, by: by || who(), what, detail: String(detail || '').slice(0, 200) });
@@ -326,7 +329,7 @@ function emptyLive() {
       ${tile('Tomorrow', c.days && c.days[1] ? `${Math.round(c.days[1].tmax)}° <small>high</small>` : '–', c.days && c.days[1] ? `Rain ${c.days[1].rainChance ?? '–'}% · ${r1(c.days[1].rainMm || 0)} mm` : '')}
       ${tile('Air tomorrow', c.fc ? (() => { const m = Math.max(...c.fc.hours.filter((h) => sameDay(h.t, Date.now() + DAY)).map((h) => h.pm).filter((x) => x != null)); return isFinite(m) ? `${aqi(m)} <small>AQI peak</small>` : '–'; })() : '–', 'Forecast, city centre')}
     </section>` : '';
-  return city + `<section class="card"><div class="empty"><span class="h">Add your pilot schools</span><span>Each school gets live air and weather readings, a 48-hour forecast and alerts. The figures above are for Nairobi city centre.</span><button class="btn" type="button" data-goto="schools">${icon('plus')}Add a school</button><button class="link" type="button" data-mode="demo">Or try practice mode</button></div></section>`;
+  return city + `<section class="card"><div class="empty"><span class="h">Add your pilot schools</span><span>Each school gets live air and weather readings, a 48-hour forecast and alerts. The figures above are for Nairobi city centre.</span><button class="btn" type="button" data-goto="schools">${icon('plus')}Add a school</button><button class="link" type="button" data-mode="demo">Or try the demo</button></div></section>`;
 }
 const tile = (label, value, sub) => `<div class="tile"><span class="label">${label}</span><span class="tile__value num">${value}</span><span class="tile__sub">${sub}</span></div>`;
 
@@ -678,7 +681,7 @@ function viewSchools() {
     ${d.schools.length ? `<div class="tablewrap"><table><thead><tr><th>School</th><th>PM2.5 now</th><th class="hide-sm">Today</th><th class="hide-sm">Head teacher</th>${isLive ? '<th></th>' : ''}</tr></thead><tbody>${rows}</tbody></table></div>`
       : '<div class="empty" style="padding:24px"><span>No schools yet. Add the first one.</span></div>'}</section>`;
   if (!isLive) {
-    return `<div class="grid-main">${list}<aside class="stack"><section class="card"><span class="label">Practice mode</span><p style="margin:10px 0 16px">These are made-up schools for training. Switch to Live to add your pilot schools and get real readings.</p><button class="btn btn--block" type="button" data-mode="live">Switch to Live</button></section>${sourcesCard()}</aside></div>`;
+    return `<div class="grid-main">${list}<aside class="stack"><section class="card"><span class="label">Demo</span><p style="margin:10px 0 16px">These are made-up schools, so you can try every step safely. The live pilot, with real schools and readings, is for the Dunia team.</p><a class="btn btn--block" href="/login">Pilot sign in</a></section>${sourcesCard()}</aside></div>`;
   }
   const e = state.editing ? live.schools.find((s) => s.id === state.editing) : null;
   const form = `<section class="card"><div class="card__head"><h2 class="card__title">${e ? 'Edit school' : 'Add a school'}</h2>${e ? '<button class="link" type="button" data-action="cancel-edit">Cancel</button>' : ''}</div>
@@ -873,6 +876,7 @@ function setView(v, focus) {
 }
 function setMode(m) {
   if (m === state.mode) return;
+  if (LOCK) { location.href = m === 'live' ? '/pilot' : '/demo'; return; }
   state.mode = m; state.schoolId = null; state.alertId = null; state.panel = null; state.editing = null; resetDraft();
   prefs.mode = m; write(PREF, prefs);
   render();
@@ -1034,10 +1038,16 @@ function cleanAlert(a) {
     log: Array.isArray(a.log) ? a.log.slice(-60).filter((e) => e && num(e.at)).map((e) => ({ at: e.at, by: str(e.by, 60), what: str(e.what, 40), detail: str(e.detail, 200) })) : [] };
 }
 
+function signOut() {
+  fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+    .catch(() => null).then(() => { location.href = '/login?signed_out=1'; });
+}
+
 /* ---------- Events ---------- */
 document.addEventListener('click', (e) => {
   const t = e.target.closest('[data-view]'); if (t) { setView(t.dataset.view, true); return; }
-  const m = e.target.closest('[data-mode]'); if (m) { setMode(m.dataset.mode); return; }
+  const m = e.target.closest('[data-mode]:not(html)'); if (m) { setMode(m.dataset.mode); return; }
+  if (e.target.closest('[data-signout]')) { signOut(); return; }
   const g = e.target.closest('[data-goto]'); if (g) { setView(g.dataset.goto, true); return; }
   const b = e.target.closest('[data-action]'); if (b && !b.disabled) { if (b.tagName === 'A') return; act(b); }
 });

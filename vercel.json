@@ -12,9 +12,38 @@
       ],
       "destination": "https://alerts.duniaendelevu.org/:path",
       "permanent": true
+    },
+    {
+      "source": "/about",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/signin",
+      "destination": "/login",
+      "permanent": true
+    },
+    {
+      "source": "/sign-in",
+      "destination": "/login",
+      "permanent": true
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/pilot",
+      "permanent": false
+    },
+    {
+      "source": "/live",
+      "destination": "/pilot",
+      "permanent": false
     }
   ],
   "rewrites": [
+    {
+      "source": "/pilot",
+      "destination": "/api/pilot"
+    },
     {
       "source": "/api/v1/classrooms/:room/latest",
       "destination": "/api/v1/classroom?room=:room"
@@ -81,6 +110,54 @@
         {
           "key": "Cache-Control",
           "value": "public, s-maxage=600, stale-while-revalidate=1800"
+        }
+      ]
+    },
+    {
+      "source": "/login",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, private"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/pilot",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, private"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/api/auth/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, private"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/assets/shots/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=86400"
         }
       ]
     }

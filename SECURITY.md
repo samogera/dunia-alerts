@@ -6,7 +6,8 @@ Please report security issues privately to **hello@duniaendelevu.org** (or throu
 
 ## How Dunia Alerts protects data
 
-- **No accounts, no cookies, no analytics.** Nothing identifies a visitor.
+- **No tracking, no analytics.** Nothing identifies a visitor. The home page, the demo and the classroom screen set no cookies.
+- **Private sign-in for the live pilot.** Only accounts the team creates can open `/pilot`. Passwords are hashed with scrypt and never stored or logged. The session is a signed, HttpOnly, Secure, SameSite=Strict `__Host-` cookie that ends after 12 hours or at sign-out (signed-out sessions are refused even if copied). Sign-in only accepts requests from this site's own pages, gives the same answer for an unknown email and a wrong password, and allows 20 tries per network and 6 per account every 15 minutes. Signed-in pages are never cached or indexed.
 - **Records stay on the device.** Schools, alerts and responses are saved in the browser of the device the Dunia team uses, and in the backups the team downloads. No pilot record is sent to a server.
 - **No children's names.** The app records what a school did, never who.
 - **Secrets stay on the server.** The optional OpenAQ key lives only in Vercel's environment variables and is used by `api/sensors.js`. The function only answers GET requests, chooses the area itself, and its answer is cached for 10 minutes.

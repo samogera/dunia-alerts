@@ -3,63 +3,375 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dunia Alerts · Live early warnings for Nairobi schools</title>
-<meta name="description" content="Live air quality, heat, heavy rain and river warnings for Nairobi schools, up to 48 hours ahead, with one clear step for head teachers and messages for parents in English and Kiswahili. A Dunia Endelevu pilot.">
+<title>Dunia Alerts · Early warnings that reach children at school</title>
+<meta name="description" content="Dunia Alerts warns Nairobi schools about unhealthy air, heat, heavy rain and rising rivers up to 48 hours ahead, and helps head teachers act in time. Try the demo, or sign in to the live pilot. A Dunia Endelevu pilot led by Alana Chelangat.">
 <link rel="canonical" href="https://alerts.duniaendelevu.org/">
+<meta name="theme-color" content="#F2F3F1">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dunia Alerts">
-<meta property="og:title" content="Dunia Alerts · Live early warnings for Nairobi schools">
-<meta property="og:description" content="Air, heat, heavy rain and river warnings for schools, up to 48 hours ahead. A Dunia Endelevu pilot led by Alana Chelangat.">
+<meta property="og:title" content="Dunia Alerts · Early warnings that reach children at school">
+<meta property="og:description" content="Air, heat, rain and river warnings for Nairobi schools, with one clear step for the head teacher and messages for parents in English and Kiswahili.">
 <meta property="og:url" content="https://alerts.duniaendelevu.org/">
 <meta property="og:image" content="https://alerts.duniaendelevu.org/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Dunia Alerts dashboard showing air quality at Nairobi schools and warnings for the next 48 hours">
+<meta property="og:locale" content="en_KE">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dunia Alerts · Early warnings that reach children at school">
+<meta name="twitter:description" content="Air, heat, rain and river warnings for Nairobi schools. A Dunia Endelevu pilot.">
 <meta name="twitter:image" content="https://alerts.duniaendelevu.org/og-image.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","@id":"https://alerts.duniaendelevu.org/#app","name":"Dunia Alerts","url":"https://alerts.duniaendelevu.org/","description":"Early warning dashboard for schools in Nairobi, Kenya: unhealthy air, heat, heavy rain and rising rivers up to 48 hours ahead.","applicationCategory":"EducationalApplication","operatingSystem":"Any (web browser)","inLanguage":["en","sw"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"KES"},"publisher":{"@type":"NGO","name":"Dunia Endelevu","url":"https://duniaendelevu.org/"}}</script>
-<meta name="theme-color" content="#F5F6F4">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
-<link rel="preload" href="assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/app.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+<script type="application/ld+json">{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "@id": "https://alerts.duniaendelevu.org/#app",
+   "name": "Dunia Alerts",
+   "url": "https://alerts.duniaendelevu.org/",
+   "description": "Early warning dashboard for schools in Nairobi, Kenya: unhealthy air, heat, heavy rain and rising rivers up to 48 hours ahead, with steps for head teachers and messages for parents in English and Kiswahili.",
+   "applicationCategory": "EducationalApplication",
+   "operatingSystem": "Any (web browser)",
+   "inLanguage": ["en", "sw"],
+   "isAccessibleForFree": true,
+   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KES" },
+   "areaServed": { "@type": "City", "name": "Nairobi", "containedInPlace": { "@type": "Country", "name": "Kenya" } },
+   "publisher": { "@id": "https://duniaendelevu.org/#organization" },
+   "screenshot": "https://alerts.duniaendelevu.org/og-image.png"
+  },
+  {
+   "@type": "NGO",
+   "@id": "https://duniaendelevu.org/#organization",
+   "name": "Dunia Endelevu",
+   "url": "https://duniaendelevu.org/",
+   "founder": { "@type": "Person", "name": "Alana Chelangat", "url": "https://alanachelangat.com/" },
+   "areaServed": "Kenya"
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    { "@type": "Question", "name": "Is Dunia Alerts free for schools?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Schools never pay. The pilot is run by Dunia Endelevu and supported by donors." } },
+    { "@type": "Question", "name": "Where does the data come from?", "acceptedAnswer": { "@type": "Answer", "text": "Weather forecasts from Open-Meteo, air quality from the Copernicus Atmosphere Monitoring Service, river flow from the Global Flood Awareness System, and, where available, ground sensors through OpenAQ, including AirQo sensors in Nairobi." } },
+    { "@type": "Question", "name": "Does a computer send the warnings?", "acceptedAnswer": { "@type": "Answer", "text": "No. The dashboard suggests an alert when a reading or forecast crosses a safe level. A person on the Dunia team checks it and decides to send it." } },
+    { "@type": "Question", "name": "Is the demo real?", "acceptedAnswer": { "@type": "Answer", "text": "No. The demo uses made-up schools and example data, so anyone can try every step safely. It is clearly marked, and nothing in it is a real reading or a real result." } },
+    { "@type": "Question", "name": "Who can sign in to the live pilot?", "acceptedAnswer": { "@type": "Answer", "text": "The Dunia team running the Nairobi pilot. There is no public sign-up: the team creates each account. Anyone can try the demo without signing in." } },
+    { "@type": "Question", "name": "What happens to children's information?", "acceptedAnswer": { "@type": "Answer", "text": "Dunia Alerts never records children's names. It records what the school did, how fast it replied and whether parents were told." } },
+    { "@type": "Question", "name": "Does the classroom screen collect anything about children?", "acceptedAnswer": { "@type": "Answer", "text": "No. It shows the room's temperature, fresh air (CO2), dust and humidity, and the weather outside. It has no camera or microphone, shows no names and has no controls for learners." } },
+    { "@type": "Question", "name": "Can another city or school network use it?", "acceptedAnswer": { "@type": "Answer", "text": "We hope so. Get in touch through Dunia Endelevu and we will share what we learn from the pilot." } }
+   ]
+  }
+ ]
+}</script>
 </head>
 <body>
-<a class="skip" href="#view">Skip to content</a>
-<div class="wrap">
-  <header class="top">
-    <a class="brand" href="#overview" aria-label="Dunia Alerts, overview">
-      <span class="brand__mark" aria-hidden="true"></span>
-      <span class="brand__name">Dunia Alerts</span>
-    </a>
-    <nav class="tabs" aria-label="Views">
-      <button type="button" data-view="overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg><span>Overview</span></button>
-      <button type="button" data-view="desk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1.5"/><path d="m9 14 2 2 4-4"/></svg><span>School desk</span></button>
-      <button type="button" data-view="parents"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H8z"/><path d="M8.5 9h7M8.5 12.5h4.5"/></svg><span>Parents</span></button>
-      <button type="button" data-view="impact"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><rect x="6" y="11" width="3" height="6" rx="1"/><rect x="10.5" y="6" width="3" height="11" rx="1"/><rect x="15" y="13" width="3" height="4" rx="1"/></svg><span>Impact</span></button>
-      <button type="button" data-view="schools"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18"/><path d="M5 20V10l7-5 7 5v10"/><path d="M10 20v-5h4v5"/></svg><span>Schools</span></button>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="nav__bar">
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia Alerts</a>
+    <nav class="nav__links" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#classroom">Classroom</a>
+      <a href="#faq">FAQ</a>
     </nav>
-    <div class="bar-end">
-      <a class="nav-about" href="about">About</a>
-      <div class="seg modes" role="group" aria-label="Data">
-        <button type="button" data-mode="live" aria-pressed="true">Live</button>
-        <button type="button" data-mode="demo" aria-pressed="false">Practice</button>
+    <div class="nav__end">
+      <a class="nav__signin" href="/login">Sign in</a>
+      <a class="btn btn--dark btn--sm" href="/demo"><span class="nav__long">See the demo</span><span class="nav__short">Demo</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="frame">
+<main id="main">
+
+  <section class="hero" aria-labelledby="top">
+    <a class="badge" href="#classroom"><b>New</b>Meet the classroom screen<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <h1 class="h1" id="top">Early warnings that reach children <span class="hl">at school</span></h1>
+    <p class="lede">Dunia Alerts watches the air, heat, heavy rain and rivers around Nairobi schools, up to 48 hours ahead. When danger is coming, the head teacher gets one clear step, and parents hear it in English and Kiswahili.</p>
+    <div class="btns">
+      <a class="btn btn--dark" href="/demo">See the demo<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="btn btn--light" href="/login"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Pilot sign in</a>
+    </div>
+    <p class="micro">Free for schools · No app to install · A Dunia Endelevu pilot</p>
+
+    <div class="shot">
+      <span class="chip chip--a"><span class="chip__ico" style="background:var(--accent)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>Up to 48 hours ahead</span>
+      <span class="chip chip--b"><span class="chip__ico" style="background:var(--rain)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="m16 11 2 2 4-4"/></svg></span>A person checks every alert</span>
+      <div class="shot__frame">
+        <div class="shot__bar" aria-hidden="true"><i></i><i></i><i></i><span>alerts.duniaendelevu.org/demo</span></div>
+        <img class="shot__img" src="/assets/shots/overview.webp" srcset="/assets/shots/overview-960.webp 960w, /assets/shots/overview.webp 1920w" sizes="(max-width: 1060px) 92vw, 980px" width="1920" height="960" fetchpriority="high" alt="The Dunia Alerts overview with example data: open alerts, the worst air now, warnings for the next 48 hours and the time schools take to respond, above a list of schools that need attention.">
       </div>
     </div>
-  </header>
-  <div class="note" id="note" role="status"></div>
-  <main id="view" tabindex="-1">
-    <section class="card"><div class="empty"><h1 class="h">Live early warnings for Nairobi schools</h1><p>Dunia Alerts watches air quality, heat, heavy rain and rivers around pilot schools, up to 48 hours ahead, and helps head teachers act in time.</p><noscript><p>The live dashboard needs JavaScript. Read <a href="about">how Dunia Alerts works</a>.</p></noscript></div></section>
-  </main>
-  <footer class="foot">
-    <span>A <a href="https://duniaendelevu.org/" rel="noopener">Dunia Endelevu</a> pilot, led by Alana Chelangat.</span>
-    <span>Data: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (weather, Copernicus CAMS air, GloFAS rivers), <a href="https://openaq.org/" target="_blank" rel="noopener">OpenAQ</a> sensors when connected. Air bands: US EPA AQI (2024).</span>
-  </footer>
+  </section>
+
+  <div class="strip">
+    <span class="strip__label">Reads open data from</span>
+    <ul class="strip__list">
+      <li>Open-Meteo</li>
+      <li>Copernicus CAMS</li>
+      <li>GloFAS</li>
+      <li>OpenAQ</li>
+      <li>AirQo</li>
+      <li>US EPA AQI</li>
+    </ul>
+  </div>
+
+  <section class="sec" aria-labelledby="why">
+    <h2 class="sr" id="why">Why schools</h2>
+    <p class="sentence">Children feel <span class="nw"><span class="tag"><i style="background:var(--air)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h10a3 3 0 1 0-3-3"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 16h6"/></svg></i>dirty air</span>,</span> <span class="tag"><i style="background:var(--heat)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0z"/></svg></i>heat</span> and <span class="tag"><i style="background:var(--rain)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15a4 4 0 0 1-.5-8A6 6 0 0 1 18 8.5 3.5 3.5 0 0 1 17.5 15"/><path d="m9 18-1 2.5M13 18l-1 2.5M17 17l-1 2.5"/></svg></i>floods</span> first, and on weekdays most of them are at <span class="nw"><span class="tag"><i style="background:var(--accent)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18"/><path d="M5 20V10l7-5 7 5v10"/><path d="M10 20v-5h4v5"/></svg></i>school</span>.</span> <span class="soft">A warning that never reaches the school never reaches them.</span></p>
+    <div class="stats">
+      <div class="stat"><b>93%</b><p>of the world’s children under 15 breathe air dirtier than the WHO guidelines.</p><small><a href="https://www.paho.org/en/news/29-10-2018-more-90-worlds-children-breathe-toxic-air-every-day" rel="noopener">WHO, 2018</a></small></div>
+      <div class="stat"><b>3.7×</b><p>Nairobi’s average fine dust over three years, against the WHO yearly guideline.</p><small><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11115977" rel="noopener">Environmental Epidemiology, 2024</a></small></div>
+      <div class="stat"><b>131,000+</b><p>people in Kenya forced from their homes by the 2024 floods, which also delayed the school term.</p><small><a href="https://nation.africa/kenya/news/education/cs-machogu-postpones-opening-of-schools-to-may-6-4606688" rel="noopener">Nation, 2024</a></small></div>
+      <div class="stat"><b>~60</b><p>countries still have no warning system for many dangers. The UN aims to cover everyone by 2027.</p><small><a href="https://www.climatechangenews.com/2026/09/23/despite-real-progress-third-of-countries-still-lack-early-warning-systems/" rel="noopener">Climate Home News, 2026</a></small></div>
+    </div>
+  </section>
+
+  <section class="sec center" id="how" aria-labelledby="how-h">
+    <span class="kicker">How it works</span>
+    <h2 class="h2" id="how-h">From a forecast to a safe school day.</h2>
+    <p class="sub">Every 15 minutes, for every pilot school.</p>
+    <ol class="steps">
+      <li class="step"><span class="step__n">01</span><span class="step__ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span><h3>Watch</h3><p>The dashboard reads air quality, weather and river forecasts for each school.</p></li>
+      <li class="step"><span class="step__n">02</span><span class="step__ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><h3>Spot it early</h3><p>It flags danger now and up to 48 hours ahead: dirty air, heavy rain, great heat or a rising river.</p></li>
+      <li class="step"><span class="step__n">03</span><span class="step__ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="m16 11 2 2 4-4"/></svg></span><h3>A person decides</h3><p>The Dunia team checks it, then sends the head teacher a short WhatsApp or SMS with one clear step.</p></li>
+      <li class="step"><span class="step__n">04</span><span class="step__ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><rect x="6" y="11" width="3" height="6" rx="1"/><rect x="10.5" y="6" width="3" height="11" rx="1"/><rect x="15" y="13" width="3" height="4" rx="1"/></svg></span><h3>Act and learn</h3><p>The school acts, parents are told, and every response is timed and recorded for the pilot report.</p></li>
+    </ol>
+  </section>
+
+  <section class="sec center" id="dashboard" aria-labelledby="dash-h">
+    <span class="kicker">The dashboard</span>
+    <h2 class="h2" id="dash-h">Everything the team needs, from warning to follow-up.</h2>
+    <p class="sub">The demo has made-up schools, so anyone can try every step. The live pilot uses the same screens with real readings.</p>
+    <div class="tabs" role="tablist" aria-label="Dashboard screens">
+      <button type="button" role="tab" id="t-overview" aria-controls="p-overview" aria-selected="true">Overview</button>
+      <button type="button" role="tab" id="t-desk" aria-controls="p-desk" aria-selected="false" tabindex="-1">School desk</button>
+      <button type="button" role="tab" id="t-parents" aria-controls="p-parents" aria-selected="false" tabindex="-1">Parents</button>
+      <button type="button" role="tab" id="t-impact" aria-controls="p-impact" aria-selected="false" tabindex="-1">Impact</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-overview" aria-labelledby="t-overview" tabindex="0">
+      <div>
+        <span class="panel__ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></span>
+        <h3>Every school, at a glance.</h3>
+        <ul class="ticks">
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Readings and forecasts for each school, refreshed every 15 minutes.</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Warnings up to 48 hours ahead, with when the danger is expected.</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Prepare an alert or dismiss it, once a person has checked.</li>
+        </ul>
+        <a class="more" href="/demo#overview">Open it in the demo<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <figure>
+        <img class="panel__shot" src="/assets/shots/overview-960.webp" srcset="/assets/shots/overview-960.webp 960w, /assets/shots/overview.webp 1920w" sizes="(max-width: 980px) 88vw, 620px" width="1920" height="960" loading="lazy" alt="The overview screen with example data: four summary tiles and a list of schools that need attention, each with Prepare alert and Dismiss buttons.">
+        <figcaption class="panel__cap">Demo · made-up schools and example data</figcaption>
+      </figure>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-desk" aria-labelledby="t-desk" tabindex="0" hidden>
+      <div>
+        <span class="panel__ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1.5"/><path d="m9 14 2 2 4-4"/></svg></span>
+        <h3>One clear step for the head teacher.</h3>
+        <ul class="ticks">
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Message the head teacher on WhatsApp or SMS in one tap.</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Record the reply, how fast it came and what the school did.</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Notes never hold pupils’ names.</li>
+        </ul>
+        <a class="more" href="/demo#desk">Open it in the demo<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <figure>
+        <img class="panel__shot" src="/assets/shots/desk-960.webp" srcset="/assets/shots/desk-960.webp 960w, /assets/shots/desk.webp 1920w" sizes="(max-width: 980px) 88vw, 620px" width="1920" height="1200" loading="lazy" alt="The school desk with example data: an unhealthy air alert, the step for the school, and a timeline from alert sent to the head teacher’s reply.">
+        <figcaption class="panel__cap">Demo · made-up schools and example data</figcaption>
+      </figure>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-parents" aria-labelledby="t-parents" tabindex="0" hidden>
+      <div>
+        <span class="panel__ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H8z"/><path d="M8.5 9h7M8.5 12.5h4.5"/></svg></span>
+        <h3>Parents hear it in two languages.</h3>
+        <ul class="ticks">
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Ready-made messages in English and Kiswahili.</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>SMS length counted, so the cost is clear before sending.</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Mark parents as told, for the pilot record.</li>
+        </ul>
+        <a class="more" href="/demo#parents">Open it in the demo<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <figure>
+        <img class="panel__shot" src="/assets/shots/parents-960.webp" srcset="/assets/shots/parents-960.webp 960w, /assets/shots/parents.webp 1920w" sizes="(max-width: 980px) 88vw, 620px" width="1920" height="1200" loading="lazy" alt="The parents screen with example data: the same alert as a text message in English and in Kiswahili, with Copy and Open SMS buttons.">
+        <figcaption class="panel__cap">Demo · made-up schools and example data</figcaption>
+      </figure>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-impact" aria-labelledby="t-impact" tabindex="0" hidden>
+      <div>
+        <span class="panel__ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><rect x="6" y="11" width="3" height="6" rx="1"/><rect x="10.5" y="6" width="3" height="11" rx="1"/><rect x="15" y="13" width="3" height="4" rx="1"/></svg></span>
+        <h3>Every response, timed and recorded.</h3>
+        <ul class="ticks">
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Alerts sent, answered and acted on, week by week.</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>How fast schools replied and what they did.</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Download the pilot record as a spreadsheet (CSV).</li>
+        </ul>
+        <a class="more" href="/demo#impact">Open it in the demo<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <figure>
+        <img class="panel__shot" src="/assets/shots/impact-960.webp" srcset="/assets/shots/impact-960.webp 960w, /assets/shots/impact.webp 1920w" sizes="(max-width: 980px) 88vw, 620px" width="1920" height="1200" loading="lazy" alt="The impact screen with example data: tiles for alerts sent, acknowledged, time to respond, action taken and parents told, above a chart of alerts each week.">
+        <figcaption class="panel__cap">Demo · example numbers, not pilot results</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec center" id="watch" aria-labelledby="watch-h">
+    <span class="kicker">What it watches</span>
+    <h2 class="h2" id="watch-h">Four dangers. One clear line for each.</h2>
+    <p class="sub">When a reading or forecast crosses the line, the team is asked to check it.</p>
+    <div class="hazards">
+      <article class="hz">
+        <span class="hz__ico" style="background:var(--air)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h10a3 3 0 1 0-3-3"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 16h6"/></svg></span>
+        <h3>Unhealthy air</h3>
+        <div class="hz__when">PM2.5 ≥ 35.5 µg/m³</div>
+        <p>PE indoors; children with asthma stay inside.</p>
+        <small>Copernicus CAMS · ground sensors</small>
+      </article>
+      <article class="hz">
+        <span class="hz__ico" style="background:var(--rain)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15a4 4 0 0 1-.5-8A6 6 0 0 1 18 8.5 3.5 3.5 0 0 1 17.5 15"/><path d="m9 18-1 2.5M13 18l-1 2.5M17 17l-1 2.5"/></svg></span>
+        <h3>Heavy rain</h3>
+        <div class="hz__when">≥ 30 mm in a day</div>
+        <p>Away from drains; a safe early release.</p>
+        <small>Open-Meteo · Kenya Met Department</small>
+      </article>
+      <article class="hz">
+        <span class="hz__ico" style="background:var(--heat)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0z"/></svg></span>
+        <h3>Great heat</h3>
+        <div class="hz__when">A high of 30 °C or more</div>
+        <p>Water breaks, shade, and PE early in the day.</p>
+        <small>Open-Meteo forecast</small>
+      </article>
+      <article class="hz">
+        <span class="hz__ico" style="background:var(--river)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8c2 0 2-1.5 4.5-1.5S10 8 12 8s2.5-1.5 4.5-1.5S19 8 21 8"/><path d="M3 13c2 0 2-1.5 4.5-1.5S10 13 12 13s2.5-1.5 4.5-1.5S19 13 21 13"/><path d="M3 18c2 0 2-1.5 4.5-1.5S10 18 12 18s2.5-1.5 4.5-1.5S19 18 21 18"/></svg></span>
+        <h3>Rising river</h3>
+        <div class="hz__when">Twice its usual flow</div>
+        <p>Check routes home; plan the release.</p>
+        <small>Global Flood Awareness System</small>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" id="classroom" aria-labelledby="room-h">
+    <div class="split">
+      <div>
+        <span class="kicker">New · Classroom screen</span>
+        <h2 class="h2" id="room-h">The warning, inside the room where children learn.</h2>
+        <p class="sub sub--left">A wall screen shows the classroom’s fresh air, temperature and dust, and the weather outside, in English and Kiswahili.</p>
+        <ul class="ticks">
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Built.</b> The screen, and a secure link for indoor sensors that checks every reading before it is shown.</span></li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Honest by design.</b> When readings are old, it says “Data not current” instead of looking live.</span></li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>A lesson every day.</b> A Climate Detective question turns the numbers into a class discussion.</span></li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Next, with funding.</b> Sensors in two pilot classrooms, compared over two school terms.</span></li>
+        </ul>
+        <div class="btns btns--left">
+          <a class="btn btn--light" href="/classroom?demo=1">Open the classroom screen<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+      <figure class="split__shot">
+        <img class="panel__shot" src="/assets/shots/classroom-960.webp" srcset="/assets/shots/classroom-960.webp 960w, /assets/shots/classroom.webp 1920w" sizes="(max-width: 980px) 88vw, 600px" width="1920" height="1200" loading="lazy" alt="The classroom screen with example data: ‘Our classroom is ready for learning’, tiles for temperature, fresh air, dust and humidity, the weather outside and a Climate Detective question.">
+        <figcaption class="panel__cap">Example data, not real readings</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec center" id="trust" aria-labelledby="trust-h">
+    <span class="kicker">Built to be trusted</span>
+    <h2 class="h2" id="trust-h">Careful by design.</h2>
+    <div class="trust">
+      <div><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="m16 11 2 2 4-4"/></svg><h3>A person always decides</h3><p>The computer suggests. The Dunia team checks and sends.</p></div>
+      <div><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg><h3>Open data</h3><p>Every reading says where it came from: a ground sensor, a model or the team.</p></div>
+      <div><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><h3>Two languages</h3><p>Every parent message is in English and Kiswahili.</p></div>
+      <div><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="m17 8 4 4M21 8l-4 4"/></svg><h3>No children’s names</h3><p>Only what the school did, how fast it replied and whether parents were told.</p></div>
+      <div><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><h3>Free for schools</h3><p>Schools never pay. It works on any phone, with no app to install.</p></div>
+      <div class="status"><span class="dot">Status</span><div><h3>Built and live. Pilot starting in Nairobi.</h3><p>The dashboard runs on live data today, and the team is adding the first pilot schools. Results will be published openly.</p></div></div>
+    </div>
+  </section>
+
+  <section class="sec center" id="access" aria-labelledby="access-h">
+    <span class="kicker">Two ways in</span>
+    <h2 class="h2" id="access-h">Look around, or get to work.</h2>
+    <div class="ways">
+      <article class="way">
+        <span class="way__tag">Open to everyone</span>
+        <h3>Demo</h3>
+        <p>Made-up schools and example data. Try every step, from a warning to the pilot report.</p>
+        <ul class="ticks">
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>No sign-in needed</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Start over any time</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Clearly marked as example data</li>
+        </ul>
+        <a class="btn btn--dark btn--block" href="/demo">See the demo<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </article>
+      <article class="way way--pilot">
+        <span class="way__tag"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>For the Dunia team</span>
+        <h3>Live pilot</h3>
+        <p>Live readings and forecasts for the pilot schools, and the records the team keeps.</p>
+        <ul class="ticks">
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Private sign-in, checked on the server</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Each step records who took it</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Signs out after 12 hours</li>
+        </ul>
+        <a class="btn btn--light btn--block" href="/login"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Pilot sign in</a>
+      </article>
+    </div>
+    <p class="micro">No public sign-up. The Dunia team creates each account.</p>
+  </section>
+
+  <section class="sec sec--tight" aria-labelledby="fund-h">
+    <div class="band">
+      <div>
+        <h2 id="fund-h">Help a warning reach every child.</h2>
+        <p>The data is free. People, phones and sensors are not. Support pays for SMS to every parent, classroom sensors, training for head teachers, a login for every school and an open evaluation.</p>
+      </div>
+      <div class="btns">
+        <a class="btn btn--light" href="https://duniaendelevu.org/donate">Donate</a>
+        <a class="btn btn--ghost" href="https://duniaendelevu.org/contact">Partner with us</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec center" id="faq" aria-labelledby="faq-h">
+    <span class="kicker">FAQ</span>
+    <h2 class="h2" id="faq-h">Questions, answered.</h2>
+    <div class="faq">
+      <details><summary>Is Dunia Alerts free for schools?</summary><p>Yes. Schools never pay. The pilot is run by Dunia Endelevu and supported by donors.</p></details>
+      <details><summary>Where does the data come from?</summary><p>Weather forecasts from Open-Meteo, air quality from the Copernicus Atmosphere Monitoring Service, river flow from the Global Flood Awareness System, and, where available, ground sensors through OpenAQ, including AirQo sensors in Nairobi.</p></details>
+      <details><summary>Does a computer send the warnings?</summary><p>No. The dashboard suggests an alert when a reading or forecast crosses a safe level. A person on the Dunia team checks it and decides to send it.</p></details>
+      <details><summary>Is the demo real?</summary><p>No. The demo uses made-up schools and example data, so anyone can try every step safely. It is clearly marked, and nothing in it is a real reading or a real result.</p></details>
+      <details><summary>Who can sign in to the live pilot?</summary><p>The Dunia team running the Nairobi pilot. There is no public sign-up: the team creates each account. Anyone can try the demo without signing in. Lost your password? Write to <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>.</p></details>
+      <details><summary>What happens to children’s information?</summary><p>Dunia Alerts never records children’s names. It records what the school did, how fast it replied and whether parents were told. The pilot’s records stay on the Dunia team’s devices and in their backups.</p></details>
+      <details><summary>Does the classroom screen collect anything about children?</summary><p>No. It shows the room’s temperature, fresh air (CO₂), dust and humidity, and the weather outside. It has no camera or microphone, shows no names and has no controls for learners.</p></details>
+      <details><summary>Can another city or school network use it?</summary><p>We hope so. <a href="https://duniaendelevu.org/contact">Get in touch through Dunia Endelevu</a> and we will share what we learn from the pilot.</p></details>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div>
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia Alerts</a>
+    <p>A <a href="https://duniaendelevu.org/">Dunia Endelevu</a> pilot, led by <a href="https://alanachelangat.com/">Alana Chelangat</a>.</p>
+  </div>
+  <nav aria-label="Footer">
+    <a href="/demo">Demo</a>
+    <a href="/classroom?demo=1">Classroom screen</a>
+    <a href="/login">Pilot sign in</a>
+    <a href="https://duniaendelevu.org/contact">Contact</a>
+    <a href="https://duniaendelevu.org/donate">Donate</a>
+  </nav>
+  <p class="foot__note">Data: Open-Meteo (weather, Copernicus CAMS air, GloFAS rivers) and OpenAQ. Air bands: US EPA AQI (2024). © <span data-year>2026</span> Dunia Endelevu.</p>
+</footer>
 </div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<input type="file" id="restoreFile" accept="application/json,.json" hidden>
-<script src="assets/config.js"></script>
-<script src="assets/app.js"></script>
 </body>
 </html>

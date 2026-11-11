@@ -1,6 +1,9 @@
 # Dunia Alerts: public pages may be indexed, including by AI assistants.
+# The live pilot and sign-in are private.
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /pilot
+Disallow: /login
 
 Sitemap: https://alerts.duniaendelevu.org/sitemap.xml

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pilot sign in · Dunia Alerts</title>
+<meta name="description" content="Sign in to the Dunia Alerts live pilot. For the Dunia team. Anyone can try the demo with example schools.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F2F3F1">
+<meta name="referrer" content="same-origin">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/login.js" defer></script>
+</head>
+<body class="auth-page">
+<div class="auth">
+  <header class="auth__top">
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia Alerts</a>
+    <a class="back" href="/"><span aria-hidden="true">← </span>Back to home</a>
+  </header>
+
+  <main class="auth__main" id="main">
+    <div class="card">
+      <span class="card__lock" aria-hidden="true"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+      <h1>Pilot sign in</h1>
+      <p class="sub">For the Dunia team running the Nairobi pilot.</p>
+
+      <div class="msg msg--info" id="msg" role="alert" aria-live="assertive" hidden></div>
+
+      <form id="form" method="post" action="/api/auth/login" novalidate>
+        <label class="field" for="email"><span>Email</span>
+          <input class="input" id="email" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="254" required>
+        </label>
+        <label class="field" for="password"><span>Password</span>
+          <span class="pw">
+            <input class="input" id="password" name="password" type="password" autocomplete="current-password" maxlength="200" required>
+            <button type="button" id="reveal" aria-controls="password" aria-pressed="false">Show</button>
+          </span>
+        </label>
+        <button class="btn btn--dark btn--block" id="submit" type="submit">Sign in</button>
+        <noscript><p class="msg msg--bad">Sign in needs JavaScript. Turn it on and reload this page.</p></noscript>
+      </form>
+
+      <div class="card__links">
+        <span>Forgot your password? Ask the Dunia team at <a href="mailto:hello@duniaendelevu.org">hello@duniaendelevu.org</a>.</span>
+        <span>Just looking? <a href="/demo">See the demo with example schools →</a></span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="auth__foot">Private pages are never cached or indexed. You are signed out after 12 hours.</footer>
+</div>
+</body>
+</html>

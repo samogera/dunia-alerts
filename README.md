@@ -7,6 +7,33 @@ The Dunia team watches the readings, sends an alert to a school, and records how
 the head teacher acknowledges, the school acts, parents are told in English and Kiswahili, and the alert is closed with a result.
 Every step is timed, so the pilot can show how quickly schools act.
 
+## Three doors
+
+| Address | Who it is for |
+| --- | --- |
+| **`/`** | Everyone. The public home page: what Dunia Alerts does, how it works, the classroom screen, status and FAQ. (`/about` now opens it.) |
+| **`/demo`** | Everyone, no sign-in. The full dashboard with made-up schools and example data, marked as such on every screen and in every download. |
+| **`/pilot`** | The Dunia team only. The live dashboard, after signing in at **`/login`**. Anyone else is sent to the sign-in page. |
+
+`/classroom` stays public (add `?demo=1` for example data). Old bookmarks such as `/#desk` open `/pilot#desk`.
+
+## Sign-in for the pilot
+
+There is no public sign-up: the team creates each account, and passwords are never stored, only a strong hash.
+
+1. Make a session secret once: `node tools/new-user.js --secret`
+2. Add a person: `node tools/new-user.js name@duniaendelevu.org`. It prints one line for `PILOT_USERS` and a strong password to give that person privately (it is shown once and stored nowhere). Add `--ask` to type your own password instead (at least 12 characters).
+3. In Vercel → Project → Settings → Environment Variables, for **Production** and **Preview**:
+   - `SESSION_SECRET`: the value from step 1. Changing it signs everyone out.
+   - `PILOT_USERS`: one line per person. Remove a line to remove someone; making a new password for someone ends their old sessions.
+4. Redeploy.
+
+How it is protected: passwords hashed with scrypt; a signed session cookie (`__Host-`, HttpOnly, Secure, SameSite=Strict) that ends after 12 hours or at sign-out; sign-in only from this site's own pages; no more than 20 tries per network and 6 per account every 15 minutes (kept in Upstash Redis when it is connected); signed-in pages are never cached or indexed. Until both variables are set, `/login` says sign-in isn't switched on yet and the demo still works.
+
+Signing in decides who can open the live pilot, and each step records who took it. The pilot's records themselves are still kept on the team's device (see below).
+
+After changing `api/_lib/shell.js`, run `node tools/build-pages.js` to rewrite `demo.html`.
+
 ## What's inside
 
 | View | What it does |
@@ -17,8 +44,8 @@ Every step is timed, so the pilot can show how quickly schools act.
 | **Impact** | Pilot results: alerts per week, minutes to acknowledge, what schools did, results by school. CSV download. |
 | **Schools** | Add and edit pilot schools, the head teacher's phone, data sources, backup and restore. |
 
-**Live** is the default: real readings and your own records. Before any school is added it shows Nairobi city centre.
-**Practice** is for training head teachers and the team: eight made-up schools and six weeks of example alerts, labelled as example data everywhere, including the CSV.
+**Live** (`/pilot`): real readings and your own records. Before any school is added it shows Nairobi city centre.
+**Demo** (`/demo`): for anyone, and for training head teachers and the team: eight made-up schools and six weeks of example alerts, labelled as example data everywhere, including the CSV.
 
 ## Live data
 
@@ -83,11 +110,11 @@ Every reading is checked: the key (only its hash is stored on the server), the c
 
 ## Every alert has a record
 
-Each step is saved with its time and who recorded it: created and sent (with the reading's source and the alert rules at the time), escalated, acknowledged, action, parents informed, closed, dismissed as a false alarm, reopened and expired. Steps can't be edited. If the head teacher hasn't replied after 30 minutes (`escalateMinutes` in `assets/config.js`), the desk suggests calling. Alerts still waiting at the end of the school day are closed as expired. Dismissed alerts stay in the record but are left out of response times. **Impact → Record** downloads every step as a CSV for the pilot's evaluation. Set **Your name on this device** in Schools so the record shows who did what.
+Each step is saved with its time and who recorded it: created and sent (with the reading's source and the alert rules at the time), escalated, acknowledged, action, parents informed, closed, dismissed as a false alarm, reopened and expired. Steps can't be edited. If the head teacher hasn't replied after 30 minutes (`escalateMinutes` in `assets/config.js`), the desk suggests calling. Alerts still waiting at the end of the school day are closed as expired. Dismissed alerts stay in the record but are left out of response times. **Impact → Record** downloads every step as a CSV for the pilot's evaluation. On the live pilot the record shows the signed-in person's email; **Your name on this device** in Schools can replace it with a name.
 
 ## Where the records are kept
 
-Schools, alerts and responses are saved **in the browser of the device that uses the app** (no account, no cookies).
+Schools, alerts and responses are saved **in the browser of the device that uses the app**.
 That suits a pilot run by the Dunia team from one laptop or phone.
 
 - Download a backup every week: **Schools → Download backup**. Restore it on another device with **Restore**.
@@ -111,9 +138,9 @@ It is a plain static site: no build step, nothing to install.
 3. Framework preset: **Other**. Leave the build command empty and the output directory as the root.
 4. **Deploy.** Every push to `main` updates the site.
 
-`vercel.json` turns on clean addresses (`/about`) and adds security headers: a content security policy that only allows this site and Open-Meteo, HSTS, no framing, and no camera, microphone or location access.
+`vercel.json` turns on clean addresses (`/demo`, `/login`), sends `/pilot` to the sign-in check, redirects `/about` to `/`, and adds security headers: a content security policy that only allows this site and Open-Meteo, HSTS, no framing, and no camera, microphone or location access.
 
-After the first deploy, add the site to [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters) and submit `https://alerts.duniaendelevu.org/sitemap.xml`. If the site moves to its own domain, change that address in `index.html`, `about.html`, `sitemap.xml`, `robots.txt`, `llms.txt` and `.well-known/security.txt`.
+After the first deploy, add the site to [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters) and submit `https://alerts.duniaendelevu.org/sitemap.xml`. If the site moves to its own domain, change that address in `index.html`, `api/_lib/shell.js`, `sitemap.xml`, `robots.txt`, `llms.txt` and `.well-known/security.txt`.
 
 ### GitHub Pages
 
@@ -129,8 +156,14 @@ That file is public, so only names, areas and pupil numbers go there, never phon
 ## Files
 
 ```
-index.html            the dashboard
-about.html            the public page for schools, partners and funders (/about)
+index.html            the public home page (/), with assets/site.css and assets/site.js
+demo.html             the dashboard with example data (/demo), written by tools/build-pages.js
+login.html            pilot sign in (/login), with assets/login.js
+api/pilot.js          the live dashboard (/pilot), only for signed-in people
+api/auth/             sign in, sign out, and who is signed in (needs SESSION_SECRET and PILOT_USERS)
+api/_lib/auth.js      password hashing, signed sessions, rate limits
+api/_lib/shell.js     the dashboard page, shared by /demo and /pilot
+assets/shots/         screenshots of the demo for the home page
 classroom.html        the classroom wall screen (/classroom), with assets/classroom.js and .css
 assets/app.css        design
 assets/app.js         the app
@@ -138,7 +171,7 @@ assets/config.js      schools, refresh time, alert thresholds
 api/sensors.js        Vercel function: OpenAQ ground sensors (needs OPENAQ_API_KEY)
 api/v1/               classroom sensor API: observations, classroom, health (needs Upstash for Redis and DEVICE_KEYS)
 api/_lib/core.js      shared checks for the sensor API
-tools/                new-device.js (make a sensor key), simulate-sensor.js (test without hardware)
+tools/                new-user.js (pilot sign-in), build-pages.js (write demo.html), new-device.js (make a sensor key), simulate-sensor.js (test without hardware)
 assets/fonts/         Inter Tight and Bricolage Grotesque (SIL Open Font License)
 favicon.svg, apple-touch-icon.png, icon-512.png, site.webmanifest
 vercel.json           clean addresses and security headers for Vercel
@@ -149,7 +182,7 @@ SECURITY.md, .well-known/security.txt              how to report a security prob
 
 ## Privacy and security
 
-No cookies, no analytics, no accounts. Outside requests go only to Open-Meteo (a school's area coordinates) and, through the site's own server, to OpenAQ (the centre of the schools' area). Classroom sensors send room conditions only: no cameras, microphones or names.
+No analytics and no tracking. Only Dunia team members who sign in get a cookie: the session cookie, nothing else. Outside requests go only to Open-Meteo (a school's area coordinates) and, through the site's own server, to OpenAQ (the centre of the schools' area). Classroom sensors send room conditions only: no cameras, microphones or names.
 Never write pupils' names in notes. Restored backups are checked field by field before they are used. To report a security problem, see [SECURITY.md](SECURITY.md). Children are credited by first name and age only in Dunia Endelevu's work, and not at all here.
 
 ## Licence
