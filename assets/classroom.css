@@ -27,9 +27,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .cr-top { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 2rem; }
 .cr-brand { display: inline-flex; align-items: center; gap: .7rem; font-size: 1rem; color: var(--ink-2); white-space: nowrap; }
 .cr-brand b { color: var(--ink); font-family: var(--display); font-weight: 600; letter-spacing: -.01em; }
-.cr-mark { position: relative; width: 2.1rem; height: 2.1rem; border-radius: .65rem; background: var(--accent); flex: none; }
-.cr-mark::before { content: ""; position: absolute; left: 28%; top: 28%; width: 44%; height: 22%; border-radius: 1rem 1rem 0 0; background: var(--sun); }
-.cr-mark::after { content: ""; position: absolute; left: 25%; right: 25%; top: 56%; height: 9%; border-radius: 2px; background: #fff; }
+.cr-mark { width: 2.1rem; height: 2.1rem; border-radius: .6rem; background: url(mark.svg) center / contain no-repeat; flex: none; }
 .cr-where { display: flex; flex-direction: column; min-width: 0; text-align: center; }
 .cr-where b { font-family: var(--display); font-size: 1.6rem; font-weight: 600; letter-spacing: -.02em; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cr-where span { color: var(--muted); font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

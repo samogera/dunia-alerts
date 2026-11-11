@@ -32,7 +32,7 @@ How it is protected: passwords hashed with scrypt; a signed session cookie (`__H
 
 Signing in decides who can open the live pilot, and each step records who took it. The pilot's records themselves are still kept on the team's device (see below).
 
-After changing `api/_lib/shell.js`, run `node tools/build-pages.js` to rewrite `demo.html`.
+After changing `api/_lib/shell.js`, run `node tools/build-pages.js` to rewrite `demo.html`. The home page, including its FAQ and the matching search-engine data, is written by `python3 tools/build-home.py`: edit the text there, not in `index.html`.
 
 ## What's inside
 
@@ -156,7 +156,9 @@ That file is public, so only names, areas and pupil numbers go there, never phon
 ## Files
 
 ```
-index.html            the public home page (/), with assets/site.css and assets/site.js
+index.html            the public home page (/), written by tools/build-home.py, with assets/site.css and assets/site.js
+assets/icons.svg      the icon set (Phosphor Icons, duotone, MIT licence)
+assets/mark.svg       the Dunia Alerts logo mark (also favicon.svg, apple-touch-icon.png, icon-512.png, icon-maskable-512.png)
 demo.html             the dashboard with example data (/demo), written by tools/build-pages.js
 login.html            pilot sign in (/login), with assets/login.js
 api/pilot.js          the live dashboard (/pilot), only for signed-in people
@@ -187,5 +189,5 @@ Never write pupils' names in notes. Restored backups are checked field by field 
 
 ## Licence
 
-Code © Dunia Endelevu. Fonts: Inter Tight and Bricolage Grotesque, SIL Open Font License 1.1 (see `assets/fonts/`).
+Code © Dunia Endelevu. Icons: [Phosphor Icons](https://phosphoricons.com/) (MIT). Fonts: Inter Tight and Bricolage Grotesque, SIL Open Font License 1.1 (see `assets/fonts/`).
 Data: Open-Meteo (CC BY 4.0), including Copernicus Atmosphere Monitoring Service air quality and Global Flood Awareness System river flow; OpenAQ sensor data under each provider's licence.

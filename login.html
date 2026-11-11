@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#F2F3F1">
 <meta name="referrer" content="same-origin">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/site.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/site.css">
@@ -17,13 +18,13 @@
 <body class="auth-page">
 <div class="auth">
   <header class="auth__top">
-    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia Alerts</a>
+    <a class="brand" href="/" aria-label="Dunia Alerts home"><span class="brand__mark" aria-hidden="true"></span>Dunia<span class="brand__sub">Alerts</span></a>
     <a class="back" href="/"><span aria-hidden="true">← </span>Back to home</a>
   </header>
 
   <main class="auth__main" id="main">
     <div class="card">
-      <span class="card__lock" aria-hidden="true"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+      <span class="tile tile--lg card__lock" aria-hidden="true"><svg class="ic"><use href="/assets/icons.svg#lock"/></svg></span>
       <h1>Pilot sign in</h1>
       <p class="sub">For the Dunia team running the Nairobi pilot.</p>
 

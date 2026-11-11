@@ -51,7 +51,7 @@ ${live ? `<meta name="da-user" content="${esc(user)}">` : ''}
   <header class="top">
     <a class="brand" href="/" aria-label="Dunia Alerts home">
       <span class="brand__mark" aria-hidden="true"></span>
-      <span class="brand__name">Dunia Alerts</span>
+      <span class="brand__name">Dunia <span class="brand__sub">Alerts</span></span>
     </a>
     <nav class="tabs" aria-label="Views">
       ${tabs}
