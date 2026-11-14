@@ -49,6 +49,7 @@ ${live ? '' : '<meta property="og:url" content="https://alerts.duniaendelevu.org
 <meta name="twitter:image" content="https://alerts.duniaendelevu.org/og-image.png">
 <meta name="theme-color" content="#F2F3F1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -101,6 +102,7 @@ function signups({ user }) {
 <meta name="da-user" content="${esc(user)}">
 <meta name="theme-color" content="#F2F3F1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
 <link rel="preload" href="/assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/app.css">
 </head>
