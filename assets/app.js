@@ -682,7 +682,7 @@ function viewParents() {
 
 /* ----- Impact ----- */
 /* ---------- Impact: results for schools, counties, ministries, NGOs and funders ---------- */
-const IMP = { air: ['Unhealthy air', '#17483B'], rain: ['Heavy rain', '#2F6FCB'], heat: ['Great heat', '#E5602A'] };
+const IMP = { air: ['Unhealthy air', '#17483B'], rain: ['Heavy rain', '#2F6FCB'], heat: ['Extreme heat', '#E5602A'] };
 const RANGES = [['all', 'All time'], ['28', 'Last 4 weeks'], ['7', 'Last 7 days']];
 const weekStart = (t) => { const d = new Date(dayStart(t)); const g = (d.getDay() + 6) % 7; return d.getTime() - g * DAY; };
 function impactScope(d) {

@@ -22,7 +22,7 @@ Website: https://alerts.duniaendelevu.org/  ·  Demo with example data: https://
 
 - Unhealthy air: PM2.5 ≥ 35.5 µg/m³. School step: PE indoors; children with asthma stay inside. Data: Copernicus CAMS · ground sensors.
 - Heavy rain: ≥ 30 mm in a day. School step: Away from drains; a safe early release. Data: Open-Meteo · Kenya Met Department.
-- Great heat: A high of 30 °C or more. School step: Water breaks, shade, and PE early in the day. Data: Open-Meteo forecast.
+- Extreme heat: A high of 30 °C or more. School step: Water breaks, shade, and PE early in the day. Data: Open-Meteo forecast.
 - Rising river: Twice its usual flow. School step: Check routes home; plan the release. Data: Global Flood Awareness System.
 
 ## Where it is going (planned, not results)
@@ -55,7 +55,7 @@ Not yet. The dashboard is built and runs on live data, and the first pilot schoo
 ### Warnings and data
 
 **What dangers does it warn about?**
-Unhealthy air (fine dust, PM2.5, of 35.5 µg/m³ or more), heavy rain (30 mm or more in a day), great heat (a high of 30 °C or more) and rising rivers (twice their usual flow), now and up to 48 hours ahead.
+Unhealthy air (fine dust, PM2.5, of 35.5 µg/m³ or more), heavy rain (30 mm or more in a day), extreme heat (a high of 30 °C or more) and rising rivers (twice their usual flow), now and up to 48 hours ahead.
 
 **Where does the data come from?**
 Weather forecasts from Open-Meteo, air quality from the Copernicus Atmosphere Monitoring Service, river flow from the Global Flood Awareness System, and, where available, ground sensors through OpenAQ, including AirQo sensors in Nairobi. Classroom sensors are the next step.

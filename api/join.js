@@ -38,7 +38,7 @@ const SUBCOUNTIES = {
   westlands: 'Westlands', outside: 'Outside Nairobi',
 };
 const LEARNERS = { '': '', u300: 'Under 300', '300-700': '300 to 700', '700-1500': '700 to 1,500', '1500+': 'Over 1,500', na: 'Not a school' };
-const CONCERNS = { air: 'Dirty air', heat: 'Great heat', rain: 'Heavy rain and floods', river: 'Rising rivers', room: 'Classroom air and comfort' };
+const CONCERNS = { air: 'Dirty air', heat: 'Extreme heat', rain: 'Heavy rain and floods', river: 'Rising rivers', room: 'Classroom air and comfort' };
 const STATUS = { new: 'New', contacted: 'Contacted', joined: 'Joined', not_now: 'Not now' };
 const PHONE = /^\+?[0-9][0-9 ()-]{6,19}$/;
 const ID = /^j[a-z0-9]{8,24}$/;

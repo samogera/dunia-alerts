@@ -56,7 +56,7 @@ After changing `api/_lib/shell.js`, run `node tools/build-pages.js` to rewrite `
 
 | View | What it does |
 | --- | --- |
-| **Overview** | Open alerts, the worst air now, what is coming in the next 48 hours, response time. **Needs attention** lists every school where the air is unhealthy now, or where unhealthy air, heavy rain, great heat or a rising river is forecast, with the time it is expected. A map of the schools (column height = PM2.5) and, for each school, its air now, the last 24 hours and a 48-hour forecast. |
+| **Overview** | Open alerts, the worst air now, what is coming in the next 48 hours, response time. **Needs attention** lists every school where the air is unhealthy now, or where unhealthy air, heavy rain, extreme heat or a rising river is forecast, with the time it is expected. A map of the schools (column height = PM2.5) and, for each school, its air now, the last 24 hours and a 48-hour forecast. |
 | **School desk** | One alert, step by step: tell the head teacher (WhatsApp, SMS or call, message written for you), mark acknowledged, record the action, inform parents, close. |
 | **Parents** | The parent message in English and Kiswahili, as SMS or WhatsApp, with character count, Copy, and Open SMS / Open WhatsApp. |
 | **Impact** | Pilot results: alerts per week, minutes to acknowledge, what schools did, results by school. CSV download. |

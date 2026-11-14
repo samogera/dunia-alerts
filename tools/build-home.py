@@ -63,7 +63,7 @@ FAQ = [
     ]),
     ('Warnings and data', [
         ('What dangers does it warn about?',
-         'Unhealthy air (fine dust, PM2.5, of 35.5 µg/m³ or more), heavy rain (30 mm or more in a day), great heat (a high of 30 °C or more) and rising rivers (twice their usual flow), now and up to 48 hours ahead.'),
+         'Unhealthy air (fine dust, PM2.5, of 35.5 µg/m³ or more), heavy rain (30 mm or more in a day), extreme heat (a high of 30 °C or more) and rising rivers (twice their usual flow), now and up to 48 hours ahead.'),
         ('Where does the data come from?',
          'Weather forecasts from Open-Meteo, air quality from the Copernicus Atmosphere Monitoring Service, river flow from the Global Flood Awareness System, and, where available, ground sensors through OpenAQ, including AirQo sensors in Nairobi. Classroom sensors are the next step.'),
         ('How often is the data updated?',
@@ -302,7 +302,7 @@ __NAV__
     <p class="sub">Every 15 minutes, for every pilot school.</p>
     <ol class="steps">
       <li class="step"><span class="step__n">01</span><span class="tile">__IC_watch__</span><h3>Watch</h3><p>The dashboard reads air quality, weather and river forecasts for each school.</p></li>
-      <li class="step"><span class="step__n">02</span><span class="tile">__IC_early__</span><h3>Spot it early</h3><p>It flags danger now and up to 48 hours ahead: dirty air, heavy rain, great heat or a rising river.</p></li>
+      <li class="step"><span class="step__n">02</span><span class="tile">__IC_early__</span><h3>Spot it early</h3><p>It flags danger now and up to 48 hours ahead: dirty air, heavy rain, extreme heat or a rising river.</p></li>
       <li class="step"><span class="step__n">03</span><span class="tile">__IC_decide__</span><h3>A person decides</h3><p>The Dunia team checks it, then sends the head teacher a short WhatsApp or SMS with one clear step.</p></li>
       <li class="step"><span class="step__n">04</span><span class="tile">__IC_learn__</span><h3>Act and learn</h3><p>The school acts, parents are told, and every response is timed and recorded for the pilot report.</p></li>
     </ol>
@@ -600,7 +600,7 @@ def panel(i, p):
 HAZARDS = [
     ('air', 'var(--air)', 'Unhealthy air', 'PM2.5 ≥ 35.5 µg/m³', 'PE indoors; children with asthma stay inside.', 'Copernicus CAMS · ground sensors'),
     ('rain', 'var(--rain)', 'Heavy rain', '≥ 30 mm in a day', 'Away from drains; a safe early release.', 'Open-Meteo · Kenya Met Department'),
-    ('heat', 'var(--heat)', 'Great heat', 'A high of 30 °C or more', 'Water breaks, shade, and PE early in the day.', 'Open-Meteo forecast'),
+    ('heat', 'var(--heat)', 'Extreme heat', 'A high of 30 °C or more', 'Water breaks, shade, and PE early in the day.', 'Open-Meteo forecast'),
     ('river', 'var(--river)', 'Rising river', 'Twice its usual flow', 'Check routes home; plan the release.', 'Global Flood Awareness System'),
 ]
 
@@ -661,7 +661,7 @@ SUBCOUNTIES = [('dagoretti-north', 'Dagoretti North'), ('dagoretti-south', 'Dago
 SCHOOL_TYPES = [('public', 'Public'), ('private', 'Private'), ('community', 'Community or low-cost')]
 CONTACTS = [('email', 'Email'), ('call', 'Phone call'), ('whatsapp', 'WhatsApp')]
 LEARNERS = [('', 'Choose one'), ('u300', 'Under 300'), ('300-700', '300 to 700'), ('700-1500', '700 to 1,500'), ('1500+', 'Over 1,500')]
-CONCERNS = [('air', 'air', 'Dirty air'), ('heat', 'heat', 'Great heat'), ('rain', 'rain', 'Heavy rain and floods'),
+CONCERNS = [('air', 'air', 'Dirty air'), ('heat', 'heat', 'Extreme heat'), ('rain', 'rain', 'Heavy rain and floods'),
             ('river', 'river', 'Rising rivers'), ('room', 'comfort', 'Classroom air and comfort')]
 
 TICK = '<svg class="tk" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
@@ -728,7 +728,7 @@ JOIN_PAGE = '''<!doctype html>
     <nav class="ap-crumbs" aria-label="Breadcrumb"><a href="/">Dunia Alerts</a><span aria-hidden="true">/</span><span aria-current="page">Join the pilot</span></nav>
     <p class="ap-status"><span class="ap-status__dot" aria-hidden="true"></span>Applications open · Nairobi pilot</p>
     <h1 class="ap-h1">Join the Dunia Alerts pilot</h1>
-    <p class="ap-lede">For schools in Nairobi that want early warnings for dirty air, great heat, heavy rain and rising rivers, and for partners, county offices and funders who want to work with us.</p>
+    <p class="ap-lede">For schools in Nairobi that want early warnings for dirty air, extreme heat, heavy rain and rising rivers, and for partners, county offices and funders who want to work with us.</p>
     <ul class="ap-meta">
       <li>__IC_time__About 2 minutes</li>
       <li>__IC_free__Free for schools</li>
